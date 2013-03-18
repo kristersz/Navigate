@@ -1,0 +1,69 @@
+﻿@model Navigate.Models.WorkItem
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>WorkItem</legend>
+
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Subject)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Subject)
+            @Html.ValidationMessageFor(model => model.Subject)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Location)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Location)
+            @Html.ValidationMessageFor(model => model.Location)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Date)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Date)
+            @Html.ValidationMessageFor(model => model.Date)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.EstimatedTime)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.EstimatedTime)
+            @Html.ValidationMessageFor(model => model.EstimatedTime)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.AdditionalInfo)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.AdditionalInfo)
+            @Html.ValidationMessageFor(model => model.AdditionalInfo)
+        </div>
+
+        <p>
+            <input type="submit" value="Save" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

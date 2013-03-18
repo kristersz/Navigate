@@ -1,0 +1,50 @@
+﻿@model Navigate.Models.WorkItem
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>WorkItem</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Subject)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Subject)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Location)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Location)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Date)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Date)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.EstimatedTime)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.EstimatedTime)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.AdditionalInfo)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.AdditionalInfo)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

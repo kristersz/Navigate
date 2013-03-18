@@ -1,0 +1,53 @@
+﻿@model Navigate.Models.WorkItem
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<fieldset>
+    <legend>WorkItem</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Subject)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Subject)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Location)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Location)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Date)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Date)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.EstimatedTime)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.EstimatedTime)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.AdditionalInfo)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.AdditionalInfo)
+    </div>
+</fieldset>
+@using (Html.BeginForm()) {
+    <p>
+        <input type="submit" value="Delete" /> |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+}
