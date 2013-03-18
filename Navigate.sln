@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Navigate", "Navigate\Navigate.csproj", "{60B60578-61A8-4865-BBD4-FB7FA4B0CD3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Navigate.Tests", "Navigate.Tests\Navigate.Tests.csproj", "{F9401783-F19B-4EFE-A180-C0798FC9919C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{60B60578-61A8-4865-BBD4-FB7FA4B0CD3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60B60578-61A8-4865-BBD4-FB7FA4B0CD3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60B60578-61A8-4865-BBD4-FB7FA4B0CD3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60B60578-61A8-4865-BBD4-FB7FA4B0CD3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9401783-F19B-4EFE-A180-C0798FC9919C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9401783-F19B-4EFE-A180-C0798FC9919C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9401783-F19B-4EFE-A180-C0798FC9919C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9401783-F19B-4EFE-A180-C0798FC9919C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
