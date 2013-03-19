@@ -44,6 +44,13 @@
         </footer>
 
         @Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/jqueryui")
+        @Styles.Render("~/Content/themes/base/css")
         @RenderSection("scripts", required: false)
+        <script type="text/javascript">
+            $(function () {
+                $(".datefield").datepicker({ dateFormat: 'yy-mm-dd' });
+            });
+        </script>
     </body>
 </html>

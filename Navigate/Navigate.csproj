@@ -294,6 +294,8 @@
     <Content Include="Views\WorkItem\Create.cshtml" />
     <Content Include="Views\WorkItem\Edit.cshtml" />
     <Content Include="Views\WorkItem\Delete.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Date.cshtml" />
+    <Content Include="Views\Shared\DisplayTemplates\DateTime.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
