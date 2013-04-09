@@ -8,6 +8,7 @@ namespace Navigate.Models
 {
     public class WorkItem
     {
+        [Key]
         public long Id { get; set; }
 
         [Display(Name="Nosaukums")]   
@@ -23,9 +24,15 @@ namespace Navigate.Models
         [Display(Name = "Aptuvenais laiks")] 
         public decimal EstimatedTime { get; set; }
 
+        [Display(Name = "Prioritāte")]
+        [Range(0, 99)]
         public int Priority { get; set; }
 
         [Display(Name = "Papildus informācija")] 
         public string AdditionalInfo { get; set; }
+
+        public int CreatedByUserId { get; set; }
+
+        public int UpdatedByUserId { get; set; }
     }
 }

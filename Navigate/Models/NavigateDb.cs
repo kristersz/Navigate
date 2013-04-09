@@ -13,8 +13,9 @@ namespace Navigate.Models
         public NavigateDb() : base("name=DefaultConnection")
         {
         
-        } 
+        }
 
+        public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<WorkItem> WorkItems { get; set; }
     }
 }

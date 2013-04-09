@@ -45,6 +45,14 @@
         </div>
 
         <div class="editor-label">
+            @Html.LabelFor(model => model.Priority)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Priority)
+            @Html.ValidationMessageFor(model => model.Priority)
+        </div>
+
+        <div class="editor-label">
             @Html.LabelFor(model => model.AdditionalInfo)
         </div>
         <div class="editor-field">

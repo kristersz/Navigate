@@ -6,19 +6,47 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Navigate.Models;
+using WebMatrix.WebData;
 
 namespace Navigate.Controllers
-{
-    public class WorkItemController : Controller
+{   
+    [Authorize]
+    public class WorkItemController : BaseController
     {
         private NavigateDb db = new NavigateDb();
 
         //
         // GET: /WorkItem/
 
-        public ActionResult Index()
+        public ActionResult Index(string date = null)
         {
-            return View(db.WorkItems.ToList());
+
+            var currentUserId = this.CurrentUser.UserId;
+
+            if (date == null)
+            {
+                var workItems =
+                    from r in db.WorkItems
+                    where r.CreatedByUserId == currentUserId
+                    orderby r.Priority descending
+                    select r;
+
+                ViewBag.PageTitle = "Visi ieraksti";
+                return View(workItems.ToList());
+            }
+            else
+            {
+                DateTime dt = Convert.ToDateTime(date);
+
+                var workItems =
+                    from r in db.WorkItems
+                    where r.CreatedByUserId == currentUserId && r.Date == dt
+                    orderby r.Priority descending
+                    select r;
+
+                ViewBag.PageTitle = "Ieraksti par " + dt.ToString("yyyy-MM-dd");
+                return View(workItems.ToList());
+            }
         }
 
         //
@@ -51,6 +79,8 @@ namespace Navigate.Controllers
             if (ModelState.IsValid)
             {
                 db.WorkItems.Add(workitem);
+                workitem.CreatedByUserId = WebSecurity.GetUserId(User.Identity.Name);
+                workitem.UpdatedByUserId = WebSecurity.GetUserId(User.Identity.Name);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -80,6 +110,7 @@ namespace Navigate.Controllers
             if (ModelState.IsValid)
             {
                 db.Entry(workitem).State = EntityState.Modified;
+                workitem.UpdatedByUserId = WebSecurity.GetUserId(User.Identity.Name);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
