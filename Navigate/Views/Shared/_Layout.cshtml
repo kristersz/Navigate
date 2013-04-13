@@ -5,6 +5,7 @@
         <title>@ViewBag.Title - Work Planning App</title>
         <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <meta name="viewport" content="width=device-width" />
+        <script src="~/Scripts/jquery.ui.datepicker-lv.js"></script>
         @Styles.Render("~/Content/css")
         @Scripts.Render("~/bundles/modernizr")
     </head>
@@ -43,15 +44,9 @@
                 </div>
             </div>
         </footer>
-
         @Scripts.Render("~/bundles/jquery")
         @Scripts.Render("~/bundles/jqueryui") 
         @Styles.Render("~/Content/themes/base/css")
         @RenderSection("scripts", required: false)
-        <script type="text/javascript">
-            $(function () {
-                $(".datefield").datepicker({ dateFormat: 'yy-mm-dd' });
-            });
-        </script>
     </body>
 </html>

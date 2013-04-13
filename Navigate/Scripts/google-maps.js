@@ -50,8 +50,8 @@ function calcRoute() {
     // function to create markers for each step.
     directionsService.route(request, function (response, status) {
         if (status == google.maps.DirectionsStatus.OK) {
-            //var warnings = document.getElementById("warnings_panel");
-            //warnings.innerHTML = "" + response.routes[0].warnings + "";
+            var warnings = document.getElementById("warnings_panel");
+            warnings.innerHTML = "" + response.routes[0].warnings + "";
             directionsDisplay.setDirections(response);
             showSteps(response);
         }

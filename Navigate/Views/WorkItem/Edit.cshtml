@@ -13,6 +13,7 @@
         <legend>WorkItem</legend>
 
         @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.CreatedByUserId)
 
         <div class="editor-label">
             @Html.LabelFor(model => model.Subject)
@@ -44,6 +45,14 @@
         <div class="editor-field">
             @Html.EditorFor(model => model.EstimatedTime)
             @Html.ValidationMessageFor(model => model.EstimatedTime)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Priority)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Priority)
+            @Html.ValidationMessageFor(model => model.Priority)
         </div>
 
         <div class="editor-label">

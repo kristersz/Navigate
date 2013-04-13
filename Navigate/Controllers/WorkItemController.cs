@@ -22,12 +22,13 @@ namespace Navigate.Controllers
         {
 
             var currentUserId = this.CurrentUser.UserId;
+            var today = DateTime.Now.Date;
 
             if (date == null)
             {
                 var workItems =
                     from r in db.WorkItems
-                    where r.CreatedByUserId == currentUserId
+                    where r.CreatedByUserId == currentUserId && r.Date == today
                     orderby r.Priority descending
                     select r;
 
@@ -67,6 +68,10 @@ namespace Navigate.Controllers
 
         public ActionResult Create()
         {
+            var types =
+                from r in db.WorkItemTypes
+                select new { Id = r.Id, Type = r.Type };
+            ViewBag.WorkItemTypes = types.ToList();
             return View();
         }
 
@@ -76,11 +81,15 @@ namespace Navigate.Controllers
         [HttpPost]
         public ActionResult Create(WorkItem workitem)
         {
+            var types =
+            from r in db.WorkItemTypes
+            select new { Id = r.Id, Type = r.Type };
+            ViewBag.WorkItemTypes = types.ToList();
             if (ModelState.IsValid)
             {
                 db.WorkItems.Add(workitem);
-                workitem.CreatedByUserId = WebSecurity.GetUserId(User.Identity.Name);
-                workitem.UpdatedByUserId = WebSecurity.GetUserId(User.Identity.Name);
+                workitem.CreatedByUserId = this.CurrentUser.UserId;
+                workitem.UpdatedByUserId = this.CurrentUser.UserId;
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -110,7 +119,7 @@ namespace Navigate.Controllers
             if (ModelState.IsValid)
             {
                 db.Entry(workitem).State = EntityState.Modified;
-                workitem.UpdatedByUserId = WebSecurity.GetUserId(User.Identity.Name);
+                workitem.UpdatedByUserId = this.CurrentUser.UserId;
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }

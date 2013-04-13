@@ -45,6 +45,14 @@
         </div>
 
         <div class="editor-label">
+            @Html.LabelFor(model => model.WorkItemTypeId)
+        </div>
+        <div class="editor-field">
+            @Html.DropDownListFor(model => model.WorkItemTypeId, new SelectList(ViewBag.WorkItemTypes, "Id", "Type"))
+            @Html.ValidationMessageFor(model => model.WorkItemTypeId)
+        </div>
+
+        <div class="editor-label">
             @Html.LabelFor(model => model.Priority)
         </div>
         <div class="editor-field">

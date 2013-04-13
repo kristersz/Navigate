@@ -2,15 +2,19 @@
 
 @{
     ViewBag.Title = "Index";
+    var i = 0;
 }
 
 <h2>@ViewBag.PageTitle</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Izveidot", "Create")
 </p>
 <table>
     <tr>
+        <th>
+            N.p.k.
+        </th>
         <th>
             @Html.DisplayNameFor(model => model.Subject)
         </th>
@@ -24,13 +28,20 @@
             @Html.DisplayNameFor(model => model.EstimatedTime)
         </th>
         <th>
+            @Html.DisplayNameFor(model => model.WorkItemType.Type)
+        </th>
+        <th>
             @Html.DisplayNameFor(model => model.AdditionalInfo)
         </th>
         <th></th>
     </tr>
 
 @foreach (var item in Model) {
+    i += 1;
     <tr>
+        <td>
+            @i
+        </td>
         <td>
             @Html.DisplayFor(modelItem => item.Subject)
         </td>
@@ -42,6 +53,9 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.EstimatedTime)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.WorkItemType.Type)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.AdditionalInfo)

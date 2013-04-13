@@ -17,5 +17,6 @@ namespace Navigate.Models
 
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<WorkItem> WorkItems { get; set; }
+        public DbSet<WorkItemType> WorkItemTypes { get; set; }
     }
 }
