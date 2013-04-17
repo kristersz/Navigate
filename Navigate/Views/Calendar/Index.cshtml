@@ -1,0 +1,20 @@
+﻿@using DayPilot.Web.Mvc;
+@using DayPilot.Web.Mvc.Events.Calendar;
+@using DayPilot.Web.Mvc.Enums.Calendar;
+
+@{
+    ViewBag.Title = "Index";
+}
+
+
+<h2>Index</h2>
+
+@Html.DayPilotCalendar("dpc", new DayPilotCalendarConfig
+{
+  BackendUrl = Url.Content("~/Calendar/Backend"),
+  ViewType = DayPilot.Web.Mvc.Enums.Calendar.ViewType.Week,
+  EventMoveHandling = DayPilot.Web.Mvc.Events.Calendar.EventMoveHandlingType.CallBack,
+  EventResizeHandling = DayPilot.Web.Mvc.Events.Calendar.EventResizeHandlingType.CallBack,
+  TimeRangeSelectedHandling = DayPilot.Web.Mvc.Events.Calendar.TimeRangeSelectedHandlingType.JavaScript,
+  TimeRangeSelectedJavaScript = "dpc.timeRangeSelectedCallBack(start, end, null, { name: prompt('New Event Name:', 'New Event'), location: prompt('New Event Name:', 'New Event')});"
+})

@@ -12,7 +12,7 @@
 		dayNamesShort: ['svt', 'prm', 'otr', 'tre', 'ctr', 'pkt', 'sst'],
 		dayNamesMin: ['Sv', 'Pr', 'Ot', 'Tr', 'Ct', 'Pk', 'Se'],
 		weekHeader: 'Nav',
-		dateFormat: 'yy-mm-dd',
+		dateFormat: 'dd.mm.yy',
 		firstDay: 1,
 		isRTL: false,
 		showMonthAfterYear: false,

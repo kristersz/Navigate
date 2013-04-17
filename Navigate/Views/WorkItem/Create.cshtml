@@ -1,4 +1,4 @@
-﻿@model Navigate.Models.WorkItem
+﻿@model Navigate.ViewModels.WorkItemCreateViewModel
 
 @{
     ViewBag.Title = "Create";
@@ -29,11 +29,19 @@
         </div>
 
         <div class="editor-label">
-            @Html.LabelFor(model => model.Date)
+            @Html.LabelFor(model => model.StartDate)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.Date)
-            @Html.ValidationMessageFor(model => model.Date)
+            @Html.EditorFor(model => model.StartDate)
+            @Html.ValidationMessageFor(model => model.StartDate)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.EndDate)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.EndDate)
+            @Html.ValidationMessageFor(model => model.EndDate)
         </div>
 
         <div class="editor-label">
@@ -45,29 +53,28 @@
         </div>
 
         <div class="editor-label">
-            @Html.LabelFor(model => model.WorkItemTypeId)
+            @Html.LabelFor(model => model.WorkItemType)
         </div>
         <div class="editor-field">
-            @Html.DropDownListFor(model => model.WorkItemTypeId, new SelectList(ViewBag.WorkItemTypes, "Id", "Type"))
-            @Html.ValidationMessageFor(model => model.WorkItemTypeId)
+            @Html.DropDownListFor(model => model.WorkItemType, Model.AllWorkItemTypes)
+            @Html.ValidationMessageFor(model => model.WorkItemType)
         </div>
 
         <div class="editor-label">
             @Html.LabelFor(model => model.Priority)
-        </div>
+        </div>  
         <div class="editor-field">
-            @Html.EditorFor(model => model.Priority)
+            @Html.DropDownListFor(model => model.Priority, new SelectList(Enum.GetValues(typeof(Navigate.Models.WorkItemPriority))))
             @Html.ValidationMessageFor(model => model.Priority)
         </div>
 
         <div class="editor-label">
-            @Html.LabelFor(model => model.AdditionalInfo)
+            @Html.LabelFor(model => model.AssignedToUserId)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.AdditionalInfo)
-            @Html.ValidationMessageFor(model => model.AdditionalInfo)
+            @Html.DropDownListFor(model => model.AssignedToUserId, Model.AllUsers)
+            @Html.ValidationMessageFor(model => model.AssignedToUserId)
         </div>
-
         <p>
             <input type="submit" value="Create" />
         </p>
@@ -80,4 +87,5 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/globalization")
 }

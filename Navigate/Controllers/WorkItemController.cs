@@ -7,47 +7,28 @@ using System.Web;
 using System.Web.Mvc;
 using Navigate.Models;
 using WebMatrix.WebData;
+using Navigate.ViewModels;
 
 namespace Navigate.Controllers
 {   
     [Authorize]
     public class WorkItemController : BaseController
     {
-        private NavigateDb db = new NavigateDb();
-
         //
         // GET: /WorkItem/
 
-        public ActionResult Index(string date = null)
+        public ActionResult Index()
         {
-
             var currentUserId = this.CurrentUser.UserId;
-            var today = DateTime.Now.Date;
 
-            if (date == null)
-            {
-                var workItems =
-                    from r in db.WorkItems
-                    where r.CreatedByUserId == currentUserId && r.Date == today
-                    orderby r.Priority descending
-                    select r;
+            var workItems =
+                from r in this.dataContext.WorkItems
+                where r.CreatedByUserId == currentUserId
+                orderby r.Priority descending
+                select r;
 
-                ViewBag.PageTitle = "Visi ieraksti";
-                return View(workItems.ToList());
-            }
-            else
-            {
-                DateTime dt = Convert.ToDateTime(date);
-
-                var workItems =
-                    from r in db.WorkItems
-                    where r.CreatedByUserId == currentUserId && r.Date == dt
-                    orderby r.Priority descending
-                    select r;
-
-                ViewBag.PageTitle = "Ieraksti par " + dt.ToString("yyyy-MM-dd");
-                return View(workItems.ToList());
-            }
+            ViewBag.PageTitle = "Work Items";
+            return View(workItems.ToList());
         }
 
         //
@@ -55,7 +36,7 @@ namespace Navigate.Controllers
 
         public ActionResult Details(int id = 0)
         {
-            WorkItem workitem = db.WorkItems.Find(id);
+            WorkItem workitem = this.dataContext.WorkItems.Find(id);
             if (workitem == null)
             {
                 return HttpNotFound();
@@ -68,33 +49,43 @@ namespace Navigate.Controllers
 
         public ActionResult Create()
         {
-            var types =
-                from r in db.WorkItemTypes
-                select new { Id = r.Id, Type = r.Type };
-            ViewBag.WorkItemTypes = types.ToList();
-            return View();
+            var model = new WorkItemCreateViewModel();
+            var types = (from r in this.dataContext.WorkItemTypes
+                            select r).ToList();
+            model.AllWorkItemTypes = types.Select(o => new SelectListItem
+            {
+                Value = o.Id.ToString(),
+                Text = o.Type
+            });
+            var users = (from r in this.dataContext.UserProfiles
+                         select r).ToList();
+            model.AllUsers = users.Select(o => new SelectListItem
+            {
+                Value = o.UserId.ToString(),
+                Text = o.UserName
+            });
+            return View(model);
         }
 
         //
         // POST: /WorkItem/Create
 
         [HttpPost]
-        public ActionResult Create(WorkItem workitem)
+        public ActionResult Create(WorkItemCreateViewModel model)
         {
-            var types =
-            from r in db.WorkItemTypes
-            select new { Id = r.Id, Type = r.Type };
-            ViewBag.WorkItemTypes = types.ToList();
             if (ModelState.IsValid)
             {
-                db.WorkItems.Add(workitem);
-                workitem.CreatedByUserId = this.CurrentUser.UserId;
-                workitem.UpdatedByUserId = this.CurrentUser.UserId;
-                db.SaveChanges();
+                var workItem = model.TransformToWorkItem();
+
+                workItem.CreatedByUserId = this.CurrentUser.UserId;
+                workItem.UpdatedByUserId = this.CurrentUser.UserId;
+
+                this.dataContext.WorkItems.Add(workItem);
+                this.dataContext.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            return View(workitem);
+            return View(model);
         }
 
         //
@@ -102,7 +93,7 @@ namespace Navigate.Controllers
 
         public ActionResult Edit(int id = 0)
         {
-            WorkItem workitem = db.WorkItems.Find(id);
+            WorkItem workitem = this.dataContext.WorkItems.Find(id);
             if (workitem == null)
             {
                 return HttpNotFound();
@@ -118,9 +109,9 @@ namespace Navigate.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(workitem).State = EntityState.Modified;
+                this.dataContext.Entry(workitem).State = EntityState.Modified;
                 workitem.UpdatedByUserId = this.CurrentUser.UserId;
-                db.SaveChanges();
+                this.dataContext.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(workitem);
@@ -131,7 +122,7 @@ namespace Navigate.Controllers
 
         public ActionResult Delete(int id = 0)
         {
-            WorkItem workitem = db.WorkItems.Find(id);
+            WorkItem workitem = this.dataContext.WorkItems.Find(id);
             if (workitem == null)
             {
                 return HttpNotFound();
@@ -145,15 +136,15 @@ namespace Navigate.Controllers
         [HttpPost, ActionName("Delete")]
         public ActionResult DeleteConfirmed(int id)
         {
-            WorkItem workitem = db.WorkItems.Find(id);
-            db.WorkItems.Remove(workitem);
-            db.SaveChanges();
+            WorkItem workitem = this.dataContext.WorkItems.Find(id);
+            this.dataContext.WorkItems.Remove(workitem);
+            this.dataContext.SaveChanges();
             return RedirectToAction("Index");
         }
 
         protected override void Dispose(bool disposing)
         {
-            db.Dispose();
+            this.dataContext.Dispose();
             base.Dispose(disposing);
         }
     }

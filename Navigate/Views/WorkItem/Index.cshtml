@@ -22,18 +22,20 @@
             @Html.DisplayNameFor(model => model.Location)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Date)
+            @Html.DisplayNameFor(model => model.StartDate)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.EstimatedTime)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.WorkItemType.Type)
+            @Html.DisplayNameFor(model => model.WorkItemType)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.AdditionalInfo)
         </th>
-        <th></th>
+        <th>
+            @Html.DisplayNameFor(model => model.CreatedBy)
+        </th>
     </tr>
 
 @foreach (var item in Model) {
@@ -49,7 +51,7 @@
             @Html.DisplayFor(modelItem => item.Location)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Date)
+            @Html.DisplayFor(modelItem => item.StartDate)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.EstimatedTime)
@@ -59,6 +61,9 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.AdditionalInfo)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.CreatedBy.UserName)
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |

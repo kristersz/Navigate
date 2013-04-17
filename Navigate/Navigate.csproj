@@ -39,6 +39,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DayPilot.Web.Mvc, Version=1.3.370.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\DayPilot.Web.Mvc.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -163,6 +167,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\CalendarController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MapController.cs" />
     <Compile Include="Controllers\WorkItemController.cs" />
@@ -179,8 +184,10 @@
     <Compile Include="Models\NavigateDb.cs" />
     <Compile Include="Models\UserProfile.cs" />
     <Compile Include="Models\WorkItem.cs" />
-    <Compile Include="Models\WorkItemType.cs" />
+    <Compile Include="Models\Classifiers\WorkItemPriority.cs" />
+    <Compile Include="Models\Classifiers\WorkItemType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\WorkItemCreateViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
@@ -240,6 +247,8 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <None Include="Scripts\jquery-1.7.1.intellisense.js" />
+    <Content Include="Scripts\globalize.culture.lv-LV.js" />
+    <Content Include="Scripts\globalize.js" />
     <Content Include="Scripts\google-distance-matrix.js" />
     <Content Include="Scripts\google-maps.js" />
     <Content Include="Scripts\jquery-1.7.1.js" />
@@ -248,6 +257,8 @@
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery-ui-1.8.20.js" />
     <Content Include="Scripts\jquery-ui-1.8.20.min.js" />
+    <Content Include="Scripts\jquery.ui.timepicker-restrict.js" />
+    <Content Include="Scripts\jquery.ui.timepicker.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
@@ -257,7 +268,10 @@
     <Content Include="Scripts\knockout-2.1.0.debug.js" />
     <Content Include="Scripts\knockout-2.1.0.js" />
     <Content Include="Scripts\modernizr-2.5.3.js" />
-    <Content Include="Web.config" />
+    <Content Include="Scripts\parse-values.js" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -295,7 +309,9 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Web.config" />
+    <Content Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Views\WorkItem\Index.cshtml" />
     <Content Include="Views\WorkItem\Details.cshtml" />
     <Content Include="Views\WorkItem\Create.cshtml" />
@@ -307,13 +323,12 @@
     <Content Include="Views\WorkItemType\Index.cshtml" />
     <Content Include="Views\WorkItemType\Create.cshtml" />
     <Content Include="Views\WorkItemType\Delete.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
+    <Content Include="Views\Calendar\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Filters\" />
-    <Folder Include="Models\Accounts\" />
-    <Folder Include="Models\ViewModels\" />
-    <Folder Include="Models\WorkItems\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

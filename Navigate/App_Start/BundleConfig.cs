@@ -13,7 +13,9 @@ namespace Navigate
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryui").Include(
                         "~/Scripts/jquery-ui-{version}.js",
-                        "~/Scripts/jquery.ui.datepicker-lv.js"));
+                        "~/Scripts/jquery.ui.datepicker-lv.js",
+                        "~/Scripts/jquery.ui.timepicker.js",
+                        "~/Scripts/jquery.ui.timepicker-restrict.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.unobtrusive*",
@@ -24,9 +26,14 @@ namespace Navigate
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
 
-            bundles.Add(new ScriptBundle("~/bundles/google-maps").Include(
+            bundles.Add(new ScriptBundle("~/bundles/google-apis").Include(
                         "~/Scripts/google-maps.js",
                         "~/Scripts/google-distance-matrix.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/globalization").Include(
+                        "~/Scripts/globalize.js",
+                        "~/Scripts/globalize.culture.lv-LV.js",
+                        "~/Scripts/parse-values.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include("~/Content/site.css"));
 

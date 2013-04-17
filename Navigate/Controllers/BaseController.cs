@@ -11,7 +11,12 @@ namespace Navigate.Controllers
     {
         private NavigateDb db = new NavigateDb();
 
-        //Get the current user
+        protected NavigateDb dataContext
+        {
+            get { return this.db; }
+        }
+
+        //Gets the current user
         public UserProfile CurrentUser
         {
             get
@@ -19,7 +24,7 @@ namespace Navigate.Controllers
                 if (this.User == null || this.User.Identity == null)
                     return null;
 
-                return this.db.UserProfiles.First(o => o.UserName == User.Identity.Name);
+                return this.dataContext.UserProfiles.First(o => o.UserName == User.Identity.Name);
             }
         }
     }
