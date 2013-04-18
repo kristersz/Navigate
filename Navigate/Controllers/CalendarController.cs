@@ -61,7 +61,6 @@ namespace Navigate.Controllers
                 toBeCreated.Location = (string)e.Data["location"];
                 toBeCreated.CreatedAt = DateTime.Now;
                 toBeCreated.UpdatedAt = DateTime.Now;
-                toBeCreated.EstimatedTime = 2;
                 toBeCreated.CreatedByUserId = 1;
                 toBeCreated.UpdatedByUserId = 1;
                 db.WorkItems.Add(toBeCreated);
