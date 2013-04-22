@@ -1,4 +1,5 @@
 ﻿using Navigate.Models;
+using Navigate.Models.Classifiers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,19 +19,20 @@ namespace Navigate.ViewModels
             this.AllUsers = new List<SelectListItem>();
             this.StartDate = DateTime.Now;
             this.EndDate = DateTime.Now;
+            this.isCompleted = false;
         }
 
-        public WorkItemCreateViewModel(WorkItem workItem)
-        {
-            this.Subject = workItem.Subject;
-            this.Location = workItem.Location;
-            this.StartDate = workItem.StartDate;
-            this.EndDate = workItem.EndDate;
-            this.EstimatedTime = workItem.EstimatedTime;
-            this.WorkItemType = workItem.WorkItemTypeId;
-            this.Priority = workItem.Priority;
-            this.AssignedToUserId = workItem.AssignedToUserId;
-        }
+        //public WorkItemCreateViewModel(WorkItem workItem)
+        //{
+        //    this.Subject = workItem.Subject;
+        //    this.Location = workItem.Location;
+        //    this.StartDate = workItem.StartDate;
+        //    this.EndDate = workItem.EndDate;
+        //    this.EstimatedTime = workItem.EstimatedTime;
+        //    this.WorkItemType = workItem.WorkItemTypeId;
+        //    this.Priority = workItem.Priority;
+        //    this.AssignedToUserId = workItem.AssignedToUserId;
+        //}
 
         public long Id { get; set; }
 
@@ -59,11 +61,13 @@ namespace Navigate.ViewModels
         public int CreatedByUserId { get; set; }
 
         public int UpdatedByUserId { get; set; }
+
         public int AssignedToUserId { get; set; }
 
         public IEnumerable<SelectListItem> AllUsers { get; set; }
 
         public DateTime CreatedAt { get; set; }
+
         public DateTime UpdatedAt { get; set; }
 
         public WorkItem TransformToWorkItem()

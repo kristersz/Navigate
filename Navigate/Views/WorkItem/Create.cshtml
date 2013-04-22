@@ -64,7 +64,7 @@
             @Html.LabelFor(model => model.Priority)
         </div>  
         <div class="editor-field">
-            @Html.DropDownListFor(model => model.Priority, new SelectList(Enum.GetValues(typeof(Navigate.Models.WorkItemPriority))))
+            @Html.DropDownListFor(model => model.Priority, new SelectList(Enum.GetValues(typeof(Navigate.Models.Classifiers.WorkItemPriority))))
             @Html.ValidationMessageFor(model => model.Priority)
         </div>
 

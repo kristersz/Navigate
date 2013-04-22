@@ -181,7 +181,9 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="Models\Classifiers\RecurrenceType.cs" />
     <Compile Include="Models\NavigateDb.cs" />
+    <Compile Include="Models\RecurringItem.cs" />
     <Compile Include="Models\UserProfile.cs" />
     <Compile Include="Models\WorkItem.cs" />
     <Compile Include="Models\Classifiers\WorkItemPriority.cs" />

@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using Navigate.Models;
 using WebMatrix.WebData;
 using Navigate.ViewModels;
+using Microsoft.Office.Interop.Outlook;
 
 namespace Navigate.Controllers
 {   
@@ -144,27 +145,73 @@ namespace Navigate.Controllers
 
         public void GetAllCalendarItems()
         {
-            Microsoft.Office.Interop.Outlook.Application oApp = null;
-            Microsoft.Office.Interop.Outlook.NameSpace mapiNamespace = null;
-            Microsoft.Office.Interop.Outlook.MAPIFolder CalendarFolder = null;
-            Microsoft.Office.Interop.Outlook.Items outlookCalendarItems = null;
+            Application outlookApp = null;
+            NameSpace mapiNamespace = null;
+            MAPIFolder CalendarFolder = null;
+            Items outlookCalendarItems = null;
 
-            oApp = new Microsoft.Office.Interop.Outlook.Application();
-            mapiNamespace = oApp.GetNamespace("MAPI"); ;
-            CalendarFolder = mapiNamespace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderCalendar); 
-            outlookCalendarItems = CalendarFolder.Items;
+            //initialize Outlook API
+            outlookApp = new Application();
+            mapiNamespace = outlookApp.GetNamespace("MAPI");
+            CalendarFolder = mapiNamespace.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
+
+            //filter for getting only the items whose start date is equal of greater than present time
+            String filter = "[Start] >= '" + DateTime.Now.ToString("MM/dd/yyyy hh:mm") + "'";
+
+            //get the filtered Outlook items including the recurring items
+            outlookCalendarItems = CalendarFolder.Items.Restrict(filter);
             outlookCalendarItems.IncludeRecurrences = true;
 
-            foreach (Microsoft.Office.Interop.Outlook.AppointmentItem item in outlookCalendarItems)
+            foreach (AppointmentItem item in outlookCalendarItems)
             {
-                if (item.IsRecurring)
+                var existingWorkItem = this.dataContext.WorkItems.Where(o => o.OutlookEntryId != null && o.OutlookEntryId == item.EntryID).FirstOrDefault();
+
+                if (item.IsRecurring == false)
                 {
-                    Microsoft.Office.Interop.Outlook.RecurrencePattern rp = item.GetRecurrencePattern();
-                    DateTime first = new DateTime(2008, 8, 31, item.Start.Hour, item.Start.Minute, 0);
-                    DateTime last = new DateTime(2008, 10, 1);
-                    Microsoft.Office.Interop.Outlook.AppointmentItem recur = null;
+                    if (existingWorkItem == null)
+                    {
+                        var workItem = new WorkItem();
+                        workItem.Subject = item.Subject;
+                        workItem.Location = item.Location;
+                        workItem.OutlookEntryId = item.EntryID;
+                        workItem.StartDate = item.Start;
+                        workItem.EndDate = item.End;
+                        workItem.EstimatedTime = item.Duration;
+                        workItem.AdditionalInfo = item.Body;
+                        workItem.WorkItemTypeId = 2;
+                        workItem.isCompleted = false;
+                        workItem.isRecurring = false;
+                        workItem.CreatedAt = DateTime.Now;
+                        workItem.UpdatedAt = DateTime.Now;
+                        workItem.CreatedByUserId = this.CurrentUser.UserId;
+                        workItem.UpdatedByUserId = this.CurrentUser.UserId;
 
+                        this.dataContext.WorkItems.Add(workItem);
+                        this.dataContext.SaveChanges();
+                    }
+                    else
+                    {
+                        if (existingWorkItem.UpdatedAt <= item.LastModificationTime)
+                        {
+                            existingWorkItem.Subject = item.Subject;
+                            existingWorkItem.Location = item.Location;
+                            existingWorkItem.StartDate = item.Start;
+                            existingWorkItem.EndDate = item.End;
+                            existingWorkItem.EstimatedTime = item.Duration;
+                            existingWorkItem.AdditionalInfo = item.Body;
+                            existingWorkItem.UpdatedAt = DateTime.Now;
+                            existingWorkItem.UpdatedByUserId = this.CurrentUser.UserId;
 
+                            this.dataContext.SaveChanges();
+                        }
+                    }
+                }
+                else if (item.IsRecurring)
+                {
+                    RecurrencePattern rp = item.GetRecurrencePattern();
+                    DateTime first = new DateTime(item.Start.Year, item.Start.Month, item.Start.Day, item.Start.Hour, item.Start.Minute, item.Start.Second);
+                    DateTime last = new DateTime(item.End.Year, item.End.Month, item.End.Day, item.End.Hour, item.End.Minute, item.End.Second);
+                    AppointmentItem recur = null;
 
                     for (DateTime cur = first; cur <= last; cur = cur.AddDays(1))
                     {
@@ -175,13 +222,10 @@ namespace Navigate.Controllers
                             ViewBag.RecurLoc = recur.Location;
                         }
                         catch
-                        { }
+                        {
+                            throw;
+                        }
                     }
-                }
-                else
-                {
-                    ViewBag.Subject = item.Subject;
-                    ViewBag.Location = item.Location;
                 }
             }
         }

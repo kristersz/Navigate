@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Navigate.Models.Classifiers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -13,7 +14,6 @@ namespace Navigate.Models
 
         public WorkItem()
         {
-            this.isCompleted = false;
         }
 
         /// <summary>
@@ -77,6 +77,11 @@ namespace Navigate.Models
         public string AdditionalInfo { get; set; }
 
         /// <summary>
+        /// Gets or sets the outlook entry id for identifying imported outlook calendar items
+        /// </summary>
+        public string OutlookEntryId { get; set; }
+        
+        /// <summary>
         /// Gets or sets a value indicating whether the task is completed or not
         /// </summary>
         public bool isCompleted { get; set; }
@@ -85,6 +90,12 @@ namespace Navigate.Models
         /// Gets or sets a value indiciating whether the task is recurring or not
         /// </summary>
         public bool isRecurring { get; set; }
+
+        public RecurrenceType? ReccuringType { get; set; }
+
+        public virtual ICollection<RecurringItem> RecurringItems { get; set; }
+
+        //pattern? { get; set; }
 
         /// <summary>
         /// Gets or sets the user id that created the task
@@ -99,7 +110,7 @@ namespace Navigate.Models
         /// <summary>
         /// Gets or sets the user id that the work item was assigned to
         /// </summary>
-        public int AssignedToUserId { get; set; }
+        public int? AssignedToUserId { get; set; }
 
         /// <summary>
         /// Gets or sets the created by user that references the users model

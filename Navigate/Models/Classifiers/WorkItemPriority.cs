@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Navigate.Models
+namespace Navigate.Models.Classifiers
 {
     public enum WorkItemPriority
     {

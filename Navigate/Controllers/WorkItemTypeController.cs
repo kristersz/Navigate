@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Navigate.Models;
+using Navigate.Models.Classifiers;
 
 namespace Navigate.Controllers
 {
