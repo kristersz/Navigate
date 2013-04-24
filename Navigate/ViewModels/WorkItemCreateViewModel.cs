@@ -19,7 +19,6 @@ namespace Navigate.ViewModels
             this.AllUsers = new List<SelectListItem>();
             this.StartDate = DateTime.Now;
             this.EndDate = DateTime.Now;
-            this.isCompleted = false;
         }
 
         //public WorkItemCreateViewModel(WorkItem workItem)
@@ -54,8 +53,6 @@ namespace Navigate.ViewModels
         [DefaultValue(WorkItemPriority.NormalPriority)]
         public WorkItemPriority? Priority { get; set; }
 
-        public bool isCompleted { get; set; }
-
         public bool isRecurring { get; set; }
 
         public int CreatedByUserId { get; set; }
@@ -79,10 +76,7 @@ namespace Navigate.ViewModels
             workItem.EstimatedTime = this.EstimatedTime;
             workItem.WorkItemTypeId = this.WorkItemType;
             workItem.Priority = this.Priority;
-            workItem.isCompleted = this.isCompleted;
             workItem.isRecurring = this.isRecurring;
-            workItem.CreatedAt = DateTime.Now;
-            workItem.UpdatedAt = DateTime.Now;
             workItem.AssignedToUserId = this.AssignedToUserId;
 
             return workItem;

@@ -14,6 +14,9 @@ namespace Navigate.Models
 
         public WorkItem()
         {
+            this.isCompleted = false;
+            this.CreatedAt = DateTime.Now;
+            this.UpdatedAt = DateTime.Now;
         }
 
         /// <summary>
@@ -91,11 +94,14 @@ namespace Navigate.Models
         /// </summary>
         public bool isRecurring { get; set; }
 
-        public RecurrenceType? ReccuringType { get; set; }
+        public RecurrenceType? RecurrenceType { get; set; }
 
         public virtual ICollection<RecurringItem> RecurringItems { get; set; }
 
-        //pattern? { get; set; }
+        public long? RecurrencePatternId { get; set; }
+
+        [ForeignKey("RecurrencePatternId")]
+        public virtual WIRecurrencePattern RecurrencePattern { get; set; }
 
         /// <summary>
         /// Gets or sets the user id that created the task
