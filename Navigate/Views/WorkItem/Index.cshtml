@@ -22,7 +22,7 @@
             @Html.DisplayNameFor(model => model.Location)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.StartDate)
+            @Html.DisplayNameFor(model => model.StartDateTime)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.EstimatedTime)
@@ -31,7 +31,7 @@
             @Html.DisplayNameFor(model => model.WorkItemType)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.AdditionalInfo)
+            @Html.DisplayNameFor(model => model.Body)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.CreatedBy)
@@ -51,7 +51,7 @@
             @Html.DisplayFor(modelItem => item.Location)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.StartDate)
+            @Html.DisplayFor(modelItem => item.StartDateTime)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.EstimatedTime)
@@ -60,7 +60,7 @@
             @Html.DisplayFor(modelItem => item.WorkItemType.Type)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.AdditionalInfo)
+            @Html.DisplayFor(modelItem => item.Body)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.CreatedBy.UserName)

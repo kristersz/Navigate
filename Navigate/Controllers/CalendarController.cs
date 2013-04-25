@@ -35,8 +35,8 @@ namespace Navigate.Controllers
             {
                 var id = Convert.ToInt32(e.Id);
                 var toBeResized = (from ev in db.WorkItems where ev.Id == id select ev).First();
-                toBeResized.StartDate = e.NewStart;
-                toBeResized.EndDate = e.NewEnd;
+                toBeResized.StartDateTime = e.NewStart;
+                toBeResized.EndDateTime = e.NewEnd;
                 db.SaveChanges();
                 Update();
             }
@@ -45,8 +45,8 @@ namespace Navigate.Controllers
             {
                 var id = Convert.ToInt32(e.Id);
                 var toBeResized = (from ev in db.WorkItems where ev.Id == id select ev).First();
-                toBeResized.StartDate = e.NewStart;
-                toBeResized.EndDate = e.NewEnd;
+                toBeResized.StartDateTime = e.NewStart;
+                toBeResized.EndDateTime = e.NewEnd;
                 db.SaveChanges();
                 Update();
             }
@@ -54,8 +54,8 @@ namespace Navigate.Controllers
             protected override void OnTimeRangeSelected(TimeRangeSelectedArgs e)
             {
                 var toBeCreated = new WorkItem();
-                toBeCreated.StartDate = e.Start;
-                toBeCreated.EndDate = e.End;
+                toBeCreated.StartDateTime = e.Start;
+                toBeCreated.EndDateTime = e.End;
                 toBeCreated.Subject = (string)e.Data["name"];
                 toBeCreated.WorkItemTypeId = 2;
                 toBeCreated.Location = (string)e.Data["location"];

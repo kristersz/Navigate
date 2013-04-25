@@ -7,12 +7,16 @@ namespace Navigate.Models.Classifiers
 {
     public enum RecurrenceType
     {
-        Daily = 1,
+        Daily = 0,
 
-        Weekly = 2,
+        Weekly = 1,
 
-        Monthly = 3,
+        Monthly = 2,
+
+        MonthNth = 3,
 
         Yearly = 4,
+
+        YearNth = 5,
     }
 }

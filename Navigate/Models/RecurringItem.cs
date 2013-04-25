@@ -17,10 +17,12 @@ namespace Navigate.Models
         [ForeignKey("WorkItemId")]
         public virtual WorkItem WorkItem { get; set; }
 
-        public DateTime DateOfOccurrence { get; set; }
+        public DateTime Start { get; set; }
+
+        public DateTime End { get; set; }
 
         public string IndividualLocation { get; set; }
 
-        public string IndividualInformation { get; set; }
+        public string IndividualBody { get; set; }
     }
 }

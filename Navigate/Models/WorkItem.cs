@@ -43,14 +43,14 @@ namespace Navigate.Models
         /// Needed only if the work item is scheduled for a predetermined amount of time, which would then require explicit start and end times
         /// </summary>       
         [DataType(DataType.DateTime)]
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDateTime { get; set; }
 
         /// <summary>
         /// Gets or sets the end date time of a scheduled task or the due date of a more generic task with a estimated amount of time for completion
         /// </summary>
         [Required] 
         [DataType(DataType.DateTime)]
-        public DateTime EndDate { get; set; }
+        public DateTime EndDateTime { get; set; }
 
         /// <summary>
         /// Gets or sets the estimated time of completion for a task
@@ -77,7 +77,7 @@ namespace Navigate.Models
         /// <summary>
         /// Gets or sets the additional info for a task
         /// </summary>
-        public string AdditionalInfo { get; set; }
+        public string Body { get; set; }
 
         /// <summary>
         /// Gets or sets the outlook entry id for identifying imported outlook calendar items
@@ -98,9 +98,9 @@ namespace Navigate.Models
 
         public virtual ICollection<RecurringItem> RecurringItems { get; set; }
 
-        public long? RecurrencePatternId { get; set; }
+        public long? WIRecurrencePatternId { get; set; }
 
-        [ForeignKey("RecurrencePatternId")]
+        [ForeignKey("WIRecurrencePatternId")]
         public virtual WIRecurrencePattern RecurrencePattern { get; set; }
 
         /// <summary>

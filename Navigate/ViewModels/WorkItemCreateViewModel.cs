@@ -71,8 +71,8 @@ namespace Navigate.ViewModels
         {
             var workItem = new WorkItem();
             workItem.Subject = this.Subject;
-            workItem.StartDate = this.StartDate;
-            workItem.EndDate = this.EndDate;
+            workItem.StartDateTime = this.StartDate;
+            workItem.EndDateTime = this.EndDate;
             workItem.EstimatedTime = this.EstimatedTime;
             workItem.WorkItemTypeId = this.WorkItemType;
             workItem.Priority = this.Priority;
