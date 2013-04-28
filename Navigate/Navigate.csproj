@@ -180,6 +180,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="Models\Classifiers\DaysOfWeekMask.cs" />
     <Compile Include="Models\Classifiers\RecurrenceType.cs" />
     <Compile Include="Models\NavigateDb.cs" />
     <Compile Include="Models\WIRecurrencePattern.cs" />
@@ -271,7 +272,7 @@
     <Content Include="Scripts\knockout-2.1.0.debug.js" />
     <Content Include="Scripts\knockout-2.1.0.js" />
     <Content Include="Scripts\modernizr-2.5.3.js" />
-    <Content Include="Scripts\parse-values.js" />
+    <Content Include="Scripts\Navigate.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -325,6 +326,7 @@
     <Content Include="Views\Map\Index.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
     <Content Include="Views\Calendar\Index.cshtml" />
+    <Content Include="Views\Shared\DisplayTemplates\Date.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

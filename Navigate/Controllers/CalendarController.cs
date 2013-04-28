@@ -79,8 +79,8 @@ namespace Navigate.Controllers
 
                 DataIdField = "Id";
                 DataTextField = "Subject";
-                DataStartField = "StartDate";
-                DataEndField = "EndDate";
+                DataStartField = "StartDateTime";
+                DataEndField = "EndDateTime";
             }
         }
     }

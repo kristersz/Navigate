@@ -71,7 +71,6 @@ namespace Navigate.Models
         /// <summary>
         /// Gets or set the work item priority
         /// </summary>
-        [DefaultValue(WorkItemPriority.NormalPriority)]
         public WorkItemPriority? Priority { get; set; }
 
         /// <summary>

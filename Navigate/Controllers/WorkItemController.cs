@@ -132,10 +132,14 @@ namespace Navigate.Controllers
 
         #region ["Outlook logic"]
 
-        public void GetOutlookCalendarItems()
+        [HttpPost]
+        public JsonResult GetOutlookCalendarItems()
         {
+            string message = "Success";
             var importService = new OutlookItemImportService(this.dataContext, this.CurrentUser);
-            importService.Synchronize();  
+            importService.ImportOutlookCalendarItems();
+
+            return new JsonResult() { Data = new { Message = message } };
         }
 
         #endregion

@@ -12,6 +12,8 @@ namespace Navigate.Models
         [Key]
         public long Id { get; set; }
 
+        public DateTime OriginalDate { get; set; }
+
         public long WorkItemId { get; set; }
 
         [ForeignKey("WorkItemId")]

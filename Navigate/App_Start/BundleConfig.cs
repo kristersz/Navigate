@@ -32,8 +32,14 @@ namespace Navigate
 
             bundles.Add(new ScriptBundle("~/bundles/globalization").Include(
                         "~/Scripts/globalize.js",
-                        "~/Scripts/globalize.culture.lv-LV.js",
-                        "~/Scripts/parse-values.js"));
+                        "~/Scripts/globalize.culture.lv-LV.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/navigate").Include(
+                        "~/Scripts/Navigate.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/knockout").Include(
+                        "~/Scripts/knockout-{version}.js",
+                        "~/Scripts/knockout-{version}.debug.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include("~/Content/site.css"));
 

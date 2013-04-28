@@ -64,7 +64,11 @@
             @Html.LabelFor(model => model.Priority)
         </div>  
         <div class="editor-field">
-            @Html.DropDownListFor(model => model.Priority, new SelectList(Enum.GetValues(typeof(Navigate.Models.Classifiers.WorkItemPriority))))
+            @Html.DropDownListFor(model => model.Priority, from v in (Navigate.Models.Classifiers.WorkItemPriority[])(Enum.GetValues(typeof(Navigate.Models.Classifiers.WorkItemPriority)))
+                                                select new SelectListItem() {
+                                                    Text = ((System.ComponentModel.DataAnnotations.DisplayAttribute)(typeof(Navigate.Models.Classifiers.WorkItemPriority).GetField(v.ToString()).GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.DisplayAttribute), false).First())).Name,                             
+                                                    Value = v.ToString(),                         
+                                                    })
             @Html.ValidationMessageFor(model => model.Priority)
         </div>
 
@@ -86,5 +90,5 @@
 </div>
 
 @section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
+    
 }

@@ -2,75 +2,101 @@
 
 @{
     ViewBag.Title = "My work items";
-    var i = 0;
 }
 
 <h2>@ViewBag.PageTitle</h2>
 
 <p>
     @Html.ActionLink("Izveidot", "Create")
+    <button type="button" id="import" data-bind="click: Import">Import from Outlook</button>
 </p>
-<table>
-    <tr>
-        <th>
-            N.p.k.
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Subject)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Location)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.StartDateTime)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.EstimatedTime)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.WorkItemType)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Body)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.CreatedBy)
-        </th>
-    </tr>
 
-@foreach (var item in Model) {
-    i += 1;
-    <tr>
-        <td>
-            @i
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Subject)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Location)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.StartDateTime)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.EstimatedTime)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.WorkItemType.Type)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Body)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.CreatedBy.UserName)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
-        </td>
-    </tr>
+@foreach (var item in Model)
+{
+    <div id="workItems">
+        <div>
+            @Html.DisplayNameFor(model => model.Subject) :
+            @Html.DisplayFor(model => item.Subject)
+        </div>
+        <div>
+            @Html.DisplayNameFor(model => model.Location) :
+            @Html.DisplayFor(model => item.Location)
+        </div>
+        <div>
+            @Html.DisplayNameFor(model => model.StartDateTime) :
+            @Html.DisplayFor(model => item.StartDateTime)
+        </div>
+        <div>
+            @Html.DisplayNameFor(model => model.EndDateTime) :
+            @Html.DisplayFor(model => item.EndDateTime)
+        </div>
+        @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+        @Html.ActionLink("Details", "Details", new { id = item.Id })
+        @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+        <hr />
+    </div>
 }
 
-</table>
+<div id="ajaxRequestLoading"><span>Pieprasījums tiek apstrādāts...</span></div>
+<div id="dialogMessage" title="Outlook calendar item import">
+    <p id="dialogMessageText"></p>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        function viewModel() {
+            var _this = {};
+            /************************ Public Functions ************************/
+            _this.Import = function () {
+                var url = '@Url.Action("GetOutlookCalendarItems", "WorkItem")';
+                $("#ajaxRequestLoading").show();
+                $.post(url, {},
+                    function (data) {
+                        if (data == null || typeof (data) == 'undefined')
+                            return;
+
+                        showMessage(data.Message, function () {
+                           document.location.href = '@Html.AttributeEncode(Url.Action("Index", "WorkItem"))';
+                        });
+                    },
+                    'json'
+                )
+                .error(function (jqXHR, textStatus) {
+                    if (jqXHR != null && typeof (jqXHR) != 'undefined') {
+                        if (jqXHR.responseText != null && $(jqXHR.responseText).length == 9) {
+                            showMessage($($(jqXHR.responseText)[6]).text());
+                        }
+                    }
+                })
+                .always(function () {
+                    $("#ajaxRequestLoading").hide();
+                });
+            }
+
+            /************************ Initialization ************************/
+            ko.applyBindings(_this, $("body").get(0));
+            }
+        viewModel();
+
+        function showMessage(message) {
+            $("#dialogMessageText").text(message);
+            $("#dialogMessage").dialog("open");
+        };
+
+        $(document).ready(function () {
+            $("#dialogMessage").dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                draggable: false,
+                minWidth: 400,
+                buttons: {
+                    "Labi": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        });
+    </script>
+}

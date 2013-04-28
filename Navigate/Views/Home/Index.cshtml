@@ -1,3 +1,31 @@
 ﻿@{
     ViewBag.Title = "Home Page";
 }
+<button id="opener">Open Dialog</button>
+
+<div id="dialog" title="Basic dialog">
+  <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+</div>
+
+@section Scripts
+{
+    <script>
+      $(function() {
+        $( "#dialog" ).dialog({
+          autoOpen: false,
+          show: {
+            effect: "blind",
+            duration: 1000
+          },
+          hide: {
+            effect: "explode",
+            duration: 1000
+          }
+        });
+ 
+        $( "#opener" ).click(function() {
+          $( "#dialog" ).dialog( "open" );
+        });
+      });
+    </script>
+}

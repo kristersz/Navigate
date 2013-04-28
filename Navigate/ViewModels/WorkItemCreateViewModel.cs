@@ -33,7 +33,7 @@ namespace Navigate.ViewModels
         //    this.AssignedToUserId = workItem.AssignedToUserId;
         //}
 
-        public long Id { get; set; }
+        #region [Work Item]
 
         [Required(ErrorMessage="Subject is required")]
         [MaxLength(40, ErrorMessage="Subject cannot exceed 40 characters")]
@@ -50,14 +50,11 @@ namespace Navigate.ViewModels
         public int WorkItemType { get; set; }
         public IEnumerable<SelectListItem> AllWorkItemTypes { get; set; }
 
-        [DefaultValue(WorkItemPriority.NormalPriority)]
         public WorkItemPriority? Priority { get; set; }
 
         public bool isRecurring { get; set; }
 
-        public int CreatedByUserId { get; set; }
-
-        public int UpdatedByUserId { get; set; }
+        public RecurrenceType? RecurrenceType { get; set; }
 
         public int AssignedToUserId { get; set; }
 
@@ -78,8 +75,34 @@ namespace Navigate.ViewModels
             workItem.Priority = this.Priority;
             workItem.isRecurring = this.isRecurring;
             workItem.AssignedToUserId = this.AssignedToUserId;
-
             return workItem;
         }
+
+        #endregion
+
+        #region[Recurring Pattern]
+
+        public int Interval { get; set; }
+
+        public int DayOfWeekMask { get; set; }
+
+        public int DayOfMonth { get; set; }
+
+        public int Instance { get; set; }
+
+        public int MonthOfYear { get; set; }
+
+        public WIRecurrencePattern TransformToRecurrencePattern()
+        {
+            var recurrencePattern = new WIRecurrencePattern();
+            recurrencePattern.Interval = this.Interval;
+            recurrencePattern.DayOfWeekMask = this.DayOfWeekMask;
+            recurrencePattern.DayOfMonth = this.DayOfMonth;
+            recurrencePattern.Instance = this.Instance;
+            recurrencePattern.MonthOfYear = this.MonthOfYear;
+            return recurrencePattern;
+        }
+
+        #endregion
     }
 }
