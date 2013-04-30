@@ -55,6 +55,21 @@ function calcRoute() {
             directionsDisplay.setDirections(response);
             showSteps(response);
         }
+        else if (status == google.maps.DirectionsStatus.NOT_FOUND) {
+            showMessage("The specified location could not be found, please enter a more specific location", function () {
+                document.location.href = '@Html.AttributeEncode(Url.Action("Navigate", "WorkItem"))';
+            });
+        }
+        else if (status == google.maps.DirectionsStatus.ZERO_RESULTS) {
+            showMessage("A route between these locations could not be found", function () {
+                document.location.href = '@Html.AttributeEncode(Url.Action("Navigate", "WorkItem"))';
+            });
+        }
+        else if (status == google.maps.DirectionsStatus.UNKNOWN_ERROR) {
+            showMessage("An unexpected error occured", function () {
+                document.location.href = '@Html.AttributeEncode(Url.Action("Navigate", "WorkItem"))';
+            });
+        }
     });
 }
 

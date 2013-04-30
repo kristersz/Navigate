@@ -127,10 +127,10 @@ namespace Navigate.Services
                         //Save the pattern for future reference
                         var pattern = new WIRecurrencePattern();
                         pattern.Interval = recurrencePattern.Interval;
-                        pattern.DayOfWeekMask = (int)recurrencePattern.DayOfWeekMask;
+                        pattern.DayOfWeekMask = (DayOfWeekMask)Enum.ToObject(typeof(DayOfWeekMask), recurrencePattern.MonthOfYear);
                         pattern.DayOfMonth = recurrencePattern.DayOfMonth;
-                        pattern.MonthOfYear = recurrencePattern.MonthOfYear;
-                        pattern.Instance = recurrencePattern.Instance;
+                        pattern.MonthOfYear = (MonthOfYear)Enum.ToObject(typeof(MonthOfYear), recurrencePattern.MonthOfYear);
+                        pattern.Instance = (Instance)Enum.ToObject(typeof(Instance), recurrencePattern.MonthOfYear);
 
                         this.dataContext.WIRecurrencePatterns.Add(pattern);
                         this.dataContext.SaveChanges();

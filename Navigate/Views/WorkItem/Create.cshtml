@@ -4,7 +4,7 @@
     ViewBag.Title = "Create";
 }
 
-<h2>Create</h2>
+<h2>Create New Work Item!</h2>
 
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
@@ -64,11 +64,7 @@
             @Html.LabelFor(model => model.Priority)
         </div>  
         <div class="editor-field">
-            @Html.DropDownListFor(model => model.Priority, from v in (Navigate.Models.Classifiers.WorkItemPriority[])(Enum.GetValues(typeof(Navigate.Models.Classifiers.WorkItemPriority)))
-                                                select new SelectListItem() {
-                                                    Text = ((System.ComponentModel.DataAnnotations.DisplayAttribute)(typeof(Navigate.Models.Classifiers.WorkItemPriority).GetField(v.ToString()).GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.DisplayAttribute), false).First())).Name,                             
-                                                    Value = v.ToString(),                         
-                                                    })
+            @Html.DropDownListFor(model => model.Priority, Model.AllPriorities)
             @Html.ValidationMessageFor(model => model.Priority)
         </div>
 
@@ -78,6 +74,79 @@
         <div class="editor-field">
             @Html.DropDownListFor(model => model.AssignedToUserId, Model.AllUsers)
             @Html.ValidationMessageFor(model => model.AssignedToUserId)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.isRecurring)
+        </div>
+        <div class="editor-field">
+            @Html.CheckBoxFor(model => model.isRecurring)
+            @Html.ValidationMessageFor(model => model.isRecurring)
+        </div>
+        <div id="recurrencePatternOptions" class="hidden">
+            <div class ="editor-label">
+                @Html.LabelFor(model => model.RecurrenceType)
+            </div>
+            <div>
+                @Html.EditorFor(model => model.RecurrenceType, "Enum_RadioButtonList")
+            </div>
+            <div id="patterns">
+                <div id="Daily" class="hidden patterns">
+                    <div class="editor-field">
+                        Every @Html.EditorFor(model => model.Interval) day(s)
+                        @Html.ValidationMessageFor(model => model.Interval)
+                    </div>
+                    <div>
+                        @Html.CheckBoxFor(model => model.everyWeekday, Navigate.Models.Classifiers.DayOfWeekMask.All) 
+                        @Html.LabelFor(model => model.everyWeekday)
+                    </div>
+                </div>
+
+                <div id="Weekly" class="hidden patterns">
+                    <div class="editor-field">
+                        Recur every @Html.EditorFor(model => model.Interval) week(s) on:
+                        @Html.ValidationMessageFor(model => model.Interval)
+                    </div>
+                    <div id ="daysOfWeek">
+                          @foreach(DayOfWeek dayOfWeek in Enum.GetValues(typeof(DayOfWeek))) {
+                            <label>
+                                <input type="checkbox" name="WeekDays[]" value="@dayOfWeek" />
+                            @dayOfWeek</label>
+                          }
+                    </div>
+                </div>
+                <div id="Monthly" class="hidden patterns">
+                    <div class="editor-field">
+                        Day @Html.EditorFor(model => model.DayOfMonth) of every @Html.EditorFor(model => model.Interval) month(s)
+                        @Html.ValidationMessageFor(model => model.DayOfMonth)
+                        @Html.ValidationMessageFor(model => model.Interval)
+                    </div>
+                </div>
+
+                <div id="MonthNth" class="hidden patterns">
+                    <div class="editor-field">
+                        The @Html.DropDownListFor(model => model.Instance, Model.AllInstances) @Html.DropDownListFor(model => model.DayOfWeekMask, Model.AllDaysOfWeek) of every @Html.EditorFor(model => model.Interval) month(s)
+                        @Html.ValidationMessageFor(model => model.Instance)
+                        @Html.ValidationMessageFor(model => model.Interval)
+                    </div>
+                </div>
+
+                <div id="Yearly" class="hidden patterns">
+                    <div class="editor-field">
+                        Recur every @Html.EditorFor(model => model.Interval) year(s) on: @Html.DropDownListFor(model => model.MonthOfYear, Model.AllMonthsOfYear) @Html.EditorFor(model => model.DayOfMonth)
+                        @Html.ValidationMessageFor(model => model.Interval)
+                        @Html.ValidationMessageFor(model => model.MonthOfYear)
+                    </div>
+                </div>
+
+                <div id="YearNth" class="hidden patterns">
+                    <div class="editor-field">
+                        Recur every @Html.EditorFor(model => model.Interval) year(s) on the: @Html.DropDownListFor(model => model.Instance, Model.AllInstances) @Html.DropDownListFor(model => model.DayOfWeekMask, Model.AllDaysOfWeek) of @Html.DropDownListFor(model => model.MonthOfYear, Model.AllMonthsOfYear)
+                        @Html.ValidationMessageFor(model => model.Interval)
+                        @Html.ValidationMessageFor(model => model.MonthOfYear)
+                    </div>
+                </div>
+            </div>
         </div>
         <p>
             <input type="submit" value="Create" />
@@ -90,5 +159,29 @@
 </div>
 
 @section Scripts {
-    
+    <script>
+        function evaluate() {
+            var item = $(this);
+            var relatedItem = $("#recurrencePatternOptions");
+
+            if (item.is(":checked")) {
+                relatedItem.fadeIn();
+                $("#Daily").show();
+            } else {
+                relatedItem.fadeOut();
+            }
+        }
+        $("#isRecurring").click(evaluate).each(evaluate);
+
+        $(document).ready(function () {
+            $("input[name=RecurrenceType]").change(function () {
+                var test = $(this).val();
+                $(".patterns").hide();
+                $("#" + test).show();
+            });
+        });
+
+        //$("#patterns").find("#monthlyPattern input").attr('disabled', 'disabled');
+        //$("#patterns").find("#monthlyPattern input").removeAttr('disabled', 'disabled');
+     </script>
 }

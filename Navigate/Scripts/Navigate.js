@@ -1,4 +1,24 @@
-﻿$.validator.methods.number = function (value, element) {
+﻿function showMessage(message) {
+    $("#dialogMessageText").text(message);
+    $("#dialogMessage").dialog("open");
+};
+
+$(document).ready(function () {
+    $("#dialogMessage").dialog({
+        autoOpen: false,
+        modal: true,
+        resizable: false,
+        draggable: false,
+        minWidth: 400,
+        buttons: {
+            "Labi": function () {
+                $(this).dialog("close");
+            }
+        }
+    });
+});
+
+$.validator.methods.number = function (value, element) {
     return this.optional(element) ||
         !isNaN(Globalize.parseFloat(value));
 };

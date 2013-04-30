@@ -114,6 +114,9 @@
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
+    <Reference Include="UnconstrainedMelody">
+      <HintPath>..\packages\UnconstrainedMelody.0.1\lib\UnconstrainedMelody.dll</HintPath>
+    </Reference>
     <Reference Include="WebMatrix.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.Data.2.0.20710.0\lib\net40\WebMatrix.Data.dll</HintPath>
@@ -169,7 +172,6 @@
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\CalendarController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\MapController.cs" />
     <Compile Include="Controllers\WorkItemController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -180,7 +182,10 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
-    <Compile Include="Models\Classifiers\DaysOfWeekMask.cs" />
+    <Compile Include="Models\Classifiers\DaysOfWeek.cs" />
+    <Compile Include="Models\Classifiers\Instance.cs" />
+    <Compile Include="Models\Classifiers\MonthOfYear.cs" />
+    <Compile Include="Models\Classifiers\DayOfWeekMask.cs" />
     <Compile Include="Models\Classifiers\RecurrenceType.cs" />
     <Compile Include="Models\NavigateDb.cs" />
     <Compile Include="Models\WIRecurrencePattern.cs" />
@@ -323,10 +328,11 @@
     <Content Include="Views\WorkItem\Delete.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Date.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\DateTime.cshtml" />
-    <Content Include="Views\Map\Index.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
     <Content Include="Views\Calendar\Index.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\Date.cshtml" />
+    <Content Include="Views\WorkItem\Navigate.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Enum_RadioButtonList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

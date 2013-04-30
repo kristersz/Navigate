@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Navigate.Models.Classifiers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -14,12 +15,12 @@ namespace Navigate.Models
 
         public int Interval { get; set; }
 
-        public int DayOfWeekMask { get; set; }
+        public DayOfWeekMask DayOfWeekMask { get; set; }
 
         public int DayOfMonth { get; set; }
 
-        public int Instance { get; set; }
+        public Instance Instance { get; set; }
 
-        public int MonthOfYear { get; set; }
+        public MonthOfYear MonthOfYear { get; set; }
     }
 }

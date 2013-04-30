@@ -27,7 +27,7 @@ function callback(response, status) {
             durationValue = result.duration.value,
             durationText = result.duration.text
 
-        output.innerHTML = "Attālums no " + origin + " līdz " + destination + " ir " + distanceText +
+        output.innerHTML = "Attālums no <b>" + origin + "</b> līdz <b>" + destination + "</b> ir " + distanceText +
             "<br> braucot ar mašīnu ceļā būs jāpavada aptuveni " + durationText;
     }
 }

@@ -1,7 +1,7 @@
 ﻿@{
-    ViewBag.Title = "Index";
-    var origin = "Artilērijas 3, Rīga, Latvia";
-    var destination = "Elizabetes 75, Rīga, Latvia";
+    var origin = "Elizabetes 75, Rīga, Latvia";
+    var destination = (string)ViewBag.Location;
+    ViewBag.Title = "Navigation";
 }
 
 @section Scripts {
@@ -11,7 +11,7 @@
     @Scripts.Render("~/bundles/google-apis")
 }
 
-<h2>Google Maps!</h2>
+<h2>Navigate to @destination</h2>
 
 <div>
     <strong>Start: </strong>
@@ -24,6 +24,5 @@
 </div>
 <div id="warnings_panel" style="width:100%; height:10%; text-align:center"></div>
 <div id="distanceOutput"></div>
-<div id="directions_panel" style="width: 300px; height: 480px; float:right"></div>
+<div id="directions_panel" style="width: 300px; height: 480px; float:right; overflow: auto"></div>
 <div id="map-canvas" style="width: 640px; height: 480px;" />
-

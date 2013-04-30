@@ -25,7 +25,6 @@
                         <ul id="menu">
                             <li>@Html.ActionLink("Work Items", "Index", "WorkItem")</li>
                             <li>@Html.ActionLink("Calendar", "Index", "Calendar")</li>
-                            <li>@Html.ActionLink("Map", "Index", "Map")</li>
                             <li>@Html.ActionLink("Home", "Index", "Home")</li>
                             <li>@Html.ActionLink("About", "About", "Home")</li>
                             <li>@Html.ActionLink("Contact", "Contact", "Home")</li>                           
@@ -47,7 +46,10 @@
                 </div>
             </div>
         </footer>
-
+        <div id="ajaxRequestLoading"><span>Pieprasījums tiek apstrādāts...</span></div>
+        <div id="dialogMessage" title="Information box">
+            <p id="dialogMessageText"></p>
+        </div>
         @Scripts.Render("~/bundles/jquery")
         @Scripts.Render("~/bundles/jqueryui") 
         @Scripts.Render("~/bundles/navigate")

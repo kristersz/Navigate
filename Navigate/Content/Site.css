@@ -786,3 +786,15 @@ tr.pager td {
     padding-left: 79px;
     font-family: 'Segoe UI', Tahoma;
 }
+
+.editor-radio label, #daysOfWeek label {
+    display: inline;
+    padding-right: 10px;
+}
+.editor-radio input {
+    width: 20px;
+}
+
+.hidden {
+    display: none;
+}

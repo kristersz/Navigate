@@ -30,17 +30,16 @@
             @Html.DisplayNameFor(model => model.EndDateTime) :
             @Html.DisplayFor(model => item.EndDateTime)
         </div>
+        @if (item.Location != null)
+        {
+            @Html.ActionLink("Navigate", "Navigate", new { id = item.Id })
+        }
         @Html.ActionLink("Edit", "Edit", new { id = item.Id })
         @Html.ActionLink("Details", "Details", new { id = item.Id })
         @Html.ActionLink("Delete", "Delete", new { id = item.Id })
         <hr />
     </div>
 }
-
-<div id="ajaxRequestLoading"><span>Pieprasījums tiek apstrādāts...</span></div>
-<div id="dialogMessage" title="Outlook calendar item import">
-    <p id="dialogMessageText"></p>
-</div>
 
 @section Scripts
 {
@@ -78,25 +77,5 @@
             ko.applyBindings(_this, $("body").get(0));
             }
         viewModel();
-
-        function showMessage(message) {
-            $("#dialogMessageText").text(message);
-            $("#dialogMessage").dialog("open");
-        };
-
-        $(document).ready(function () {
-            $("#dialogMessage").dialog({
-                autoOpen: false,
-                modal: true,
-                resizable: false,
-                draggable: false,
-                minWidth: 400,
-                buttons: {
-                    "Labi": function () {
-                        $(this).dialog("close");
-                    }
-                }
-            });
-        });
     </script>
 }

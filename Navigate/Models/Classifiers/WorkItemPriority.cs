@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Navigate.Models.Classifiers
@@ -9,25 +10,26 @@ namespace Navigate.Models.Classifiers
         /// <summary>
         /// Task of exceptional priority
         /// </summary>
-        [Display(Name = "Exceptional")]
+        //[Display(Name = "Exceptional")]
+        [Description("Exceptional")]
         ExceptionalPriority = 1,
 
         /// <summary>
         /// Task of high priority
         /// </summary>
-        [Display(Name = "High")]
+        [Description("High")]
         HighPriority = 2,
 
         /// <summary>
         /// Task of normal priority
         /// </summary>
-        [Display(Name = "Normal")]
+        [Description("Normal")]
         NormalPriority = 3,
 
         /// <summary>
         /// Task of low priority
         /// </summary>
-        [Display(Name = "Low")]
+        [Description("Low")]
         LowPriority = 4,
     }
 }

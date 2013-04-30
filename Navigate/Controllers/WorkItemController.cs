@@ -11,6 +11,7 @@ using WebMatrix.WebData;
 using Navigate.ViewModels;
 using Microsoft.Office.Interop.Outlook;
 using Navigate.Services;
+using System.ComponentModel.DataAnnotations;
 
 namespace Navigate.Controllers
 {   
@@ -64,9 +65,14 @@ namespace Navigate.Controllers
             if (ModelState.IsValid)
             {
                 var workItem = model.TransformToWorkItem();
-
                 workItem.CreatedByUserId = this.CurrentUser.UserId;
                 workItem.UpdatedByUserId = this.CurrentUser.UserId;
+
+                var recurrencePattern = model.TransformToRecurrencePattern();
+                this.dataContext.WIRecurrencePatterns.Add(recurrencePattern);
+                this.dataContext.SaveChanges();
+
+                workItem.WIRecurrencePatternId = recurrencePattern.Id;
 
                 this.dataContext.WorkItems.Add(workItem);
                 this.dataContext.SaveChanges();
@@ -130,6 +136,19 @@ namespace Navigate.Controllers
             return RedirectToAction("Index");
         }
 
+        public ActionResult Navigate(int id = 0)
+        {
+            WorkItem workItem = this.dataContext.WorkItems.Find(id);
+            if (workItem == null)
+            {
+                return HttpNotFound();
+            }
+
+            ViewBag.Location = workItem.Location;
+
+            return View();
+        }
+
         #region ["Outlook logic"]
 
         [HttpPost]
@@ -166,6 +185,14 @@ namespace Navigate.Controllers
                 Value = o.UserId.ToString(),
                 Text = o.UserName
             });
+
+            //model.AllPriorities = from v in (WorkItemPriority[])(Enum.GetValues(typeof(WorkItemPriority)))
+            //                          select new SelectListItem()
+            //                          {
+            //                              Text = ((DisplayAttribute)(typeof(WorkItemPriority)
+            //                                        .GetField(v.ToString()).GetCustomAttributes(typeof(DisplayAttribute), false).First())).Name,
+            //                              Value = v.ToString(),
+            //                          };
         }
     }
 }

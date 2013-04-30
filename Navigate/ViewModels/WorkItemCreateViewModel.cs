@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using UnconstrainedMelody;
 
 namespace Navigate.ViewModels
 {
@@ -17,6 +18,7 @@ namespace Navigate.ViewModels
         {
             this.AllWorkItemTypes = new List<SelectListItem>();
             this.AllUsers = new List<SelectListItem>();
+            this.Priority = WorkItemPriority.NormalPriority;
             this.StartDate = DateTime.Now;
             this.EndDate = DateTime.Now;
         }
@@ -52,9 +54,16 @@ namespace Navigate.ViewModels
 
         public WorkItemPriority? Priority { get; set; }
 
+        public IEnumerable<SelectListItem> AllPriorities {
+            get
+            {
+                return Enums.GetValues<WorkItemPriority>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
+            }
+        }
+
         public bool isRecurring { get; set; }
 
-        public RecurrenceType? RecurrenceType { get; set; }
+        public RecurrenceType RecurrenceType { get; set; }
 
         public int AssignedToUserId { get; set; }
 
@@ -68,6 +77,7 @@ namespace Navigate.ViewModels
         {
             var workItem = new WorkItem();
             workItem.Subject = this.Subject;
+            workItem.Location = this.Location;
             workItem.StartDateTime = this.StartDate;
             workItem.EndDateTime = this.EndDate;
             workItem.EstimatedTime = this.EstimatedTime;
@@ -82,15 +92,51 @@ namespace Navigate.ViewModels
 
         #region[Recurring Pattern]
 
+        [Range(0, 365)]
         public int Interval { get; set; }
 
-        public int DayOfWeekMask { get; set; }
+        public DayOfWeekMask DayOfWeekMask { get; set; }
 
+        public bool everyWeekday { get; set; }
+
+        public DaysOfWeek WeekDays { get; set; }
+
+        public IEnumerable<SelectListItem> AllDaysOfWeek
+        {
+            get
+            {
+                return Enums.GetValues<DayOfWeekMask>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
+            }
+
+            set{}
+        }
+
+        [Range(0, 31)]
         public int DayOfMonth { get; set; }
 
-        public int Instance { get; set; }
+        public Instance Instance { get; set; }
 
-        public int MonthOfYear { get; set; }
+        public IEnumerable<SelectListItem> AllInstances
+        {
+            get
+            {
+                return Enums.GetValues<Instance>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
+            }
+
+            set { }
+        }
+
+        public MonthOfYear MonthOfYear { get; set; }
+
+        public IEnumerable<SelectListItem> AllMonthsOfYear
+        {
+            get
+            {
+                return Enums.GetValues<MonthOfYear>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
+            }
+
+            set { }
+        }
 
         public WIRecurrencePattern TransformToRecurrencePattern()
         {
