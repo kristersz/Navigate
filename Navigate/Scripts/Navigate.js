@@ -18,14 +18,14 @@ $(document).ready(function () {
     });
 });
 
+$(document).ready(function () {
+    Globalize.culture('lv-LV');
+});
+
 $.validator.methods.number = function (value, element) {
     return this.optional(element) ||
         !isNaN(Globalize.parseFloat(value));
 };
-
-$(document).ready(function () {
-    Globalize.culture('lv-LV');
-});
 
 $.validator.methods.date = function (value, element) {
     if (Globalize.parseDate(value)) {

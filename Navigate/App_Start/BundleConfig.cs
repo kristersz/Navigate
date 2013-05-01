@@ -27,8 +27,7 @@ namespace Navigate
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/google-apis").Include(
-                        "~/Scripts/google-maps.js",
-                        "~/Scripts/google-distance-matrix.js"));
+                        "~/Scripts/google-maps.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/globalization").Include(
                         "~/Scripts/globalize.js",
@@ -41,7 +40,9 @@ namespace Navigate
                         "~/Scripts/knockout-{version}.js",
                         "~/Scripts/knockout-{version}.debug.js"));
 
-            bundles.Add(new StyleBundle("~/Content/css").Include("~/Content/site.css"));
+            bundles.Add(new StyleBundle("~/Content/css").Include(
+                        "~/Content/site.css",
+                        "~/Content/navigate.css"));
 
             bundles.Add(new StyleBundle("~/Content/themes/base/css").Include(
                         "~/Content/themes/base/jquery.ui.core.css",

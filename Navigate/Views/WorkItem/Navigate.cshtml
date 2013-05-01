@@ -13,15 +13,32 @@
 
 <h2>Navigate to @destination</h2>
 
-<div>
-    <strong>Start: </strong>
-    @Html.TextBox("origin", @origin, new { @id = "start" })
-</div>
-<div>
-    <strong>End: </strong>
-    @Html.TextBox("destination", @destination, new { @id = "end" })
-<button onclick="calcRoute(); calcDistance()">Iegūt norādes</button>
-</div>
+<table>
+    <tr>
+        <td>
+            <strong>Origin: </strong>
+        </td>
+        <td>
+            <strong>Destination: </strong>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            @Html.TextBox("origin", @origin, new { @id = "start" })
+        </td>
+        <td>
+            @Html.TextBox("destination", @destination, new { @id = "end" })
+        </td>
+    </tr>
+</table>
+<form>
+    I will
+    <input type="radio" name="travelMode" value="DRIVING" checked="checked" style="width: 20px">drive
+    <input type="radio" name="travelMode" value="WALKING" style="width: 20px">walk
+    <input type="radio" name="travelMode" value="TRANSIT" style="width: 20px">use public transportation
+</form>
+<button onclick="calcRoute(); calcDistance()">Navigate</button>
+
 <div id="warnings_panel" style="width:100%; height:10%; text-align:center"></div>
 <div id="distanceOutput"></div>
 <div id="directions_panel" style="width: 300px; height: 480px; float:right; overflow: auto"></div>
