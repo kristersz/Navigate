@@ -4,23 +4,19 @@ var directionsService;
 var stepDisplay;
 var markerArray = [];
 var distanceService;
-var latitude;
-var longitude;
+var geocodingService;
 var warnings = document.getElementById("warnings_panel");
 
-function initialize() {
+function initialize(location, zoom) {
     // Instantiate a directions service and get current location
     directionsService = new google.maps.DirectionsService();
-    getLocation();
-
+    
     // Create a map and center it on current location
-    var lat = latitude;
-    var long = Number(longitude);
-    var myLocation = new google.maps.LatLng(lat, long);
+    var myLocation = new google.maps.LatLng(37.0625000, -95.6770680);
     var mapOptions = {
-        zoom: 13,
+        zoom: zoom,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
-        center: myLocation
+        center: location
     }
     map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 
@@ -91,7 +87,7 @@ function calcRoute() {
             showSteps(response);
         }
 
-        // Else we handle known and unknown errors and show them to the user
+        // Else we handle errors and show them to the user
         else if (status == google.maps.DirectionsStatus.NOT_FOUND) {
             showMessage("The specified location could not be found, please enter a more specific location", function () {
                 document.location.href = '@Html.AttributeEncode(Url.Action("Navigate", "WorkItem"))';
@@ -178,20 +174,38 @@ function getRadioValue() {
     }
 }
 
-function getLocation() {
+function geolocateUser() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(setCoordinates, handleError);
+        navigator.geolocation.getCurrentPosition(geolocationSuccess, geolocationError);
     }
     else { warnings.innerHTML = "Geolocation is not supported by this browser."; }
 }
 
-function setCoordinates(position) {
-    latitude = position.coords.latitude;
-    longitude = position.coords.longitude;
-    warnings.innerHTML = latitude + " un " + longitude;
+function geolocationSuccess(position) {
+    var myLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+    initialize(myLatLng, 13);
+    var marker = new google.maps.Marker({
+        position: myLatLng,
+        map: map
+    });
+    var circle = new google.maps.Circle({
+        center: myLatLng,
+        radius: position.coords.accuracy,
+        map: map,
+        fillColor: '#0000FF',
+        fillOpacity: 0.3,
+        strokeColor: '#0000FF',
+        strokeOpacity: 0.7,
+        strokeWeight: 2
+    });
+    //map.fitBounds(circle.getBounds());
+    attachInstructionText(marker, "Your are around here, courtesy of &copy; HTML5 geolocation service <br> The blue circle represents the accuracy of the geolocation");
+    setAddress(myLatLng);
 }
 
-function handleError(error) {
+function geolocationError(error) {
+    var latvia = new google.maps.LatLng(37.0625000, -95.6770680);
+    initialize(latvia, 10);
     switch (error.code) {
         case error.PERMISSION_DENIED:
             warnings.innerHTML = "User denied the request for Geolocation."
@@ -208,4 +222,23 @@ function handleError(error) {
     }
 }
 
-google.maps.event.addDomListener(window, 'load', initialize);
+function setAddress(myLatLng) {
+    geocodingService = new google.maps.Geocoder();
+    var address;
+    geocodingService.geocode({ 'latLng': myLatLng }, function (results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+            if (results[0]) {
+                address = results[0].formatted_address;
+                document.getElementById("start").value = address;
+            }
+            else {
+                warnings.innerHTML = "No results found";
+            }
+        }
+        else {
+            warnings.innerHTML = "Geocode was not successful for the following reason: " + status;
+        }
+    });
+}
+
+google.maps.event.addDomListener(window, 'load', geolocateUser);

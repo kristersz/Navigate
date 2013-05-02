@@ -43,8 +43,10 @@ namespace Navigate.ViewModels
 
         public string Location { get; set; }
 
+        [DataType(DataType.DateTime)]
         public DateTime StartDate { get; set; }
 
+        [DataType(DataType.DateTime)]
         public DateTime EndDate { get; set; }
 
         public decimal? EstimatedTime { get; set; }
@@ -84,6 +86,7 @@ namespace Navigate.ViewModels
             workItem.WorkItemTypeId = this.WorkItemType;
             workItem.Priority = this.Priority;
             workItem.isRecurring = this.isRecurring;
+            workItem.RecurrenceType = this.RecurrenceType;
             workItem.AssignedToUserId = this.AssignedToUserId;
             return workItem;
         }
@@ -92,29 +95,39 @@ namespace Navigate.ViewModels
 
         #region[Recurring Pattern]
 
-        [Range(0, 365)]
-        public int Interval { get; set; }
+        //[Range(1, 7)]
+        public int DailyInterval { get; set; }
 
-        public DayOfWeekMask DayOfWeekMask { get; set; }
+        //[Range(1, 4)]
+        public int WeeklyInterval { get; set; }
 
-        public bool everyWeekday { get; set; }
+        //[Range(1, 12)]
+        public int MonthlyInterval { get; set; }
+
+        //[Range(1, 12)]
+        public int MonthNthInterval { get; set; }
+
+        //[Range(1, 2)]
+        public int YearlyInterval { get; set; }
+
+        //[Range(1, 2)]
+        public int YearNthInterval { get; set; }
+
+        public bool EveryWeekday { get; set; }
+
+        //public DaysOfWeek WeekDays { get; set; }
 
         public DaysOfWeek WeekDays { get; set; }
 
-        public IEnumerable<SelectListItem> AllDaysOfWeek
-        {
-            get
-            {
-                return Enums.GetValues<DayOfWeekMask>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
-            }
-
-            set{}
-        }
-
-        [Range(0, 31)]
+        //[Range(0, 31)]
         public int DayOfMonth { get; set; }
 
-        public Instance Instance { get; set; }
+        //[Range(0, 31)]
+        public int DayOfMonthForYear { get; set; }
+
+        public Instance MonthInstance { get; set; }
+
+        public Instance YearInstance { get; set; }
 
         public IEnumerable<SelectListItem> AllInstances
         {
@@ -126,7 +139,23 @@ namespace Navigate.ViewModels
             set { }
         }
 
-        public MonthOfYear MonthOfYear { get; set; }
+        public DayOfWeekMask MonthDayOfWeekMask { get; set; }
+
+        public DayOfWeekMask YearDayOfWeekMask { get; set; }
+
+        public IEnumerable<SelectListItem> AllDaysOfWeek
+        {
+            get
+            {
+                return Enums.GetValues<DayOfWeekMask>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
+            }
+
+            set { }
+        }
+
+        public MonthOfYear YearMonthOfYear { get; set; }
+
+        public MonthOfYear YearNthMonthOfYear { get; set; }
 
         public IEnumerable<SelectListItem> AllMonthsOfYear
         {
@@ -141,11 +170,45 @@ namespace Navigate.ViewModels
         public WIRecurrencePattern TransformToRecurrencePattern()
         {
             var recurrencePattern = new WIRecurrencePattern();
-            recurrencePattern.Interval = this.Interval;
-            recurrencePattern.DayOfWeekMask = this.DayOfWeekMask;
-            recurrencePattern.DayOfMonth = this.DayOfMonth;
-            recurrencePattern.Instance = this.Instance;
-            recurrencePattern.MonthOfYear = this.MonthOfYear;
+            if (this.RecurrenceType == RecurrenceType.Daily)
+            {
+                if (this.EveryWeekday == true)
+                {
+                    recurrencePattern.DayOfWeekMask = DayOfWeekMask.Weekdays;
+                }
+                else recurrencePattern.Interval = this.DailyInterval;
+            }
+            else if (this.RecurrenceType == RecurrenceType.Weekly)
+            {
+                recurrencePattern.Interval = this.WeeklyInterval;
+                var mask = (int)this.WeekDays;
+                recurrencePattern.DayOfWeekMask = (DayOfWeekMask)Enum.ToObject(typeof(DayOfWeekMask), mask);
+            }
+            else if (this.RecurrenceType == RecurrenceType.Monthly)
+            {
+                recurrencePattern.Interval = this.MonthlyInterval;
+                recurrencePattern.DayOfMonth = this.DayOfMonth;
+            }
+            else if (this.RecurrenceType == RecurrenceType.MonthNth)
+            {
+                recurrencePattern.Interval = this.MonthNthInterval;
+                recurrencePattern.Instance = this.MonthInstance;
+                recurrencePattern.DayOfWeekMask = this.MonthDayOfWeekMask;
+            }
+            else if (this.RecurrenceType == RecurrenceType.Yearly)
+            {
+                recurrencePattern.Interval = this.YearlyInterval;
+                recurrencePattern.MonthOfYear = this.YearMonthOfYear;
+                recurrencePattern.DayOfMonth = this.DayOfMonthForYear;
+            }
+            else
+            {
+                recurrencePattern.Interval = this.YearNthInterval;
+                recurrencePattern.MonthOfYear = this.YearNthMonthOfYear;
+                recurrencePattern.Instance = this.YearInstance;
+                recurrencePattern.DayOfWeekMask = this.YearDayOfWeekMask;
+            }
+
             return recurrencePattern;
         }
 

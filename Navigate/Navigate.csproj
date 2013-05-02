@@ -173,6 +173,8 @@
     <Compile Include="Controllers\CalendarController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\WorkItemController.cs" />
+    <Compile Include="Custom\MvcHtmlHelpers.cs" />
+    <Compile Include="Custom\EnumFlagsModelBinder.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

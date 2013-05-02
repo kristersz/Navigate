@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MvcHtmlHelpers;
+using Navigate.Models.Classifiers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -18,6 +20,7 @@ namespace Navigate
         protected void Application_Start()
         {
             WebSecurity.InitializeDatabaseConnection("DefaultConnection", "UserProfile", "UserId", "UserName", autoCreateTables: true);
+            ModelBinders.Binders.Add(typeof(DaysOfWeek),new EnumFlagsModelBinder());
             AreaRegistration.RegisterAllAreas();
 
             WebApiConfig.Register(GlobalConfiguration.Configuration);

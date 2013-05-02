@@ -19,19 +19,19 @@ $(document).ready(function () {
 });
 
 $(document).ready(function () {
-    Globalize.culture('lv-LV');
+    $.culture = Globalize.culture('lv-LV');
 });
-
-$.validator.methods.number = function (value, element) {
-    return this.optional(element) ||
-        !isNaN(Globalize.parseFloat(value));
-};
 
 $.validator.methods.date = function (value, element) {
     if (Globalize.parseDate(value)) {
         return true;
     }
     return false;
+};
+
+$.validator.methods.number = function (value, element) {
+    return this.optional(element) ||
+        !isNaN(Globalize.parseFloat(value));
 };
 
 jQuery.extend(jQuery.validator.methods, {    

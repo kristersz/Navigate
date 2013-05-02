@@ -33,7 +33,7 @@ namespace Navigate.Models.Classifiers
         Saturday = 64,
 
         [Description("Day")]
-        All = Sunday | Monday | Tuesday | Wednesday | Thursday | Friday,
+        All = Sunday | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday,
 
         [Description("Weekday")]
         Weekdays = Monday | Tuesday | Wednesday | Thursday | Friday,
