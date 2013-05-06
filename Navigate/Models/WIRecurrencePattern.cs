@@ -11,7 +11,7 @@ namespace Navigate.Models
     public class WIRecurrencePattern
     {
         [Key]
-        public long Id { get; set; }
+        public long WorkItemId { get; set; }
 
         public int Interval { get; set; }
 
@@ -22,5 +22,8 @@ namespace Navigate.Models
         public Instance Instance { get; set; }
 
         public MonthOfYear MonthOfYear { get; set; }
+
+        [ForeignKey("WorkItemId")]
+        public virtual WorkItem WorkItem { get; set; }
     }
 }

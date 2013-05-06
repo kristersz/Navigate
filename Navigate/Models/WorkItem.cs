@@ -97,10 +97,9 @@ namespace Navigate.Models
 
         public virtual ICollection<RecurringItem> RecurringItems { get; set; }
 
-        public long? WIRecurrencePatternId { get; set; }
-
-        [ForeignKey("WIRecurrencePatternId")]
         public virtual WIRecurrencePattern RecurrencePattern { get; set; }
+
+        public virtual ICollection<Category> Categories { get; set; }
 
         /// <summary>
         /// Gets or sets the user id that created the task

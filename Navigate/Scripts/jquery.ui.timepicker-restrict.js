@@ -2,6 +2,7 @@
 var endDateTextBox = $('#EndDate');
 
 startDateTextBox.datetimepicker({
+    controlType: 'select',
     onClose: function (dateText, inst) {
         if (endDateTextBox.val() != '') {
             var testStartDate = startDateTextBox.datetimepicker('getDate');
@@ -18,6 +19,7 @@ startDateTextBox.datetimepicker({
     }
 });
 endDateTextBox.datetimepicker({
+    controlType: 'select',
     onClose: function (dateText, inst) {
         if (startDateTextBox.val() != '') {
             var testStartDate = startDateTextBox.datetimepicker('getDate');
@@ -32,4 +34,15 @@ endDateTextBox.datetimepicker({
     onSelect: function (selectedDateTime) {
         startDateTextBox.datetimepicker('option', 'maxDate', endDateTextBox.datetimepicker('getDate'));
     }
+});
+
+$('#DueDate').datetimepicker({
+    controlType: 'select',
+});
+
+$("#RecurringItemStart").timepicker({
+    controlType: 'select',
+});
+$("#RecurringItemEnd").timepicker({
+    controlType: 'select',
 });

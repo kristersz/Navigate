@@ -13,7 +13,7 @@
 
 #ajaxRequestLoading span {
     left: 50%;
-    /*background: url('../Content/Images/ajax-loader-s.gif') no-repeat;*/
+    background: url('../Content/Images/ajax_loader_gray_48.gif') no-repeat;
     background-position: 12px center;
     background-color: white;
     display: inline-block;
@@ -38,6 +38,49 @@
     width: 20px;
 }
 
-.hidden {
+#recurrenceOptions, .patterns {
     display: none;
+}
+
+#createForm select, #editForm select {
+    width: 150px;
+    height: 30px;
+    margin: 5px 0 6px 0;
+}
+
+#bodyTextArea {
+    overflow: auto;
+    resize: none;
+}
+
+.groupbox {
+    border: solid 1px #E2E2E2;
+    margin: 0;
+    padding: 5px;
+}
+
+    .groupbox legend {
+        display: block;
+        -webkit-padding-start: 5px;
+    }
+
+    .groupbox table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        margin-top: 0.0em;
+        margin-left: 0.75em;
+        border: 0 none;
+    }
+
+#recurrenceOptions {
+    width: 1000px;
+    overflow: hidden;
+}
+#recurrenceTypes {
+    width: 150px;
+    float:left;
+    padding-left: 5px;
+}
+#recurrencePatterns {
+    float: left;
 }

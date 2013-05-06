@@ -40,9 +40,18 @@ namespace Navigate
                         "~/Scripts/knockout-{version}.js",
                         "~/Scripts/knockout-{version}.debug.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
+                        "~/Scripts/bootstrap.js"));
+
+            bundles.Add(new StyleBundle("~/Content/bootstrapcss").Include(
+                        "~/Content/bootstrap-responsive.css",
+                        "~/Content/bootstrap.css"));
+
             bundles.Add(new StyleBundle("~/Content/css").Include(
                         "~/Content/site.css",
-                        "~/Content/navigate.css"));
+                        "~/Content/navigate.css",
+                        "~/Content/jquery.pnotify.default.css",
+                        "~/Content/jquery.pnotify.default.icons.css"));
 
             bundles.Add(new StyleBundle("~/Content/themes/base/css").Include(
                         "~/Content/themes/base/jquery.ui.core.css",

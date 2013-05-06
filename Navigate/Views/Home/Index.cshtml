@@ -7,6 +7,26 @@
   <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
 </div>
 
+<button id="button">HEY</button>
+
+<!-- Button to trigger modal -->
+<a href="#myModal" role="button" class="btn" data-toggle="modal">Launch demo modal</a>
+ 
+<!-- Modal -->
+<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Modal header</h3>
+  </div>
+  <div class="modal-body">
+    <p>One fine body…</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    <button class="btn btn-primary">Save changes</button>
+  </div>
+</div>
+
 @section Scripts
 {
     <script>
@@ -26,6 +46,10 @@
         $( "#opener" ).click(function() {
           $( "#dialog" ).dialog( "open" );
         });
+      });
+      $.pnotify.defaults.styling = "bootstrap";
+      $("#button").click(function () {
+          show_stack_bar_top("info");
       });
     </script>
 }

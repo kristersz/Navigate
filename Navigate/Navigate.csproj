@@ -171,19 +171,22 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\CalendarController.cs" />
+    <Compile Include="Controllers\ClassifierController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\RecurringItemController.cs" />
     <Compile Include="Controllers\WorkItemController.cs" />
     <Compile Include="Custom\MvcHtmlHelpers.cs" />
     <Compile Include="Custom\EnumFlagsModelBinder.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201303182037268_InitialCreate.cs" />
-    <Compile Include="Migrations\201303182037268_InitialCreate.Designer.cs">
-      <DependentUpon>201303182037268_InitialCreate.cs</DependentUpon>
+    <Compile Include="Migrations\201305061145463_InitialCreate.cs" />
+    <Compile Include="Migrations\201305061145463_InitialCreate.Designer.cs">
+      <DependentUpon>201305061145463_InitialCreate.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="Models\Classifiers\Category.cs" />
     <Compile Include="Models\Classifiers\DaysOfWeek.cs" />
     <Compile Include="Models\Classifiers\Instance.cs" />
     <Compile Include="Models\Classifiers\MonthOfYear.cs" />
@@ -198,9 +201,18 @@
     <Compile Include="Models\Classifiers\WorkItemType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\OutlookItemImportService.cs" />
-    <Compile Include="ViewModels\WorkItemCreateViewModel.cs" />
+    <Compile Include="ViewModels\WorkItemDataInputModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\bootstrap-responsive.css" />
+    <Content Include="Content\bootstrap-responsive.min.css" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\images\ajax_loader_gray_48.gif" />
+    <Content Include="Content\images\glyphicons-halflings-white.png" />
+    <Content Include="Content\images\glyphicons-halflings.png" />
+    <Content Include="Content\jquery.pnotify.default.css" />
+    <Content Include="Content\jquery.pnotify.default.icons.css" />
     <Content Include="Content\Navigate.css" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -258,14 +270,18 @@
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
-    <None Include="Scripts\jquery-1.7.1.intellisense.js" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\globalize.culture.lv-LV.js" />
     <Content Include="Scripts\globalize.js" />
-    <Content Include="Scripts\google-distance-matrix.js" />
     <Content Include="Scripts\google-maps.js" />
-    <Content Include="Scripts\jquery-1.7.1.js" />
-    <Content Include="Scripts\jquery-1.7.1.min.js" />
+    <None Include="Scripts\jquery-1.9.1.intellisense.js" />
+    <Content Include="Scripts\jquery-1.9.1.js" />
+    <Content Include="Scripts\jquery-1.9.1.min.js" />
+    <Content Include="Scripts\jquery.pnotify.js" />
+    <Content Include="Scripts\jquery.pnotify.min.js" />
     <Content Include="Scripts\jquery.ui.datepicker-lv.js" />
+    <Content Include="Scripts\jquery-1.9.1.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery-ui-1.8.20.js" />
     <Content Include="Scripts\jquery-ui-1.8.20.min.js" />
@@ -336,6 +352,14 @@
     <Content Include="Views\Shared\DisplayTemplates\Date.cshtml" />
     <Content Include="Views\WorkItem\Navigate.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Enum_RadioButtonList.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Time.cshtml" />
+    <Content Include="Views\RecurringItem\Index.cshtml" />
+    <Content Include="Views\RecurringItem\Details.cshtml" />
+    <Content Include="Views\RecurringItem\Edit.cshtml" />
+    <Content Include="Views\RecurringItem\Delete.cshtml" />
+    <Content Include="Views\Shared\_RecurringItems.cshtml" />
+    <Content Include="Views\Classifier\Index.cshtml" />
+    <Content Include="Views\Classifier\ListCategories.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -343,11 +367,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201303182037268_InitialCreate.resx">
-      <DependentUpon>201303182037268_InitialCreate.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="Microsoft.Office.Core">
@@ -377,6 +396,11 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201305061145463_InitialCreate.resx">
+      <DependentUpon>201305061145463_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -26,7 +26,7 @@ namespace Navigate.Controllers
             var currentUserId = this.CurrentUser.UserId;
 
             var workItems = this.dataContext.WorkItems
-                .Where(r => r.AssignedToUserId == currentUserId);
+                .Where(r => r.CreatedByUserId == currentUserId);
 
             ViewBag.PageTitle = "Work Items";
             return View(workItems.ToList());
@@ -50,7 +50,7 @@ namespace Navigate.Controllers
 
         public ActionResult Create()
         {
-            var model = new WorkItemCreateViewModel();
+            var model = new WorkItemDataInputModel();
             populateDropDownLists(model);
             return View(model);
         }
@@ -59,7 +59,7 @@ namespace Navigate.Controllers
         // POST: /WorkItem/Create
 
         [HttpPost]
-        public ActionResult Create(WorkItemCreateViewModel model)
+        public ActionResult Create(WorkItemDataInputModel model)
         {
             populateDropDownLists(model);
             if (ModelState.IsValid)
@@ -67,39 +67,29 @@ namespace Navigate.Controllers
                 var workItem = model.TransformToWorkItem();
                 workItem.CreatedByUserId = this.CurrentUser.UserId;
                 workItem.UpdatedByUserId = this.CurrentUser.UserId;
-                WIRecurrencePattern recurrencePattern = new WIRecurrencePattern();
 
                 if (workItem.isRecurring == true)
                 {
-                    recurrencePattern = model.TransformToRecurrencePattern();
+                    workItem.RecurrencePattern = model.TransformToRecurrencePattern();
+                    workItem.RecurrenceType = model.RecurrenceType;
 
-                    this.dataContext.WIRecurrencePatterns.Add(recurrencePattern);
-                    this.dataContext.SaveChanges();
-
-                    workItem.WIRecurrencePatternId = recurrencePattern.Id;
+                    var occurrenceDates = GetOccurrenceDates(workItem);
+                    workItem.RecurringItems = new List<RecurringItem>();
+                    foreach (var date in occurrenceDates)
+                    {
+                        workItem.RecurringItems.Add(new RecurringItem
+                        {
+                            Start = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemStart.Value.Hour, model.RecurringItemStart.Value.Minute, model.RecurringItemStart.Value.Second),
+                            End = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemEnd.Value.Hour, model.RecurringItemEnd.Value.Minute, model.RecurringItemEnd.Value.Second),
+                            OriginalDate = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemStart.Value.Hour, model.RecurringItemStart.Value.Minute, model.RecurringItemStart.Value.Second),
+                            IndividualBody = workItem.Body,
+                            IndividualLocation = workItem.Location
+                        });
+                    }
                 }
 
                 this.dataContext.WorkItems.Add(workItem);
                 this.dataContext.SaveChanges();
-
-                if (workItem.isRecurring == true)
-                {
-                    var occurrenceDates = GetOccurrenceDates(workItem, recurrencePattern);
-                    foreach (var date in occurrenceDates)
-                    {
-                        var recurringItem = new RecurringItem
-                        {
-                            WorkItemId = workItem.Id,
-                            Start = date,
-                            End = workItem.EndDateTime,
-                            OriginalDate = (DateTime)workItem.StartDateTime,
-                            IndividualBody = workItem.Body,
-                            IndividualLocation = workItem.Location
-                        };
-                        this.dataContext.RecurringItems.Add(recurringItem);
-                        this.dataContext.SaveChanges();
-                    }
-                }
                 return RedirectToAction("Index");
             }
 
@@ -111,12 +101,15 @@ namespace Navigate.Controllers
 
         public ActionResult Edit(int id = 0)
         {
-            WorkItem workitem = this.dataContext.WorkItems.Find(id);
-            if (workitem == null)
+            WorkItem workItem = this.dataContext.WorkItems.Find(id);
+            if (workItem == null)
             {
                 return HttpNotFound();
             }
-            return View(workitem);
+
+            var model = new WorkItemDataInputModel(workItem);
+            populateDropDownLists(model);
+            return View(model);
         }
 
         //
@@ -173,19 +166,37 @@ namespace Navigate.Controllers
             return View();
         }
 
-        #region ["Outlook logic"]
+        public ActionResult Complete(int id = 0)
+        {
+            WorkItem workItem = this.dataContext.WorkItems.Find(id);
+            if (workItem == null)
+            {
+                return HttpNotFound();
+            }
+            else
+            {
+                if (workItem.isCompleted == false)
+                {
+                    workItem.isCompleted = true;
+                }
+                else
+                {
+                    workItem.isCompleted = false;
+                }
+            }
+            this.dataContext.SaveChanges();
+            return RedirectToAction("Index");
+
+        }
 
         [HttpPost]
         public JsonResult GetOutlookCalendarItems()
         {
-            string message = "Success";
             var importService = new OutlookItemImportService(this.dataContext, this.CurrentUser);
-            importService.ImportOutlookCalendarItems();
+            var message = importService.ImportOutlookCalendarItems();
 
             return new JsonResult() { Data = new { Message = message } };
         }
-
-        #endregion
 
         protected override void Dispose(bool disposing)
         {
@@ -193,7 +204,7 @@ namespace Navigate.Controllers
             base.Dispose(disposing);
         }
 
-        public void populateDropDownLists(WorkItemCreateViewModel model)
+        public void populateDropDownLists(WorkItemDataInputModel model)
         {
             var types = (from r in this.dataContext.WorkItemTypes
                             select r).ToList();
@@ -217,15 +228,16 @@ namespace Navigate.Controllers
         /// <param name="recurrenceType">The recurrence type</param>
         /// <param name="recurrencePattern">The recurrence pattern</param>
         /// <returns>A list of datetime objects</returns>
-        private List<DateTime> GetOccurrenceDates(WorkItem workItem, WIRecurrencePattern recurrencePattern)
+        private List<DateTime> GetOccurrenceDates(WorkItem workItem)
         {
             var occurrenceDates = new List<DateTime>();
+            var recurrencePattern = workItem.RecurrencePattern;
             DateTime start = (DateTime)workItem.StartDateTime;
             DateTime end = workItem.EndDateTime;
             int interval = recurrencePattern.Interval;
             int dayofMonth = recurrencePattern.DayOfMonth;
             int instance = (int)recurrencePattern.Instance;
-            int monthOfyear = (int)recurrencePattern.MonthOfYear;
+            int monthOfYear = (int)recurrencePattern.MonthOfYear;
 
             if (workItem.RecurrenceType == RecurrenceType.Daily)
             {
@@ -235,6 +247,7 @@ namespace Navigate.Controllers
                 }
                 return occurrenceDates;
             }
+
             else if (workItem.RecurrenceType == RecurrenceType.Weekly)
             {
                 var daysOfWeek = GetRecurringDaysOfWeek((int)recurrencePattern.DayOfWeekMask);
@@ -249,6 +262,7 @@ namespace Navigate.Controllers
                 }
                 return occurrenceDates;
             }
+
             else if (workItem.RecurrenceType == RecurrenceType.Monthly)
             {
                 DateTime startOfMonth = new DateTime(start.Year, start.Month, 01);
@@ -259,34 +273,41 @@ namespace Navigate.Controllers
                 }
                 return occurrenceDates;
             }
+
             else if (workItem.RecurrenceType == RecurrenceType.MonthNth)
             {
                 var dayOfWeek = GetRecurringDaysOfWeek((int)recurrencePattern.DayOfWeekMask);
-                DateTime startOfMonth = new DateTime(start.Year, start.Month, 01);
-                DateTime recurringWeekDayInMonth = GetNextWeekday(dayOfWeek[0], startOfMonth);
-                DateTime NthWeekdayDayInMonth = recurringWeekDayInMonth.AddDays((instance - 1) * 7);
-                for (DateTime cur = NthWeekdayDayInMonth; cur <= end; cur = cur.AddMonths(interval))
+                DateTime NthWeekdayDayInMonth = GetNthWeekdayDateInMonth(start, instance, dayOfWeek);
+                if (NthWeekdayDayInMonth < start)
+                {
+                    NthWeekdayDayInMonth = GetNthWeekdayDateInMonth(start = start.AddMonths(1), instance, dayOfWeek);
+                }
+                for (DateTime cur = NthWeekdayDayInMonth; cur <= end; cur = GetNthWeekdayDateInMonth(cur = cur.AddMonths(interval), instance, dayOfWeek))
                 {
                     occurrenceDates.Add(cur);
                 }
                 return occurrenceDates;
             }
+
             else if (workItem.RecurrenceType == RecurrenceType.Yearly)
             {
-                DateTime dayOfYear = new DateTime(start.Year, monthOfyear, dayofMonth);
+                DateTime dayOfYear = new DateTime(start.Year, monthOfYear, dayofMonth);
                 for (DateTime cur = dayOfYear; cur <= end; cur = cur.AddYears(interval))
                 {
                     occurrenceDates.Add(cur);
                 }
                 return occurrenceDates;
             }
+
             else
             {
                 var dayOfWeek = GetRecurringDaysOfWeek((int)recurrencePattern.DayOfWeekMask);
-                DateTime startOfMonth = new DateTime(start.Year, start.Month, 01);
-                DateTime recurringWeekDayInMonth = GetNextWeekday(dayOfWeek[0], startOfMonth);
-                DateTime NthWeekdayDayInMonth = recurringWeekDayInMonth.AddDays((instance - 1) * 7);
-                for (DateTime cur = NthWeekdayDayInMonth; cur <= end; cur = cur.AddYears(interval))
+                DateTime NthWeekdayDayInMonth = GetNthWeekdayDateInMonth(start, instance, dayOfWeek);
+                if (NthWeekdayDayInMonth < start)
+                {
+                    NthWeekdayDayInMonth = GetNthWeekdayDateInMonth(start = start.AddMonths(1), instance, dayOfWeek);
+                }
+                for (DateTime cur = NthWeekdayDayInMonth; cur <= end; cur = GetNthWeekdayDateInMonth(cur = cur.AddYears(interval), instance, dayOfWeek))
                 {
                     occurrenceDates.Add(cur);
                 }
@@ -356,6 +377,15 @@ namespace Navigate.Controllers
             while (result.DayOfWeek != day)
                 result = result.AddDays(1);
             return result;
+        }
+
+        static DateTime GetNthWeekdayDateInMonth(DateTime start, int instance, List<DayOfWeek> dayOfWeek)
+        {
+            DateTime startOfMonth = new DateTime(start.Year, start.Month, 01);
+            DateTime recurringWeekDayInMonth = GetNextWeekday(dayOfWeek[0], startOfMonth);
+            DateTime NthWeekdayDayInMonth = recurringWeekDayInMonth.AddDays((instance - 1) * 7);
+
+            return NthWeekdayDayInMonth;
         }
     }
 }

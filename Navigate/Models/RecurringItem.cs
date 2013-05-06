@@ -26,5 +26,7 @@ namespace Navigate.Models
         public string IndividualLocation { get; set; }
 
         public string IndividualBody { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
     }
 }

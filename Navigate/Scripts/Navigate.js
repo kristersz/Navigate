@@ -16,9 +16,7 @@ $(document).ready(function () {
             }
         }
     });
-});
 
-$(document).ready(function () {
     $.culture = Globalize.culture('lv-LV');
 });
 

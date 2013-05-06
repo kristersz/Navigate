@@ -21,5 +21,20 @@ namespace Navigate.Models
         public DbSet<WorkItemType> WorkItemTypes { get; set; }
         public DbSet<RecurringItem> RecurringItems { get; set; }
         public DbSet<WIRecurrencePattern> WIRecurrencePatterns { get; set; }
+        public DbSet<Category> Categories { get; set; }
+
+        //define the necessary relationships
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<WorkItem>()
+                .HasOptional(p => p.RecurrencePattern).WithRequired(p => p.WorkItem);
+            //modelBuilder.Entity<WorkItem>()
+            //    .HasOptional(p => p.RecurringItems);
+            modelBuilder.Entity<WorkItem>()
+                .HasMany(p => p.Categories).WithMany(p => p.WorkItems)
+                .Map(t => t.MapLeftKey("WorkItemId")
+                    .MapRightKey("CategoryId")
+                    .ToTable("WorkItemCategories"));
+        }
     }
 }

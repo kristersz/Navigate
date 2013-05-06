@@ -1,0 +1,68 @@
+﻿@model Navigate.Models.RecurringItem
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<fieldset>
+    <legend>RecurringItem</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.OriginalDate)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.OriginalDate)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.WorkItem.Subject)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.WorkItem.Subject)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Start)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Start)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.End)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.End)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.IndividualLocation)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.IndividualLocation)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.IndividualBody)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.IndividualBody)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.UpdatedAt)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.UpdatedAt)
+    </div>
+</fieldset>
+@using (Html.BeginForm()) {
+    @Html.AntiForgeryToken()
+    <p>
+        <input type="submit" value="Delete" /> |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+}

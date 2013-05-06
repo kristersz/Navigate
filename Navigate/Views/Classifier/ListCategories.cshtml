@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Navigate.Models.Classifiers.Category>
+
+@{
+    ViewBag.Title = "Categories";
+}
+
+<h2>Categories</h2>
+<div>
+    <p>
+        <button name="button" type="button" id="createNewCategory">Jauns</button>
+    </p>
+    <table>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                       
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <br />
+    <div>
+        @Html.ActionLink("Atpakaļ pie saraksta", "Index")
+    </div>
+</div>

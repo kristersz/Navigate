@@ -50,6 +50,12 @@ namespace Navigate.Controllers
                 db.SaveChanges();
                 Update();
             }
+
+            protected override void OnEventClick(EventClickArgs e)
+            {
+                var id = Convert.ToInt32(e.Id);
+                
+            }
             
             protected override void OnTimeRangeSelected(TimeRangeSelectedArgs e)
             {

@@ -1,10 +1,11 @@
-﻿using Microsoft.Office.Interop.Outlook;
+﻿using Outlook = Microsoft.Office.Interop.Outlook;
 using Navigate.Models;
 using Navigate.Models.Classifiers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Reflection;
 
 namespace Navigate.Services
 {
@@ -22,17 +23,22 @@ namespace Navigate.Services
         /// <summary>
         /// Imports the items in Outlook calendar folder of current user
         /// </summary>
-        public void ImportOutlookCalendarItems()
+        public string ImportOutlookCalendarItems()
         {
-            Application outlookApp = null;
-            NameSpace mapiNamespace = null;
-            MAPIFolder CalendarFolder = null;
-            Items outlookCalendarItems = null;
+            string result = String.Empty;
+            int importedItemCount = 0;
+            int importedOccurences = 0;
 
-            //initialize Outlook API
-            outlookApp = new Application();
+            Outlook.Application outlookApp = null;
+            Outlook.NameSpace mapiNamespace = null;
+            Outlook.MAPIFolder CalendarFolder = null;
+            Outlook.Items outlookCalendarItems = null;
+
+            //initialize Outlook API and log on
+            outlookApp = new Outlook.Application();
             mapiNamespace = outlookApp.GetNamespace("MAPI");
-            CalendarFolder = mapiNamespace.GetDefaultFolder(OlDefaultFolders.olFolderCalendar);
+            CalendarFolder = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
+            mapiNamespace.Logon(Missing.Value, Missing.Value, true, true);
 
             //filter for getting only the items whose start date is equal of greater than present time
             String filter = "[Start] >= '" + DateTime.Now.ToString("MM/dd/yyyy hh:mm") + "'";
@@ -42,7 +48,7 @@ namespace Navigate.Services
             outlookCalendarItems.Sort("[Start]");
             outlookCalendarItems.IncludeRecurrences = true;
 
-            foreach (AppointmentItem item in outlookCalendarItems)
+            foreach (Outlook.AppointmentItem item in outlookCalendarItems)
             {
                 var existingWorkItem = this.dataContext.WorkItems.Where(o => o.OutlookEntryId != null && o.OutlookEntryId == item.EntryID).FirstOrDefault();
 
@@ -66,6 +72,7 @@ namespace Navigate.Services
                         workItem.AssignedToUserId = this.CurrentUser.UserId;
 
                         this.dataContext.WorkItems.Add(workItem);
+                        importedItemCount++;
                     }
                     else
                     {
@@ -79,6 +86,7 @@ namespace Navigate.Services
                             existingWorkItem.Body = item.Body;
                             existingWorkItem.UpdatedAt = DateTime.Now;
                             existingWorkItem.UpdatedByUserId = this.CurrentUser.UserId;
+                            importedItemCount++;
                         }
                     }
                     this.dataContext.SaveChanges();
@@ -86,11 +94,11 @@ namespace Navigate.Services
 
                 else if (item.IsRecurring)
                 {
-                    RecurrencePattern recurrencePattern = item.GetRecurrencePattern();
+                    Outlook.RecurrencePattern recurrencePattern = item.GetRecurrencePattern();
                     RecurrenceType recurrenceType = 0;
-                    //Get all the exceptions in recurring items, e.g. items which belong to a series of occurrences, but whose properties have been solely changed
-                    List<Microsoft.Office.Interop.Outlook.Exception> exceptions = new List<Microsoft.Office.Interop.Outlook.Exception>();
-                    foreach (Microsoft.Office.Interop.Outlook.Exception exception in recurrencePattern.Exceptions)
+                    //Get all the exceptions in recurring items, e.g. items which belong to a series of occurrences, but whose properties have been changed
+                    List<Outlook.Exception> exceptions = new List<Outlook.Exception>();
+                    foreach (Outlook.Exception exception in recurrencePattern.Exceptions)
                     {
                         exceptions.Add(exception);
                     }
@@ -126,17 +134,7 @@ namespace Navigate.Services
 
                     if (existingWorkItem == null)
                     {
-                        //Save the pattern for future reference
-                        var pattern = new WIRecurrencePattern();
-                        pattern.Interval = recurrencePattern.Interval;
-                        pattern.DayOfWeekMask = (DayOfWeekMask)Enum.ToObject(typeof(DayOfWeekMask), recurrencePattern.MonthOfYear);
-                        pattern.DayOfMonth = recurrencePattern.DayOfMonth;
-                        pattern.MonthOfYear = (MonthOfYear)Enum.ToObject(typeof(MonthOfYear), recurrencePattern.MonthOfYear);
-                        pattern.Instance = (Instance)Enum.ToObject(typeof(Instance), recurrencePattern.MonthOfYear);
-
-                        this.dataContext.WIRecurrencePatterns.Add(pattern);
-                        this.dataContext.SaveChanges();
-
+                        //Create a new work item that can be accessed as a parent from all its recurring items
                         var workItem = new WorkItem();
                         //if recurrence pattern has end date we save it,
                         //else we only create recurring items until the end of the current year to avoid large data sets
@@ -152,7 +150,20 @@ namespace Navigate.Services
                         workItem.Body = item.Parent.Body;
                         workItem.WorkItemTypeId = this.dataContext.WorkItemTypes.Where(o => o.Type == "Meeting").FirstOrDefault().Id;
                         workItem.isRecurring = true;
-                        workItem.WIRecurrencePatternId = pattern.Id;
+                        workItem.RecurrencePattern = new WIRecurrencePattern {
+                            Interval = recurrencePattern.Interval,
+                            DayOfWeekMask = (DayOfWeekMask)Enum.ToObject(typeof(DayOfWeekMask), recurrencePattern.MonthOfYear),
+                            DayOfMonth = recurrencePattern.DayOfMonth,
+                            MonthOfYear = (MonthOfYear)Enum.ToObject(typeof(MonthOfYear), recurrencePattern.MonthOfYear),
+                            Instance = (Instance)Enum.ToObject(typeof(Instance), recurrencePattern.MonthOfYear)
+                        };
+                        workItem.RecurringItems.Add(new RecurringItem {
+                            OriginalDate = item.Start,
+                            Start = item.Start,
+                            End = item.End,
+                            IndividualBody = item.Body,
+                            IndividualLocation = item.Location,
+                        });
                         workItem.RecurrenceType = recurrenceType;
                         workItem.CreatedByUserId = this.CurrentUser.UserId;
                         workItem.UpdatedByUserId = this.CurrentUser.UserId;
@@ -160,21 +171,42 @@ namespace Navigate.Services
 
                         this.dataContext.WorkItems.Add(workItem);
                         this.dataContext.SaveChanges();
-
-                        var recurringItem = new RecurringItem();
-                        recurringItem.OriginalDate = item.Start;
-                        recurringItem.WorkItemId = workItem.Id;
-                        recurringItem.Start = item.Start;
-                        recurringItem.End = item.End;
-                        recurringItem.IndividualBody = item.Body;
-                        recurringItem.IndividualLocation = item.Location;
-
-                        this.dataContext.RecurringItems.Add(recurringItem);
-                        this.dataContext.SaveChanges();
-                       
+                        importedItemCount++;
+                        importedOccurences++;
                     }
+
                     else
                     {
+                        //Check if recurrence pattern has not changed
+                        var existingPattern = this.dataContext.WIRecurrencePatterns.Where(o => o.WorkItemId == existingWorkItem.Id).FirstOrDefault();
+                        int mismatch = 0;
+                        if (existingPattern.Interval != recurrencePattern.Interval) mismatch = 1;
+                        if ((int)existingPattern.DayOfWeekMask != (int)recurrencePattern.DayOfWeekMask) mismatch = 1;
+                        if ((int)existingPattern.Instance != recurrencePattern.Instance) mismatch = 1;
+                        if (existingPattern.DayOfMonth != recurrencePattern.DayOfMonth) mismatch = 1;
+                        if ((int)existingPattern.MonthOfYear != recurrencePattern.MonthOfYear) mismatch = 1;
+
+                        if (mismatch == 1)
+                        {
+                            //if the pattern has changed delete all of the old recurring items, save the new pattern and asociate it with the work item
+                            var oldRecurringItems = this.dataContext.RecurringItems.Where(o => o.WorkItemId == existingWorkItem.Id).ToList();
+                            foreach (var recurringItem in oldRecurringItems)
+                            {
+                                this.dataContext.RecurringItems.Remove(recurringItem);
+                            }
+                            var pattern = new WIRecurrencePattern();
+                            pattern.Interval = recurrencePattern.Interval;
+                            pattern.DayOfWeekMask = (DayOfWeekMask)Enum.ToObject(typeof(DayOfWeekMask), recurrencePattern.MonthOfYear);
+                            pattern.DayOfMonth = recurrencePattern.DayOfMonth;
+                            pattern.MonthOfYear = (MonthOfYear)Enum.ToObject(typeof(MonthOfYear), recurrencePattern.MonthOfYear);
+                            pattern.Instance = (Instance)Enum.ToObject(typeof(Instance), recurrencePattern.MonthOfYear);
+                            this.dataContext.WIRecurrencePatterns.Add(pattern);
+                            this.dataContext.SaveChanges();
+
+                            //existingWorkItem.WIRecurrencePatternId = pattern.WorkItemId;
+                            this.dataContext.SaveChanges();
+                        }
+
                         var exception = exceptions.Find(o => o.AppointmentItem.Start == item.Start);
 
                         if (exception != null)
@@ -189,6 +221,7 @@ namespace Navigate.Services
                                 this.dataContext.SaveChanges();
                             }
                         }
+
                         else
                         {
                             var recurringItem = new RecurringItem();
@@ -204,6 +237,11 @@ namespace Navigate.Services
                     }
                 }
             }
+            //Log off
+            mapiNamespace.Logoff();
+            result = String.Format("A total of {0] items were successfully imported, of which {1} were occurrences of recurring items", importedItemCount, importedOccurences);
+
+            return result;
         }
     }
 }

@@ -34,6 +34,14 @@
         {
             @Html.ActionLink("Navigate", "Navigate", new { id = item.Id })
         }
+        @if (item.isCompleted == false)
+        {
+          @Html.ActionLink("Mark as completed", "Complete", new { id = item.Id })
+        }
+        else
+        {
+          @Html.ActionLink("Mark as incomplete", "Complete", new { id = item.Id })
+        }
         @Html.ActionLink("Edit", "Edit", new { id = item.Id })
         @Html.ActionLink("Details", "Details", new { id = item.Id })
         @Html.ActionLink("Delete", "Delete", new { id = item.Id })

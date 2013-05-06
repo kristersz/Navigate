@@ -1,0 +1,64 @@
+﻿@model Navigate.Models.RecurringItem
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>RecurringItem</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.OriginalDate)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.OriginalDate)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.WorkItem.Subject)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.WorkItem.Subject)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Start)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Start)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.End)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.End)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.IndividualLocation)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.IndividualLocation)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.IndividualBody)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.IndividualBody)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.UpdatedAt)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.UpdatedAt)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

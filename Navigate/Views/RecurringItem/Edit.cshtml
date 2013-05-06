@@ -1,0 +1,86 @@
+﻿@model Navigate.Models.RecurringItem
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm()) {
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>RecurringItem</legend>
+
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.OriginalDate)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.OriginalDate)
+            @Html.ValidationMessageFor(model => model.OriginalDate)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.WorkItemId, "WorkItem")
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("WorkItemId", String.Empty)
+            @Html.ValidationMessageFor(model => model.WorkItemId)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Start)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Start)
+            @Html.ValidationMessageFor(model => model.Start)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.End)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.End)
+            @Html.ValidationMessageFor(model => model.End)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.IndividualLocation)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.IndividualLocation)
+            @Html.ValidationMessageFor(model => model.IndividualLocation)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.IndividualBody)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.IndividualBody)
+            @Html.ValidationMessageFor(model => model.IndividualBody)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.UpdatedAt)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.UpdatedAt)
+            @Html.ValidationMessageFor(model => model.UpdatedAt)
+        </div>
+
+        <p>
+            <input type="submit" value="Save" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
