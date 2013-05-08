@@ -42,7 +42,7 @@
     display: none;
 }
 
-#createForm select, #editForm select {
+#createEditForm select {
     width: 150px;
     height: 30px;
     margin: 5px 0 6px 0;
@@ -84,3 +84,39 @@
 #recurrencePatterns {
     float: left;
 }
+
+#logoutForm {
+    display: inline;
+    margin: 0;
+}
+
+/* Add top padding for navbar-top-fixed */
+body {
+  padding-top: 60px;
+  padding-bottom: 40px;
+  background-color: #C8C8C8;
+}
+/* Remove top padding when top navbar goes static in narrow viewports */
+@media (max-width: 979px) {
+  body {
+    padding-top: 0;
+  }
+}
+
+#content {
+    margin: 0px auto;
+    background-color: white;
+    padding: 20px;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+}
+
+#body {
+    margin-bottom: 30px;
+}
+
+footer.row {
+    border-top: 3px solid #C8C8C8;
+}
+
+.ui-widget { font-size: 1em; }

@@ -5,63 +5,75 @@
         <title>@ViewBag.Title - Navigate</title>
         <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <meta name="viewport" content="width=device-width" />
-        <script src="@Url.Content("~/Scripts/DayPilot/common.js")" type="text/javascript"></script>
-        <script src="@Url.Content("~/Scripts/DayPilot/calendar.js")" type="text/javascript"></script>
-        @Styles.Render("~/Content/bootstrapcss")
         @*@Styles.Render("~/Content/css")*@
-        @*@Styles.Render("~/Content/themes/base/css")*@
+        @Styles.Render("~/Content/themes/base/css")
+        @Styles.Render("~/Content/bootstrapcss")
+        @Styles.Render("~/Content/calendarcss")
         @Scripts.Render("~/bundles/modernizr")
     </head>
     <body>
         <header>
-            <div class="navbar navbar-inverse nav-bar-fixed-top">
+            <div class="navbar navbar-inverse navbar-fixed-top">
                 <div class="navbar-inner">
-                    <div class="container-fluid">
-                        <p class="brand">@Html.ActionLink("Navigate", "Index", "Home")</p>
-                        <div>
-                            <section class="pull-right">
-                                @Html.Partial("_LoginPartial")
-                            </section>
-                            <nav class="nav-collapse">
-                                <ul class="nav">
-                                    <li>@Html.ActionLink("Work Items", "Index", "WorkItem")</li>
-                                    <li>@Html.ActionLink("Calendar", "Index", "Calendar")</li>
-                                    <li>@Html.ActionLink("Classifiers", "Index", "Classifier")</li>
-                                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                                    <li>@Html.ActionLink("About", "About", "Home")</li>
-                                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>                           
-                                </ul>
-                            </nav>
+                    <div class="container">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="/Home">Navigate</a>
+                        <div class="nav-collapse">
+                            <ul class="nav">
+                                <li>@Html.ActionLink("Work Items", "Index", "WorkItem")</li>
+                                <li>@Html.ActionLink("Calendar", "Index", "Calendar")</li>
+                                <li>@Html.ActionLink("Classifiers", "Index", "Classifier")</li>
+                                <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                                <li>@Html.ActionLink("About", "About", "Home")</li>
+                                <li>@Html.ActionLink("Contact", "Contact", "Home")</li>                           
+                            </ul>
+                        </div>
+                        <div class="pull-right">
+                            @Html.Partial("_LoginPartial")   
                         </div>
                     </div>
                 </div>
             </div>
         </header>
-        <div id="body">
-            @RenderSection("featured", required: false)
-            <section class="container-fluid">
-                @RenderBody()
-            </section>
-        </div>
-        <footer>
-            <div class="content-wrapper">
-                <div class="float-left">
-                    <p>&copy; @DateTime.Now.Year - &copy; Kristers Zīmecs</p>
+        <div id="content" class="container">
+            <div id="body" class="row">
+                <div class="span12">
+                @RenderSection("featured", required: false)
+                <section class="">
+                    @RenderBody()
+                </section>
                 </div>
             </div>
-        </footer>
+            <footer class="row">
+                <div class="span10">
+                    <p>&copy; @DateTime.Now.Year - &copy; Kristers Zīmecs</p>
+                </div>
+            </footer>
+        </div>
         <div id="ajaxRequestLoading"><span>Pieprasījums tiek apstrādāts...</span></div>
-        <div id="dialogMessage" title="Information box">
-            <p id="dialogMessageText"></p>
+        <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="myModalLabel"></h3>
+            </div>
+            <div id="myModalBody" class="modal-body"></div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Labi</button>
+            </div>
         </div>
         @Scripts.Render("~/bundles/jquery")
-        @Scripts.Render("~/bundles/bootstrap")
+        @Scripts.Render("~/bundles/knockout")
         <script src="@Url.Content("~/Scripts/jquery.pnotify.min.js")" type="text/javascript"></script>
         @Scripts.Render("~/bundles/jqueryui")
         @Scripts.Render("~/bundles/jqueryval")
         @Scripts.Render("~/bundles/globalization")
-        @Scripts.Render("~/bundles/navigate")
-        @Scripts.Render("~/bundles/knockout")
+        @Scripts.Render("~/bundles/bootstrap")
+        @Scripts.Render("~/bundles/calendar")
+        @Scripts.Render("~/bundles/navigate")            
         @RenderSection("scripts", required: false)
     </body>
 </html>

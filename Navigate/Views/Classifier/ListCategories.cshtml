@@ -4,12 +4,19 @@
     ViewBag.Title = "Categories";
 }
 
+<script type="text/javascript">
+    function deleteCategory(categoryId) {
+        $("#categoryId").val(categoryId);
+        $("#verifyDeleteModal").modal("show");
+    }
+</script>
+
 <h2>Categories</h2>
 <div>
     <p>
-        <button name="button" type="button" id="createNewCategory">Jauns</button>
+        <a href="#newCategoryModal" role="button" class="btn" data-toggle="modal">Pievienot kategoriju</a>
     </p>
-    <table>
+    <table class="table table-bordered table-striped" style="width: 500px;">
         <tbody>
             @foreach (var item in Model)
             {
@@ -18,7 +25,7 @@
                         @Html.DisplayFor(modelItem => item.Name)
                     </td>
                     <td>
-                       
+                       <a href="#" onclick="deleteCategory(@item.ID.ToString());">Dzēst</a>
                     </td>
                 </tr>
             }
@@ -29,3 +36,122 @@
         @Html.ActionLink("Atpakaļ pie saraksta", "Index")
     </div>
 </div>
+
+<div id="newCategoryModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newCategoryLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="newCategoryLabel">Jauna kategorija</h3>
+  </div>
+  <div class="modal-body">
+    @using (Ajax.BeginForm("CreateCategory", "Classifier", null, new AjaxOptions() { HttpMethod = "POST", LoadingElementId = "ajaxRequestLoading", OnComplete = "requestCompleted" }, new { @id = "newCategoryForm" }))
+    {
+        @Html.ValidationSummary(true)
+        @Html.Hidden("ID")
+        <div class="editor-label">
+            <label for="Name">Kategorijas nosaukums</label>
+        </div>
+        <div class="editor-field">
+            @Html.TextBox("Name", string.Empty, new { @data_val_required = "Kategorija ir obligāts lauks", @data_val = "true", @maxlength = "140" })
+            @Html.ValidationMessage("Name")
+        </div>
+    }
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Aizvērt</button>
+    <button id="verifySave" class="btn btn-primary">Saglabāt</button>
+  </div>
+</div>
+
+<div id="verifySaveModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="saveConfirmationLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="saveConfirmationLabel">Apstiprinājums</h3>
+  </div>
+  <div class="modal-body">
+    <p>Vai tiešām vēlaties saglabāt kategoriju?</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Aizvērt</button>
+    <button id="saveCategory" class="btn btn-primary">Saglabāt</button>
+  </div>
+</div>
+
+<div id="verifyDeleteModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="deleteConfirmationLabel">Apstiprinājums</h3>
+  </div>
+  <div class="modal-body">
+    <p>Vai tiešām vēlaties dzēst kategoriju?</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Aizvērt</button>
+    <button id="deleteCategory" class="btn btn-primary">Izdzēst</button>
+  </div>
+</div>
+
+<input type="hidden" id="categoryId" />
+
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+            $("#verifySave").click(function () {
+                if ($("#newCategoryForm").valid()) {
+                    $("#verifySaveModal").modal("show");
+                }
+            });
+
+            $("#saveCategory").click(function () {
+                $("#newCategoryForm").submit();
+                $("#verifySaveModal").modal("hide");
+                $("#newCategoryModal").modal("hide");
+            });
+
+            $("#deleteCategory").click(function () {
+                $.ajax({
+                    url: '@Url.Action("DeleteCategory", "Classifier")',
+                    type: 'POST',
+                    data: {
+                        categoryId: $('#categoryId').val()
+                    },
+                    success: function (data) {
+                        if (data.IsValid) {
+                            window.location.reload(true);
+                        }
+                        else {
+                            alert(data.Message);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert("Notika kļūda, lūdzu mēģiniet vēlreiz.");
+                    },
+                    complete: function (jqXHR, textStatus) {
+                        $("#ajaxRequestLoading").hide();
+                    },
+                    beforeSend: function (jqXHR, settings) {
+                        $("#ajaxRequestLoading").show();
+                    }
+                });
+            });
+        });
+
+        function requestCompleted(data, status, xhr) {
+            if (typeof (data) === 'undefined' || data == null) {
+                return;
+            }
+
+            if (status == 'success') {
+                var resp = $.parseJSON(data.responseText);
+                //If there was an error, display it to the user
+                if (resp.IsValid == false) {
+                    alert(resp.Message);
+                    $("#newCategoryForm").modal("show");
+                    return;
+                }
+                else {
+                    window.location.reload(true);
+                }
+            }
+        }
+    </script>
+}

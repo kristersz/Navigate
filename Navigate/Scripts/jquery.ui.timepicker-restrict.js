@@ -36,13 +36,13 @@ endDateTextBox.datetimepicker({
     }
 });
 
-$('#DueDate').datetimepicker({
+$('.datetimefield').datetimepicker({
     controlType: 'select',
 });
 
-$("#RecurringItemStart").timepicker({
+$(".timefield").timepicker({
     controlType: 'select',
 });
-$("#RecurringItemEnd").timepicker({
+$(".timefield").timepicker({
     controlType: 'select',
 });

@@ -18,6 +18,8 @@ namespace Navigate.ViewModels
         {
             this.AllWorkItemTypes = new List<SelectListItem>();
             this.AllUsers = new List<SelectListItem>();
+            this.Categories = new List<Category>();
+            this.SelectedCategoryIds = new List<int>();
             this.Priority = WorkItemPriority.NormalPriority;
             this.StartDate = DateTime.Now;
             this.EndDate = DateTime.Now;
@@ -68,6 +70,10 @@ namespace Navigate.ViewModels
                 return Enums.GetValues<WorkItemPriority>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
             }
         }
+
+        public List<Category> Categories { get; set; }
+
+        public List<int> SelectedCategoryIds { get; set; }
 
         public bool isRecurring { get; set; }
 

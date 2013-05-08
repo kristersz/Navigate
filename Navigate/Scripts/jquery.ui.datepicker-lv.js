@@ -22,4 +22,21 @@
 	$(".datefield").datepicker({
 		yearRange: '1930:2030',
 	});
+
+	$.timepicker.regional['lv'] = {
+	    timeOnlyTitle: 'Izvēlieties laiku',
+	    timeText: 'Laiks',
+	    hourText: 'Stundas',
+	    minuteText: 'Minūtes',
+	    secondText: 'Sekundes',
+	    millisecText: 'Milisekundes',
+	    timezoneText: 'laika zona',
+	    currentText: 'Tagad',
+	    closeText: 'Aizvērt',
+	    timeFormat: 'HH:mm',
+	    amNames: ['AM', 'A'],
+	    pmNames: ['PM', 'P'],
+	    isRTL: false
+	};
+	$.timepicker.setDefaults($.timepicker.regional['lv']);
 });

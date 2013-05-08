@@ -1,24 +1,46 @@
-﻿@using DayPilot.Web.Mvc;
-@using DayPilot.Web.Mvc.Events.Calendar;
-@using DayPilot.Web.Mvc.Enums.Calendar;
-
-@{
+﻿@{
     ViewBag.Title = "Index";
 }
+<style type='text/css'>
+    #calendar-wrapper {
+        text-align: center;
+        font-size: 14px;
+        font-family: Arial,Helvetica,Arial,Verdana,sans-serif;
+    }
+    #calendar {
+        width: 900px;
+        margin: 0 auto;
+    }       
+</style>
+<div id="calendar-wrapper">
+    <h2>Calendar</h2>
+    <div id="calendar"></div>
+</div>
 
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
 
-<h2>Index</h2>
+            $('#calendar').fullCalendar({
+                editable: true,
+                theme: true,
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                firstHour: 9,
+                defaultView: "agendaWeek",
+                events: "/Calendar/GetEvents",
+                dayClick: function (date, allDay, jsEvent, view) {
+                    alert("Datums ir " + date);
+                },
+                selectable: true,
+                selectHelper: true,
+                color: 'yellow',
+                textColor: 'black'
+            })
 
-@Html.DayPilotCalendar("dpc", new DayPilotCalendarConfig
-{
-  BackendUrl = Url.Content("~/Calendar/Backend"),
-  ViewType = DayPilot.Web.Mvc.Enums.Calendar.ViewType.Week,
-  HeightSpec = DayPilot.Web.Mvc.Enums.Calendar.HeightSpec.BusinessHours,
-  BusinessBeginsHour = 9,
-  BusinessEndsHour = 18,
-  EventMoveHandling = DayPilot.Web.Mvc.Events.Calendar.EventMoveHandlingType.CallBack,
-  EventResizeHandling = DayPilot.Web.Mvc.Events.Calendar.EventResizeHandlingType.CallBack,
-  EventClickHandling = DayPilot.Web.Mvc.Events.Calendar.EventClickHandlingType.CallBack,
-  //TimeRangeSelectedHandling = DayPilot.Web.Mvc.Events.Calendar.TimeRangeSelectedHandlingType.JavaScript,
-  //TimeRangeSelectedJavaScript = "dpc.timeRangeSelectedCallBack(start, end, null, { name: prompt('New Event Name:', 'New Event'), location: prompt('Location:', 'Enter location')});"
-})
+        });
+    </script>
+}

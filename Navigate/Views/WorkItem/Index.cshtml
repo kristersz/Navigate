@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Navigate.Models.WorkItem>
+﻿@model IEnumerable<Navigate.ViewModels.WorkItemListViewModel>
 
 @{
     ViewBag.Title = "My work items";
@@ -7,47 +7,49 @@
 <h2>@ViewBag.PageTitle</h2>
 
 <p>
-    @Html.ActionLink("Izveidot", "Create")
-    <button type="button" id="import" data-bind="click: Import">Import from Outlook</button>
+    <a href="@Url.Action("Create")" role =" button" class="btn">Izveidot jaunu uzdevumu</a>
+    <a href="#importSettingsModal" role="button" class="btn" data-toggle="modal">Importēt uzdevumus no Outlook kalendāra</a>
 </p>
 
-@foreach (var item in Model)
-{
-    <div id="workItems">
-        <div>
-            @Html.DisplayNameFor(model => model.Subject) :
-            @Html.DisplayFor(model => item.Subject)
-        </div>
-        <div>
-            @Html.DisplayNameFor(model => model.Location) :
-            @Html.DisplayFor(model => item.Location)
-        </div>
-        <div>
-            @Html.DisplayNameFor(model => model.StartDateTime) :
-            @Html.DisplayFor(model => item.StartDateTime)
-        </div>
-        <div>
-            @Html.DisplayNameFor(model => model.EndDateTime) :
-            @Html.DisplayFor(model => item.EndDateTime)
-        </div>
-        @if (item.Location != null)
-        {
-            @Html.ActionLink("Navigate", "Navigate", new { id = item.Id })
-        }
-        @if (item.isCompleted == false)
-        {
-          @Html.ActionLink("Mark as completed", "Complete", new { id = item.Id })
-        }
-        else
-        {
-          @Html.ActionLink("Mark as incomplete", "Complete", new { id = item.Id })
-        }
-        @Html.ActionLink("Edit", "Edit", new { id = item.Id })
-        @Html.ActionLink("Details", "Details", new { id = item.Id })
-        @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-        <hr />
-    </div>
+@using (Ajax.BeginForm(new AjaxOptions { HttpMethod = "get", InsertionMode = InsertionMode.Replace, UpdateTargetId = "workItemList", LoadingElementId = "ajaxRequestLoading" }))
+{ 
+    <input type="search" name="searchTerm" /><br />
+    <input type="submit" value="Search By Subject" />
 }
+ 
+
+@Html.Partial("_WorkItems", Model)
+
+<div id="importSettingsModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Importa uzstādījumi</h3>
+  </div>
+  <div class="modal-body">
+    <p>Lūdzu norādiet laika intervālu, par kuru importēt uzdevumus</p>
+    @using (Html.BeginForm("GetOutlookCalendarItems", "WorkItem", FormMethod.Post, new { @id = "outlookSettingsForm", @class = "form-horizontal" }))
+    {
+        @Html.ValidationSummary(true)
+        <div class="editor-label">
+            <label for="IntervalStart">No:</label>
+        </div>
+        <div class="editor-field">
+            @Html.TextBox("IntervalStart", DateTime.Now.ToString("dd.MM.yyyy HH:mm"), new { @class = "datetimefield"})
+        </div>
+        <div class="editor-label">
+            <label for="IntervalEnd">Līdz:</label>
+        </div>
+        <div class="editor-field">
+            @Html.TextBox("IntervalEnd", DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy HH:mm"), new { @class = "datetimefield"})
+        </div>
+        <div id="errorMsg"></div>
+    }
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Atcelt</button>
+    <button type="button" id="import" class="btn btn-primary" data-bind="click: Import">Import from Outlook</button>
+  </div>
+</div>
 
 @section Scripts
 {
@@ -58,14 +60,15 @@
             _this.Import = function () {
                 var url = '@Url.Action("GetOutlookCalendarItems", "WorkItem")';
                 $("#ajaxRequestLoading").show();
-                $.post(url, {},
+                $.post(url, $('#outlookSettingsForm').serializeArray(),
                     function (data) {
                         if (data == null || typeof (data) == 'undefined')
                             return;
 
                         showMessage(data.Message, function () {
-                           document.location.href = '@Html.AttributeEncode(Url.Action("Index", "WorkItem"))';
+                            document.location.href = '@Html.AttributeEncode(Url.Action("Index", "WorkItem"))';
                         });
+                        $('#importSettingsModal').modal('hide');
                     },
                     'json'
                 )
@@ -80,10 +83,9 @@
                     $("#ajaxRequestLoading").hide();
                 });
             }
-
             /************************ Initialization ************************/
             ko.applyBindings(_this, $("body").get(0));
-            }
+        }
         viewModel();
     </script>
 }

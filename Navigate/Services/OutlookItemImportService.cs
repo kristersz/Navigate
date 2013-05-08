@@ -15,6 +15,10 @@ namespace Navigate.Services
 
         private UserProfile CurrentUser;
 
+        public DateTime IntervalStart;
+
+        public DateTime IntervalEnd;
+
         public OutlookItemImportService(NavigateDb _dataContext, UserProfile _currentUser)
         {
             this.dataContext = _dataContext;
@@ -23,30 +27,40 @@ namespace Navigate.Services
         /// <summary>
         /// Imports the items in Outlook calendar folder of current user
         /// </summary>
-        public string ImportOutlookCalendarItems()
+        public ServiceResult<OutlookItemImportServiceResult> ImportOutlookCalendarItems()
         {
-            string result = String.Empty;
-            int importedItemCount = 0;
-            int importedOccurences = 0;
-
             Outlook.Application outlookApp = null;
             Outlook.NameSpace mapiNamespace = null;
             Outlook.MAPIFolder CalendarFolder = null;
             Outlook.Items outlookCalendarItems = null;
 
-            //initialize Outlook API and log on
-            outlookApp = new Outlook.Application();
-            mapiNamespace = outlookApp.GetNamespace("MAPI");
-            CalendarFolder = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
-            mapiNamespace.Logon(Missing.Value, Missing.Value, true, true);
+            var messages = new List<Message>();
 
-            //filter for getting only the items whose start date is equal of greater than present time
-            String filter = "[Start] >= '" + DateTime.Now.ToString("MM/dd/yyyy hh:mm") + "'";
+            // try to initialize Outlook API and log on
+            try
+            {
+                outlookApp = new Outlook.Application();
+                mapiNamespace = outlookApp.GetNamespace("MAPI");
+                CalendarFolder = mapiNamespace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderCalendar);
+                mapiNamespace.Logon(Missing.Value, Missing.Value, true, true);
+            }
+            catch (Exception ex)
+            {
+                messages.Add(new Message() { Text = string.Format("Neparedzēta kļūda. ", ex.Message), Severity = MessageSeverity.Error });
+            }
+
+            //build a filter from user inputs
+            String filter = String.Format("([Start] >= '{0:g}') AND ([End] <= '{1:g}')", IntervalStart, IntervalEnd);
      
             //get the filtered Outlook items including the recurring items and sort them to expand the recurrences automatically
             outlookCalendarItems = CalendarFolder.Items.Restrict(filter);
             outlookCalendarItems.Sort("[Start]");
             outlookCalendarItems.IncludeRecurrences = true;
+
+            if (outlookCalendarItems.Count == 0)
+            {
+                messages.Add(new Message() { Text = "Norādītajā laika periodā Jūsu Outlook kalendārā netika atrasts neviens uzdevums", Severity = MessageSeverity.Info });
+            }
 
             foreach (Outlook.AppointmentItem item in outlookCalendarItems)
             {
@@ -65,14 +79,13 @@ namespace Navigate.Services
                         workItem.EndDateTime = item.End;
                         workItem.EstimatedTime = item.Duration;
                         workItem.Body = item.Body;
-                        workItem.WorkItemTypeId = this.dataContext.WorkItemTypes.Where(o => o.Type == "Meeting").FirstOrDefault().Id;
+                        workItem.WorkItemTypeId = this.dataContext.WorkItemTypes.Where(o => o.Type == "Appointment").FirstOrDefault().Id;
                         workItem.isRecurring = false;
                         workItem.CreatedByUserId = this.CurrentUser.UserId;
                         workItem.UpdatedByUserId = this.CurrentUser.UserId;
                         workItem.AssignedToUserId = this.CurrentUser.UserId;
 
                         this.dataContext.WorkItems.Add(workItem);
-                        importedItemCount++;
                     }
                     else
                     {
@@ -86,7 +99,6 @@ namespace Navigate.Services
                             existingWorkItem.Body = item.Body;
                             existingWorkItem.UpdatedAt = DateTime.Now;
                             existingWorkItem.UpdatedByUserId = this.CurrentUser.UserId;
-                            importedItemCount++;
                         }
                     }
                     this.dataContext.SaveChanges();
@@ -134,7 +146,7 @@ namespace Navigate.Services
 
                     if (existingWorkItem == null)
                     {
-                        //Create a new work item that can be accessed as a parent from all its recurring items
+                        //Create a new work item that will act as a parent for all of its recurring items
                         var workItem = new WorkItem();
                         //if recurrence pattern has end date we save it,
                         //else we only create recurring items until the end of the current year to avoid large data sets
@@ -148,7 +160,7 @@ namespace Navigate.Services
                         workItem.StartDateTime = recurrencePattern.PatternStartDate;
                         workItem.EstimatedTime = item.Parent.Duration;
                         workItem.Body = item.Parent.Body;
-                        workItem.WorkItemTypeId = this.dataContext.WorkItemTypes.Where(o => o.Type == "Meeting").FirstOrDefault().Id;
+                        workItem.WorkItemTypeId = this.dataContext.WorkItemTypes.Where(o => o.Type == "Appointment").FirstOrDefault().Id;
                         workItem.isRecurring = true;
                         workItem.RecurrencePattern = new WIRecurrencePattern {
                             Interval = recurrencePattern.Interval,
@@ -157,6 +169,7 @@ namespace Navigate.Services
                             MonthOfYear = (MonthOfYear)Enum.ToObject(typeof(MonthOfYear), recurrencePattern.MonthOfYear),
                             Instance = (Instance)Enum.ToObject(typeof(Instance), recurrencePattern.MonthOfYear)
                         };
+                        workItem.RecurringItems = new List<RecurringItem>();
                         workItem.RecurringItems.Add(new RecurringItem {
                             OriginalDate = item.Start,
                             Start = item.Start,
@@ -171,14 +184,12 @@ namespace Navigate.Services
 
                         this.dataContext.WorkItems.Add(workItem);
                         this.dataContext.SaveChanges();
-                        importedItemCount++;
-                        importedOccurences++;
                     }
 
                     else
                     {
                         //Check if recurrence pattern has not changed
-                        var existingPattern = this.dataContext.WIRecurrencePatterns.Where(o => o.WorkItemId == existingWorkItem.Id).FirstOrDefault();
+                        var existingPattern = existingWorkItem.RecurrencePattern;
                         int mismatch = 0;
                         if (existingPattern.Interval != recurrencePattern.Interval) mismatch = 1;
                         if ((int)existingPattern.DayOfWeekMask != (int)recurrencePattern.DayOfWeekMask) mismatch = 1;
@@ -189,22 +200,19 @@ namespace Navigate.Services
                         if (mismatch == 1)
                         {
                             //if the pattern has changed delete all of the old recurring items, save the new pattern and asociate it with the work item
-                            var oldRecurringItems = this.dataContext.RecurringItems.Where(o => o.WorkItemId == existingWorkItem.Id).ToList();
-                            foreach (var recurringItem in oldRecurringItems)
+                            foreach (var recurringItem in existingWorkItem.RecurringItems)
                             {
                                 this.dataContext.RecurringItems.Remove(recurringItem);
                             }
-                            var pattern = new WIRecurrencePattern();
-                            pattern.Interval = recurrencePattern.Interval;
-                            pattern.DayOfWeekMask = (DayOfWeekMask)Enum.ToObject(typeof(DayOfWeekMask), recurrencePattern.MonthOfYear);
-                            pattern.DayOfMonth = recurrencePattern.DayOfMonth;
-                            pattern.MonthOfYear = (MonthOfYear)Enum.ToObject(typeof(MonthOfYear), recurrencePattern.MonthOfYear);
-                            pattern.Instance = (Instance)Enum.ToObject(typeof(Instance), recurrencePattern.MonthOfYear);
-                            this.dataContext.WIRecurrencePatterns.Add(pattern);
-                            this.dataContext.SaveChanges();
-
-                            //existingWorkItem.WIRecurrencePatternId = pattern.WorkItemId;
-                            this.dataContext.SaveChanges();
+                            existingWorkItem.RecurrencePattern = new WIRecurrencePattern
+                            {
+                                Interval = recurrencePattern.Interval,
+                                DayOfWeekMask = (DayOfWeekMask)Enum.ToObject(typeof(DayOfWeekMask), recurrencePattern.MonthOfYear),
+                                DayOfMonth = recurrencePattern.DayOfMonth,
+                                MonthOfYear = (MonthOfYear)Enum.ToObject(typeof(MonthOfYear), recurrencePattern.MonthOfYear),
+                                Instance = (Instance)Enum.ToObject(typeof(Instance), recurrencePattern.MonthOfYear)
+                            };
+                            this.dataContext.WIRecurrencePatterns.Remove(existingPattern);
                         }
 
                         var exception = exceptions.Find(o => o.AppointmentItem.Start == item.Start);
@@ -218,29 +226,32 @@ namespace Navigate.Services
                                 existingRecurringItem.End = item.End;
                                 existingRecurringItem.IndividualBody = item.Body;
                                 existingRecurringItem.IndividualLocation = item.Location;
-                                this.dataContext.SaveChanges();
                             }
                         }
 
                         else
                         {
-                            var recurringItem = new RecurringItem();
-                            recurringItem.OriginalDate = item.Start;
-                            recurringItem.WorkItemId = this.dataContext.WorkItems.Where(o => o.OutlookEntryId == item.EntryID).FirstOrDefault().Id;
-                            recurringItem.Start = item.Start;
-                            recurringItem.End = item.End;
-                            recurringItem.IndividualBody = item.Body;
-                            recurringItem.IndividualLocation = item.Location;
-                            this.dataContext.RecurringItems.Add(recurringItem);
-                            this.dataContext.SaveChanges();
+                            existingWorkItem.RecurringItems = new List<RecurringItem>();
+                            existingWorkItem.RecurringItems.Add(new RecurringItem
+                            {
+                                OriginalDate = item.Start,
+                                Start = item.Start,
+                                End = item.End,
+                                IndividualBody = item.Body,
+                                IndividualLocation = item.Location,
+                            });
                         }
+                        this.dataContext.SaveChanges();
                     }
                 }
             }
-            //Log off
-            mapiNamespace.Logoff();
-            result = String.Format("A total of {0] items were successfully imported, of which {1} were occurrences of recurring items", importedItemCount, importedOccurences);
 
+            //Save changes and log off
+            this.dataContext.SaveChanges();
+            mapiNamespace.Logoff();
+
+            var result = new ServiceResult<OutlookItemImportServiceResult>();
+            result.Data = OutlookItemImportServiceResult.Ok;
             return result;
         }
     }

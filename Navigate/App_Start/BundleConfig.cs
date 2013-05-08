@@ -43,15 +43,22 @@ namespace Navigate
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                         "~/Scripts/bootstrap.js"));
 
-            bundles.Add(new StyleBundle("~/Content/bootstrapcss").Include(
-                        "~/Content/bootstrap-responsive.css",
-                        "~/Content/bootstrap.css"));
+            bundles.Add(new ScriptBundle("~/bundles/calendar").Include(
+                        "~/Scripts/fullcalendar.js"));
 
-            bundles.Add(new StyleBundle("~/Content/css").Include(
-                        "~/Content/site.css",
+            bundles.Add(new StyleBundle("~/Content/calendarcss").Include(
+                        "~/Content/fullcalendar.css",
+                        "~/Content/fullcalendar.print.css"));
+
+            bundles.Add(new StyleBundle("~/Content/bootstrapcss").Include(
+                        "~/Content/bootstrap.css",
+                        "~/Content/bootstrap-responsive.css",
                         "~/Content/navigate.css",
                         "~/Content/jquery.pnotify.default.css",
                         "~/Content/jquery.pnotify.default.icons.css"));
+
+            bundles.Add(new StyleBundle("~/Content/css").Include(
+                        "~/Content/site.css"));
 
             bundles.Add(new StyleBundle("~/Content/themes/base/css").Include(
                         "~/Content/themes/base/jquery.ui.core.css",

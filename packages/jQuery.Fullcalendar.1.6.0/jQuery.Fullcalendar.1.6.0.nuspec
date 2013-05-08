@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>jQuery.Fullcalendar</id>
+    <version>1.6.0</version>
+    <title>jQuery.Fullcalendar</title>
+    <authors>Adam Shaw</authors>
+    <owners>Adam Shaw</owners>
+    <projectUrl>http://arshaw.com/fullcalendar/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A full-sized, drag and drop calendar for jQuery
+    	
+    	Fullcalendar is Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) and GPL (http://www.opensource.org/licenses/gpl-license.php) licenses. 
+    	
+    	Copyright (c) 2011 Adam Shaw (http://arshaw.com)</description>
+    <summary>A full-sized, drag and drop calendar for jQuery</summary>
+    <releaseNotes>version 1.6.0 (3/18/13)
+    		- visual facelift, with bootstrap-inspired buttons and colors
+				- simplified HTML/CSS for events and buttons
+				- dayRender, for modifying a day cell (issue 191, thx althaus)
+				- week numbers on side of calendar (issue 295)
+				- weekNumber
+				- weekNumberCalculation
+				- weekNumberTitle
+				- "W" formatting variable
+				- finer snapping granularity for agenda view events (issue 495, thx ms-doodle-com)
+				- eventAfterAllRender (issue 753, thx pdrakeweb)
+				- eventDataTransform (thx joeyspo)
+				- data-date attributes on cells (thx Jae)
+				- expose $.fullCalendar.dateFormatters
+				- when clicking fast on buttons, prevent text selection
+				- bundled with latest jQuery (1.9.1) and jQuery UI (1.10.2)
+				- Grunt/Lumbar build system for internal development
+				- build for Bower package manager
+				- build for jQuery plugin site</releaseNotes>
+    <copyright>Copyright (c) 2012 Adam Shaw</copyright>
+    <language />
+    <tags>Fullcalendar jQuery Calendar</tags>
+    <dependencies>
+      <dependency id="jQuery" />
+      <dependency id="jQuery.UI.Combined" />
+    </dependencies>
+  </metadata>
+</package>

@@ -43,7 +43,7 @@ namespace Navigate.Models
         /// Needed only if the work item is scheduled for a predetermined amount of time, which would then require explicit start and end times
         /// </summary>       
         [DataType(DataType.DateTime)]
-        public DateTime? StartDateTime { get; set; }
+        public DateTime StartDateTime { get; set; }
 
         /// <summary>
         /// Gets or sets the end date time of a scheduled task or the due date of a more generic task with a estimated amount of time for completion

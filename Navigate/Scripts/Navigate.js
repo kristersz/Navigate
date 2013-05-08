@@ -1,23 +1,29 @@
 ﻿function showMessage(message) {
-    $("#dialogMessageText").text(message);
-    $("#dialogMessage").dialog("open");
+    $("#myModalBody").text(message);
+    $("#myModal").modal('show');
 };
 
 $(document).ready(function () {
-    $("#dialogMessage").dialog({
-        autoOpen: false,
-        modal: true,
-        resizable: false,
-        draggable: false,
-        minWidth: 400,
-        buttons: {
-            "Labi": function () {
-                $(this).dialog("close");
-            }
-        }
-    });
+    //$("#dialogMessage").dialog({
+    //    autoOpen: false,
+    //    modal: true,
+    //    resizable: false,
+    //    draggable: false,
+    //    minWidth: 400,
+    //    buttons: {
+    //        "Labi": function () {
+    //            $(this).dialog("close");
+    //        }
+    //    }
+    //});
 
     $.culture = Globalize.culture('lv-LV');
+
+    var url = window.location;
+    $('ul.nav a[href="' + url + '"]').parent().addClass('active');
+    $('ul.nav a').filter(function () {
+        return this.href == url;
+    }).parent().addClass('active');
 });
 
 $.validator.methods.date = function (value, element) {

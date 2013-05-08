@@ -21,15 +21,30 @@ namespace Navigate.Controllers
         //
         // GET: /WorkItem/
 
-        public ActionResult Index()
+        public ActionResult Index(string searchTerm = null)
         {
             var currentUserId = this.CurrentUser.UserId;
 
             var workItems = this.dataContext.WorkItems
-                .Where(r => r.CreatedByUserId == currentUserId);
+                .Where((r => searchTerm == null || r.Subject.StartsWith(searchTerm)))
+                .Select(r => new WorkItemListViewModel
+                    {
+                        Id = r.Id,
+                        Subject = r.Subject,
+                        Location = r.Location,
+                        StartDateTime = r.StartDateTime,
+                        EndDateTime = r.EndDateTime,
+                        isCompleted = r.isCompleted
+                    }
+                );
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_WorkItems", workItems);
+            }
 
             ViewBag.PageTitle = "Work Items";
-            return View(workItems.ToList());
+            return View(workItems);
         }
 
         //
@@ -67,6 +82,13 @@ namespace Navigate.Controllers
                 var workItem = model.TransformToWorkItem();
                 workItem.CreatedByUserId = this.CurrentUser.UserId;
                 workItem.UpdatedByUserId = this.CurrentUser.UserId;
+                workItem.Categories = new List<Navigate.Models.Classifiers.Category>();
+
+                foreach (var categoryId in model.SelectedCategoryIds)
+                {
+                    var category = this.dataContext.Categories.Find(categoryId);
+                    workItem.Categories.Add(category);
+                }
 
                 if (workItem.isRecurring == true)
                 {
@@ -190,10 +212,17 @@ namespace Navigate.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetOutlookCalendarItems()
+        public JsonResult GetOutlookCalendarItems(OutlookSettingsInputModel model)
         {
-            var importService = new OutlookItemImportService(this.dataContext, this.CurrentUser);
-            var message = importService.ImportOutlookCalendarItems();
+            var importService = new OutlookItemImportService(this.dataContext, this.CurrentUser)
+            {
+                IntervalStart = model.IntervalStart,
+                IntervalEnd = model.IntervalEnd
+            };
+            var message = "";
+            var result = importService.ImportOutlookCalendarItems();
+            if (result.Data == OutlookItemImportServiceResult.Ok) 
+                message = "all good";
 
             return new JsonResult() { Data = new { Message = message } };
         }
@@ -220,6 +249,8 @@ namespace Navigate.Controllers
                 Value = o.UserId.ToString(),
                 Text = o.UserName
             });
+
+            model.Categories = this.dataContext.Categories.ToList();
         }
 
         /// <summary>
