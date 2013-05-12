@@ -18,7 +18,6 @@ namespace Navigate.Models
 
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<WorkItem> WorkItems { get; set; }
-        public DbSet<WorkItemType> WorkItemTypes { get; set; }
         public DbSet<RecurringItem> RecurringItems { get; set; }
         public DbSet<WIRecurrencePattern> WIRecurrencePatterns { get; set; }
         public DbSet<Category> Categories { get; set; }

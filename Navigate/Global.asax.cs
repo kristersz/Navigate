@@ -24,7 +24,7 @@ namespace Navigate
         protected void Application_Start()
         {
             WebSecurity.InitializeDatabaseConnection("DefaultConnection", "UserProfile", "UserId", "UserName", autoCreateTables: true);
-            ModelBinders.Binders.Add(typeof(DaysOfWeek),new EnumFlagsModelBinder());
+            ModelBinders.Binders.Add(typeof(DaysOfWeek), new EnumFlagsModelBinder());
             AreaRegistration.RegisterAllAreas();
 
             WebApiConfig.Register(GlobalConfiguration.Configuration);
@@ -33,10 +33,10 @@ namespace Navigate
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             AuthConfig.RegisterAuth();
 
-            ConfigureQuartzJobs();
+            sched = ConfigureQuartzJobs();
         }
 
-        public static void ConfigureQuartzJobs()
+        public static IScheduler ConfigureQuartzJobs()
         {
             var properties = new NameValueCollection();
             properties["quartz.scheduler.instanceName"] = "ServerScheduler";
@@ -48,7 +48,7 @@ namespace Navigate
 
             // set remoting expoter
             properties["quartz.scheduler.proxy"] = "true";
-            properties["quartz.scheduler.proxy.address"] = string.Format("tcp://localhost:555/QuartzScheduler");
+            properties["quartz.scheduler.proxy.address"] = "tcp://localhost:555/QuartzScheduler";
             // construct a scheduler factory
             ISchedulerFactory schedFact = new StdSchedulerFactory();
 
@@ -56,20 +56,9 @@ namespace Navigate
             IScheduler sched = schedFact.GetScheduler();
             sched.Start();
 
-            // construct job info
-            IJobDetail jobDetail = JobBuilder.Create<HelloJob>()
-                .WithIdentity("myJob", "myGroup")
-                .RequestRecovery()
-                .Build();
+            return sched;
+        }
 
-            //created trigger which will fire every minute starting immediately
-            ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity("myTrigger", "myTriggerGroup")
-                .StartNow()
-                .WithSimpleSchedule(x => x.WithIntervalInSeconds(10).WithRepeatCount(5))
-                .Build();
-                    
-            sched.ScheduleJob(jobDetail, trigger);
-        }      
+        public static IScheduler sched;
     }
 }

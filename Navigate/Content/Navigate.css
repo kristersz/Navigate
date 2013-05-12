@@ -120,3 +120,19 @@ footer.row {
 }
 
 .ui-widget { font-size: 1em; }
+
+.taskDone {
+    opacity: 0.5;
+}
+
+.workItems {
+    padding: 5px;
+}
+.workItems:hover {
+    background-color: #FFFFCC;
+}
+
+#sortOrderSelect {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

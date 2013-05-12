@@ -16,7 +16,6 @@ namespace Navigate.ViewModels
 
         public WorkItemDataInputModel()
         {
-            this.AllWorkItemTypes = new List<SelectListItem>();
             this.AllUsers = new List<SelectListItem>();
             this.Categories = new List<Category>();
             this.SelectedCategoryIds = new List<int>();
@@ -35,7 +34,7 @@ namespace Navigate.ViewModels
             this.Body = workItem.Body;
             this.EndDate = workItem.EndDateTime;
             this.EstimatedTime = workItem.EstimatedTime;
-            this.WorkItemType = workItem.WorkItemTypeId;
+            this.WorkItemType = workItem.WorkItemType;
             this.Priority = workItem.Priority;
             this.isRecurring = workItem.isRecurring;
         }
@@ -59,8 +58,14 @@ namespace Navigate.ViewModels
 
         public decimal? EstimatedTime { get; set; }
 
-        public int WorkItemType { get; set; }
-        public IEnumerable<SelectListItem> AllWorkItemTypes { get; set; }
+        public WorkItemType WorkItemType { get; set; }
+        public IEnumerable<SelectListItem> AllWorkItemTypes
+        {
+            get
+            {
+                return Enums.GetValues<WorkItemType>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
+            }
+        }
 
         public WorkItemPriority? Priority { get; set; }
 
@@ -96,7 +101,7 @@ namespace Navigate.ViewModels
             workItem.StartDateTime = this.StartDate;
             workItem.EndDateTime = this.EndDate;
             workItem.EstimatedTime = this.EstimatedTime;
-            workItem.WorkItemTypeId = this.WorkItemType;
+            workItem.WorkItemType = this.WorkItemType;
             workItem.Priority = this.Priority;
             workItem.isRecurring = this.isRecurring;
             workItem.AssignedToUserId = this.AssignedToUserId;

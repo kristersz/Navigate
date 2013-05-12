@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
 namespace Navigate.Models.Classifiers
 {
-    public class WorkItemType
+    public enum WorkItemType
     {
-        [Key]
-        public int Id { get; set; }
+        [Description("Uzdevums")]
+        Task = 1,
 
-        [Display(Name = "Work Item Type")]
-        [Required]
-        [MaxLength(20, ErrorMessage = "Work item type cannot exceed 20 characters")]
-        public string Type { get; set; }
+        [Description("Sapulce")]
+        Appointment = 2,
     }
 }

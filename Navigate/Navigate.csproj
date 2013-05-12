@@ -202,7 +202,8 @@
     <Compile Include="Models\Classifiers\WorkItemPriority.cs" />
     <Compile Include="Models\Classifiers\WorkItemType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Quartz\Jobs\HelloJob.cs" />
+    <Compile Include="Quartz\Jobs\SendReminderMailJob.cs" />
+    <Compile Include="Quartz\ReminderScheduler.cs" />
     <Compile Include="Services\Message.cs" />
     <Compile Include="Services\MessageSeverity.cs" />
     <Compile Include="Services\OutlookItemImportService.cs" />

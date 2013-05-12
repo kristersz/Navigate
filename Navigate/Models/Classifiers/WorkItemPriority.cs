@@ -6,6 +6,7 @@ namespace Navigate.Models.Classifiers
 {
     public enum WorkItemPriority
     {
+        None = 0,
 
         /// <summary>
         /// Task of exceptional priority

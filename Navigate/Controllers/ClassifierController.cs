@@ -45,8 +45,8 @@ namespace Navigate.Controllers
                 var newCategory = new Category { Name = model.Name };
                 this.dataContext.Categories.Add(newCategory);
                 this.dataContext.SaveChanges();
-     
-                return new JsonResult() { Data = new { IsValid = true } };
+
+                return new JsonResult() { Data = new { IsValid = true, Message = "Kategorija veiksmīgi pievienota" } };
             }
 
             return new JsonResult() { Data = new { IsValid = false, Message = string.Join("; ", ModelState.Values.SelectMany(o => o.Errors).Select(x => x.ErrorMessage)) } };
@@ -70,7 +70,7 @@ namespace Navigate.Controllers
             this.dataContext.Categories.Remove(category);
             this.dataContext.SaveChanges();
 
-            return new JsonResult() { Data = new { IsValid = true } };
+            return new JsonResult() { Data = new { IsValid = true, Message = "Kategorija veiksmīgi izdzēsta" } };
         }
     }
 }

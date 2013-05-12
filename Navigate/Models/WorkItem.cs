@@ -58,15 +58,9 @@ namespace Navigate.Models
         public decimal? EstimatedTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the work item type id, which stores the assigned id value of a work item type from the work item type classifier
-        /// </summary>
-        public int WorkItemTypeId { get; set; }
-
-        /// <summary>
         /// Gets or sets the work item type, which reference the work item type classifier
         /// </summary>
-        [ForeignKey("WorkItemTypeId")]
-        public virtual WorkItemType WorkItemType { get; set; }
+        public WorkItemType WorkItemType { get; set; }
 
         /// <summary>
         /// Gets or set the work item priority

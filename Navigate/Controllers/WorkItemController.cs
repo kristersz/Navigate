@@ -12,21 +12,21 @@ using Navigate.ViewModels;
 using Microsoft.Office.Interop.Outlook;
 using Navigate.Services;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Objects;
+using Navigate.Quartz;
 
 namespace Navigate.Controllers
 {   
     [Authorize]
     public class WorkItemController : BaseController
     {
-        //
-        // GET: /WorkItem/
 
-        public ActionResult Index(string searchTerm = null)
+        public ActionResult Index(string searchTerm = null, string filter  = null, string sortOrder = null)
         {
             var currentUserId = this.CurrentUser.UserId;
 
             var workItems = this.dataContext.WorkItems
-                .Where((r => searchTerm == null || r.Subject.StartsWith(searchTerm)))
+                .Where((r => r.CreatedByUserId == this.CurrentUser.UserId))
                 .Select(r => new WorkItemListViewModel
                     {
                         Id = r.Id,
@@ -34,16 +34,64 @@ namespace Navigate.Controllers
                         Location = r.Location,
                         StartDateTime = r.StartDateTime,
                         EndDateTime = r.EndDateTime,
-                        isCompleted = r.isCompleted
+                        isCompleted = r.isCompleted,
+                        Priority = r.Priority,
+                        CreatedAt = r.CreatedAt,
+                        UpdatedAt = r.UpdatedAt
                     }
                 );
+            if (!String.IsNullOrEmpty(searchTerm))
+            {
+                workItems = workItems.Where(r => r.Subject.Contains(searchTerm));
+            }
+
+            switch (filter)
+            {
+                case "all":
+                    break;
+                case "completed":
+                    workItems = workItems.Where(r => r.isCompleted == true);
+                    break;
+                case "starred":
+                    workItems = workItems.Where(r => r.Priority != (int)WorkItemPriority.None);
+                    break;
+                case "late":
+                    workItems = workItems.Where(r => r.EndDateTime < DateTime.Today);
+                    break;
+                case "today":
+                    workItems = workItems.Where(r => EntityFunctions.TruncateTime(r.EndDateTime) == EntityFunctions.TruncateTime(DateTime.Now));
+                    break;
+                default:
+                    break;
+            }
+
+            switch (sortOrder)
+            {
+                case "deadline":
+                    workItems = workItems.OrderByDescending(r => r.EndDateTime);
+                    break;
+                case "priority":
+                    workItems = workItems.OrderByDescending(r => r.Priority);
+                    break;
+                case "changedate":
+                    workItems = workItems.OrderByDescending(r => r.UpdatedAt);
+                    break;
+                case "createdate":
+                    workItems = workItems.OrderByDescending(r => r.CreatedAt);
+                    break;
+                case "title":
+                    workItems = workItems.OrderBy(r => r.Subject);
+                    break;
+                default:
+                    workItems = workItems.OrderByDescending(r => r.EndDateTime);
+                    break;
+            }
 
             if (Request.IsAjaxRequest())
             {
                 return PartialView("_WorkItems", workItems);
             }
 
-            ViewBag.PageTitle = "Work Items";
             return View(workItems);
         }
 
@@ -112,6 +160,10 @@ namespace Navigate.Controllers
 
                 this.dataContext.WorkItems.Add(workItem);
                 this.dataContext.SaveChanges();
+
+                var scheduler = new ReminderScheduler();
+                scheduler.ScheduleReminder(workItem);
+
                 return RedirectToAction("Index");
             }
 
@@ -188,26 +240,31 @@ namespace Navigate.Controllers
             return View();
         }
 
-        public ActionResult Complete(int id = 0)
+        [HttpPost]
+        public JsonResult ChangeStatus(int id = 0)
         {
             WorkItem workItem = this.dataContext.WorkItems.Find(id);
+            var message = "";
             if (workItem == null)
             {
-                return HttpNotFound();
+                message = "Uzdevums netika atrasts";
+                return new JsonResult() { Data = new { IsValid = false, Message = message } };
             }
             else
             {
                 if (workItem.isCompleted == false)
                 {
                     workItem.isCompleted = true;
+                    message = "Uzdevums "+ workItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā izpildīts";
                 }
                 else
                 {
                     workItem.isCompleted = false;
+                    message = "Uzdevums " + workItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā neizpildīts";
                 }
             }
             this.dataContext.SaveChanges();
-            return RedirectToAction("Index");
+            return new JsonResult() { Data = new { IsValid = true, Message = message } };
 
         }
 
@@ -235,13 +292,6 @@ namespace Navigate.Controllers
 
         public void populateDropDownLists(WorkItemDataInputModel model)
         {
-            var types = (from r in this.dataContext.WorkItemTypes
-                            select r).ToList();
-            model.AllWorkItemTypes = types.Select(o => new SelectListItem
-            {
-                Value = o.Id.ToString(),
-                Text = o.Type
-            });
             var users = (from r in this.dataContext.UserProfiles
                             select r).ToList();
             model.AllUsers = users.Select(o => new SelectListItem

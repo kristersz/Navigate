@@ -79,7 +79,7 @@ namespace Navigate.Services
                         workItem.EndDateTime = item.End;
                         workItem.EstimatedTime = item.Duration;
                         workItem.Body = item.Body;
-                        workItem.WorkItemTypeId = this.dataContext.WorkItemTypes.Where(o => o.Type == "Appointment").FirstOrDefault().Id;
+                        workItem.WorkItemType = WorkItemType.Appointment;
                         workItem.isRecurring = false;
                         workItem.CreatedByUserId = this.CurrentUser.UserId;
                         workItem.UpdatedByUserId = this.CurrentUser.UserId;
@@ -160,7 +160,7 @@ namespace Navigate.Services
                         workItem.StartDateTime = recurrencePattern.PatternStartDate;
                         workItem.EstimatedTime = item.Parent.Duration;
                         workItem.Body = item.Parent.Body;
-                        workItem.WorkItemTypeId = this.dataContext.WorkItemTypes.Where(o => o.Type == "Appointment").FirstOrDefault().Id;
+                        workItem.WorkItemType = WorkItemType.Appointment;
                         workItem.isRecurring = true;
                         workItem.RecurrencePattern = new WIRecurrencePattern {
                             Interval = recurrencePattern.Interval,

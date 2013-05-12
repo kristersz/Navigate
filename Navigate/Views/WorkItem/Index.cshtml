@@ -4,19 +4,38 @@
     ViewBag.Title = "My work items";
 }
 
-<h2>@ViewBag.PageTitle</h2>
+<h2>Uzdevumi</h2>
 
 <p>
-    <a href="@Url.Action("Create")" role =" button" class="btn">Izveidot jaunu uzdevumu</a>
-    <a href="#importSettingsModal" role="button" class="btn" data-toggle="modal">Importēt uzdevumus no Outlook kalendāra</a>
+    <a href="@Url.Action("Create")" role ="button" class="btn btn-primary">Izveidot jaunu uzdevumu</a>
+    <a href="#importSettingsModal" role="button" class="btn btn-primary" data-toggle="modal">Importēt uzdevumus no Outlook kalendāra</a>
 </p>
-
-@using (Ajax.BeginForm(new AjaxOptions { HttpMethod = "get", InsertionMode = InsertionMode.Replace, UpdateTargetId = "workItemList", LoadingElementId = "ajaxRequestLoading" }))
-{ 
-    <input type="search" name="searchTerm" /><br />
-    <input type="submit" value="Search By Subject" />
-}
- 
+<hr />
+<div class="well">
+    @using (Ajax.BeginForm("Index", new { @id = "filterForm", @class = "form-horizontal"}, new AjaxOptions { HttpMethod = "get", InsertionMode = InsertionMode.Replace, UpdateTargetId = "workItemList", LoadingElementId = "ajaxRequestLoading" }))
+    {
+        <div id="filterButtons" class="btn-group" data-toggle="buttons-radio">
+            <button type="button" class="btn btn-inverse active" value="all">Visi</button>
+            <button type="button" class="btn btn-inverse" value="completed">Pabeigtie</button>
+            <button type="button" class="btn btn-inverse" value="starred">Atzīmēti ar prioritāti</button>
+            <button type="button" class="btn btn-inverse" value="today">Termiņš beidzas šodien</button>
+            <button type="button" class="btn btn-inverse" value="late">Nokavētie</button>
+        </div>
+        <div id="sortOrderSelect">
+            <strong>Kārtot pēc:</strong>
+            @Html.DropDownList("sortOrder", new List<SelectListItem>() {
+                        new SelectListItem { Value = "deadline", Text = "Deadline" },
+                        new SelectListItem { Value = "priority", Text = "Priority" },
+                        new SelectListItem { Value = "changedate", Text = "Last Changed" },
+                        new SelectListItem { Value = "createddate", Text = "Date Created" },
+                        new SelectListItem { Value = "title", Text = "Title" },
+                    })
+        </div>
+        <input type="hidden" id="filterHolder" name="filter" />
+        <input type="search" class="input-medium search-query" name="searchTerm" />
+        <input type="submit" id="submitFilter" class="btn" value="Meklēt uzdevumus" />
+    }
+</div>
 
 @Html.Partial("_WorkItems", Model)
 
@@ -87,5 +106,66 @@
             ko.applyBindings(_this, $("body").get(0));
         }
         viewModel();
+
+        function changeStatus(workItemId) {
+              $.ajax({
+                  url: '@Url.Action("ChangeStatus", "WorkItem")',
+                  type: 'POST',
+                  data: {
+                      id: workItemId
+                  },
+                  success: function (data) {
+                      if (data.IsValid) {
+                          $.pnotify({
+                              title: 'Informācija',
+                              text: data.Message,
+                              type: 'success'
+                          });
+                          if ($('#workItem' + workItemId).hasClass("taskDone")) {
+                              $('#workItem' + workItemId).fadeTo(100, 1);
+                              $("#changeStatus" + workItemId).html('Atzīmēt kā pabeigtu');
+                              $('#workItem' + workItemId).removeClass("taskDone");
+                          }
+                          else {
+                              $('#workItem' + workItemId).fadeTo(100, 0.5);
+                              $("#changeStatus" + workItemId).html('Atzīmēt kā nepabeigtu');
+                              $('#workItem' + workItemId).addClass("taskDone");
+                          }
+                      }
+                      else {
+                          $.pnotify({
+                              title: 'Kļūda',
+                              text: data.Message,
+                              type: 'error'
+                          });
+                      }
+                  },
+                  error: function (jqXHR, textStatus, errorThrown) {
+                      alert("Notika kļūda, lūdzu mēģiniet vēlreiz.");
+                  },
+                  complete: function (jqXHR, textStatus) {
+                      $("#ajaxRequestLoading").hide();
+                  },
+                  beforeSend: function (jqXHR, settings) {
+                      $("#ajaxRequestLoading").show();
+                  }
+              });
+        }
+
+        $(function () {
+            $("#filterButtons button").click(function () {
+                var filterString = $(this).val();
+                setFilter(filterString);
+            });
+
+            $("#sortOrder").change(function () {
+                $("#submitFilter").click();
+            });
+        })
+
+        function setFilter(filterName) {
+            $("#filterHolder").val(filterName);
+            $("#submitFilter").click();
+        }
     </script>
 }
