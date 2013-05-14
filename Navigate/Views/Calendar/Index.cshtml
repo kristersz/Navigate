@@ -13,7 +13,7 @@
     }       
 </style>
 <div id="calendar-wrapper">
-    <h2>Calendar</h2>
+    <h2>Kalendārs</h2>
     <div id="calendar"></div>
 </div>
 
@@ -30,15 +30,47 @@
                     right: 'month,agendaWeek,agendaDay'
                 },
                 firstHour: 9,
+                firstDay: 1,
+                timeFormat: 'HH(:mm){ - HH(:mm)}',
+                columnFormat: {
+                    month: 'ddd',    // Mon
+                    week: 'ddd M/d', // Mon 9/7
+                    day: 'dddd M/d'  // Monday 9/7
+                },
+                titleFormat: {
+                    month: 'MMMM yyyy',                             // September 2009
+                    week: "MMM d[ yyyy]{ '&#8212;'[ MMM] d yyyy}", // Sep 7 - 13 2009
+                    day: 'dddd, MMM d, yyyy'                  // Tuesday, Sep 8, 2009
+                },
+                buttonText: {
+                    prev:     '&lsaquo;', // <
+                    next:     '&rsaquo;', // >
+                    prevYear: '&laquo;',  // <<
+                    nextYear: '&raquo;',  // >>
+                    today:    'šodien',
+                    month:    'mēnesis',
+                    week:     'nedēļa',
+                    day:      'diena'
+                },
+                monthNames: ['Janvāris', 'Februāris', 'Marts', 'Arīlis', 'Maijs', 'Jūnijs', 'Jūlijs',
+                    'Augusts', 'Septembris', 'Oktobris', 'Novembris', 'Decembris'],
+                monthNamesShort: ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun',
+                    'Jūl', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
+                dayNames: ['Svētdiena', 'Pirmdiena', 'Otrdiena', 'Trešdiena',
+                    'Ceturtdiena', 'Piektdiena', 'Sestdiena'],
+                dayNamesShort: ['Sv', 'Pr', 'Ot', 'Tr', 'Ct', 'Pk', 'Se'],
                 defaultView: "agendaWeek",
                 events: "/Calendar/GetEvents",
-                dayClick: function (date, allDay, jsEvent, view) {
-                    alert("Datums ir " + date);
+                select: function (startDate, endDate, allDay, jsEvent, view) {
+                    var start = moment(startDate).format("DD-MM-YYYY HH:mm");
+                    var end = moment(endDate).format("DD-MM-YYYY HH:mm");
+                    var url = "@Html.Raw(@Url.Action("Create", "WorkItem", new { start = "insertStartHere", end = "insertEndHere" }))";
+                    url = url.replace("insertStartHere", start);
+                    url = url.replace("insertEndHere", end);
+                    window.location.href = url;
                 },
                 selectable: true,
                 selectHelper: true,
-                color: 'yellow',
-                textColor: 'black'
             })
 
         });

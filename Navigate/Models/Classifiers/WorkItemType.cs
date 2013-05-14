@@ -9,10 +9,12 @@ namespace Navigate.Models.Classifiers
 {
     public enum WorkItemType
     {
+        None = 0,
+
         [Description("Uzdevums")]
         Task = 1,
 
-        [Description("Sapulce")]
+        [Description("Tikšanās")]
         Appointment = 2,
     }
 }

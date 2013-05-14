@@ -25,11 +25,12 @@ namespace Navigate.Quartz
         {
             var reminderDateTime = new DateTime();
             var dueDate = new DateTime();
+            var estimatedTime = (double)workItem.EstimatedTime;
 
             //determine the time for reminder
             if (workItem.WorkItemType == WorkItemType.Task)
             {
-                reminderDateTime = workItem.EndDateTime;
+                reminderDateTime = workItem.EndDateTime.AddHours(-estimatedTime);
                 dueDate = workItem.EndDateTime;
             }
             else if (workItem.WorkItemType == WorkItemType.Appointment)
@@ -46,13 +47,13 @@ namespace Navigate.Quartz
                 .Build();
 
             jobDetail.JobDataMap["Subject"] = workItem.Subject;
-            jobDetail.JobDataMap["Body"] = workItem.Body;
-            jobDetail.JobDataMap["Date"] = dueDate.ToString("dd.MM.yyyy HH:mm");
+            jobDetail.JobDataMap["DueDate"] = dueDate.ToString("dd.MM.yyyy HH:mm");
+            jobDetail.JobDataMap["MailTo"] = workItem.CreatedBy.Email;
 
             // create a trigger that will trigger a job execution
             ITrigger trigger = TriggerBuilder.Create()
                 .WithIdentity("triggerFor" + workItem.Id.ToString(), "reminderTriggers")
-                .StartAt(DateBuilder.DateOf(reminderDateTime.Hour, reminderDateTime.Minute, reminderDateTime.Second))
+                .StartAt(DateBuilder.DateOf(reminderDateTime.Hour, reminderDateTime.Minute, reminderDateTime.Second, reminderDateTime.Day, reminderDateTime.Month, reminderDateTime.Year))
                 .WithSimpleSchedule(x => x.WithIntervalInMinutes(1))
                 .Build();
 

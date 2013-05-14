@@ -8,22 +8,22 @@ namespace Navigate.Models.Classifiers
 {
     public enum RecurrenceType
     {
-        [Display(Name = "Daily")]
+        [Display(Name = "Ikdienas")]
         Daily = 0,
 
-        [Display(Name = "Weekly")]
+        [Display(Name = "Iknedēļu")]
         Weekly = 1,
 
-        [Display(Name = "Monthly")]
+        [Display(Name = "Ikmēneša norādītajā datumā")]
         Monthly = 2,
 
-        [Display(Name = "Monthly2")]
+        [Display(Name = "Ikmēneša norādītajā dienā")]
         MonthNth = 3,
 
-        [Display(Name = "Yearly")]
+        [Display(Name = "Katra gada norādītajā datumā")]
         Yearly = 4,
 
-        [Display(Name = "Yearly2")]
+        [Display(Name = "Katra gada norādītajā dienā")]
         YearNth = 5,
     }
 }

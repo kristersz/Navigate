@@ -22,6 +22,12 @@ namespace Navigate.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Gets the events from database for calendar to use
+        /// </summary>
+        /// <param name="start">Unix timestamp indicating the start date of the time period</param>
+        /// <param name="end">Unix timestamp indicating the end date of the time period</param>
+        /// <returns>An array of events</returns>
         [HttpGet]
         public JsonResult GetEvents(double start, double end)
         {
@@ -29,27 +35,52 @@ namespace Navigate.Controllers
             var endDateTime = FromUnixTimestamp(end);
 
             var events = this.dataContext.WorkItems
-                .Where(o => o.StartDateTime >= startDateTime && o.EndDateTime <= endDateTime)
+                .Where(o => o.StartDateTime >= startDateTime)
                 .ToList();
             var eventList = new List<object>();
 
             foreach (var e in events)
             {
-                eventList.Add(
-                    new
+                if (e.isRecurring == false && e.EndDateTime <= endDateTime)
+                {
+                    eventList.Add(
+                        new
+                        {
+                            id = e.Id,
+                            title = e.Subject,
+                            start = e.StartDateTime.ToString("yyyy-MM-dd HH:mm"),
+                            end = e.EndDateTime.ToString("yyyy-MM-dd HH:mm"),
+                            allDay = false,
+                            url = "/WorkItem/Details/" + e.Id.ToString() + "/"
+                        });
+                }
+                else 
+                {
+                    //Display each of the occurrence in the calendar as part of a recurring item group by assigning the same id to each event
+                    foreach (var recurringItem in e.RecurringItems.Where(o => o.Start >= startDateTime && o.End <= endDateTime))
                     {
-                        id = e.Id,
-                        title = e.Subject,
-                        start = e.StartDateTime.ToString("yyyy-MM-dd HH:mm"),
-                        end = e.EndDateTime.ToString("yyyy-MM-dd HH:mm"),
-                        allDay = false,
-                        url = "/WorkItem/Details/" + e.Id.ToString() + "/"
-                    });
+                        eventList.Add(
+                            new
+                            {
+                                id = e.Id,
+                                title = e.Subject,
+                                start = recurringItem.Start.ToString("yyyy-MM-dd HH:mm"),
+                                end = recurringItem.End.ToString("yyyy-MM-dd HH:mm"),
+                                allDay = false,
+                                url = "/RecurringItem/Details/" + recurringItem.Id.ToString() + "/"
+                            });
+                    }
+                }
 
             }
             return Json(eventList.ToArray(), JsonRequestBehavior.AllowGet);
         }
 
+        /// <summary>
+        /// Converts unix timestamp to a datetime object
+        /// </summary>
+        /// <param name="timestamp">The unix timestamp</param>
+        /// <returns>Datetime object</returns>
         private static DateTime FromUnixTimestamp(double timestamp)
         {
             var origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);

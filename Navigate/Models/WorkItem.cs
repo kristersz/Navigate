@@ -29,7 +29,7 @@ namespace Navigate.Models
         /// Gets or sets the subject
         /// </summary>
         [Required]
-        [MaxLength(40)]
+        [MaxLength(180)]
         public string Subject { get; set; }
 
         /// <summary>
@@ -37,6 +37,11 @@ namespace Navigate.Models
         /// </summary>
         [MaxLength(255)]
         public string Location { get; set; }
+
+        /// <summary>
+        /// Gets or sets the additional info for a task
+        /// </summary>
+        public string Body { get; set; }
         
         /// <summary>
         /// Gets or sets the start date time of the task
@@ -53,7 +58,7 @@ namespace Navigate.Models
         public DateTime EndDateTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the estimated time of completion for a task
+        /// Gets or sets the estimated time in minutes of completion for a task
         /// </summary>
         public decimal? EstimatedTime { get; set; }
 
@@ -66,11 +71,6 @@ namespace Navigate.Models
         /// Gets or set the work item priority
         /// </summary>
         public WorkItemPriority? Priority { get; set; }
-
-        /// <summary>
-        /// Gets or sets the additional info for a task
-        /// </summary>
-        public string Body { get; set; }
 
         /// <summary>
         /// Gets or sets the outlook entry id for identifying imported outlook calendar items
@@ -87,13 +87,9 @@ namespace Navigate.Models
         /// </summary>
         public bool isRecurring { get; set; }
 
-        public RecurrenceType? RecurrenceType { get; set; }
+        public RecurrenceType? RecurrenceType { get; set; }      
 
-        public virtual ICollection<RecurringItem> RecurringItems { get; set; }
-
-        public virtual WIRecurrencePattern RecurrencePattern { get; set; }
-
-        public virtual ICollection<Category> Categories { get; set; }
+        public virtual WIRecurrencePattern RecurrencePattern { get; set; }    
 
         /// <summary>
         /// Gets or sets the user id that created the task
@@ -104,11 +100,6 @@ namespace Navigate.Models
         /// Gets or sets the user id that updated the task
         /// </summary>
         public int UpdatedByUserId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the user id that the work item was assigned to
-        /// </summary>
-        public int? AssignedToUserId { get; set; }
 
         /// <summary>
         /// Gets or sets the created by user that references the users model
@@ -125,6 +116,10 @@ namespace Navigate.Models
         /// Gets or sets the date and time when the work item was last changed
         /// </summary>
         public DateTime UpdatedAt { get; set; }
+
+        //Navigation properties
+        public virtual ICollection<Category> Categories { get; set; }
+        public virtual ICollection<RecurringItem> RecurringItems { get; set; }
 
     }
 }

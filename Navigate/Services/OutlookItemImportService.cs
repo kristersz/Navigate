@@ -83,7 +83,6 @@ namespace Navigate.Services
                         workItem.isRecurring = false;
                         workItem.CreatedByUserId = this.CurrentUser.UserId;
                         workItem.UpdatedByUserId = this.CurrentUser.UserId;
-                        workItem.AssignedToUserId = this.CurrentUser.UserId;
 
                         this.dataContext.WorkItems.Add(workItem);
                     }
@@ -180,7 +179,6 @@ namespace Navigate.Services
                         workItem.RecurrenceType = recurrenceType;
                         workItem.CreatedByUserId = this.CurrentUser.UserId;
                         workItem.UpdatedByUserId = this.CurrentUser.UserId;
-                        workItem.AssignedToUserId = this.CurrentUser.UserId;
 
                         this.dataContext.WorkItems.Add(workItem);
                         this.dataContext.SaveChanges();

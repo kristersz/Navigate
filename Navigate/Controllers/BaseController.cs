@@ -16,7 +16,7 @@ namespace Navigate.Controllers
             get { return this.db; }
         }
 
-        //Gets the current user
+        //Gets the current user by its name
         public UserProfile CurrentUser
         {
             get

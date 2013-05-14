@@ -18,34 +18,25 @@ namespace Navigate.Quartz.Jobs
 
         public void Execute(IJobExecutionContext context)
         {
-            Debug.WriteLine("shit started executing");
             JobDataMap dataMap = context.JobDetail.JobDataMap;
+            var smtpHost = System.Configuration.ConfigurationManager.AppSettings["SmtpHost"];
+            var smtpPort = System.Configuration.ConfigurationManager.AppSettings["SmtpPort"];
+            var senderEmail = System.Configuration.ConfigurationManager.AppSettings["SenderEmail"];
+            var senderPassword = System.Configuration.ConfigurationManager.AppSettings["SenderPassword"];
+            var port = 0;
             try
             {
-                var smtpHost = System.Configuration.ConfigurationManager.AppSettings["SmtpHost"];
-                var smtpPort = System.Configuration.ConfigurationManager.AppSettings["SmtpPort"];
-                var senderEmail = System.Configuration.ConfigurationManager.AppSettings["SenderEmail"];
-                var port = 0;
-
                 string subject = dataMap.GetString("Subject");
-                string body = dataMap.GetString("Body");
-                string dueDate = dataMap.GetString("Date");
-
-                try
-                {
-                    port = Convert.ToInt32(smtpPort);
-                }
-                catch (FormatException ex)
-                {
-                    Debug.WriteLine("Input string is not a sequence of digits\nError message: " + ex);
-                }
+                string dueDate = dataMap.GetString("DueDate");
+                string mailToAddress = dataMap.GetString("MailTo");
+                port = Convert.ToInt32(smtpPort);
 
                 SmtpClient smtp = new SmtpClient(smtpHost, port);
-                smtp.Credentials = new System.Net.NetworkCredential(senderEmail, "dubultaisz18");
+                smtp.Credentials = new System.Net.NetworkCredential(senderEmail, senderPassword);
                 smtp.EnableSsl = true;
 
                 MailMessage mail = new MailMessage();
-                mail.To.Add("kristers.zimecs@gmail.com");
+                mail.To.Add(mailToAddress);
                 mail.Subject = string.Format("Uzdevums {0} ir jāpabeidz līdz {1}", subject, dueDate);
                 mail.Body = string.Format("{0}", subject);
                 mail.BodyEncoding = Encoding.Unicode;

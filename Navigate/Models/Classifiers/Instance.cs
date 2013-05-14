@@ -8,8 +8,6 @@ namespace Navigate.Models.Classifiers
 {
     public enum Instance
     {
-        None = 0,
-
         [Description("First")]
         First = 1,
 

@@ -14,6 +14,7 @@ using Navigate.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Objects;
 using Navigate.Quartz;
+using System.Globalization;
 
 namespace Navigate.Controllers
 {   
@@ -111,9 +112,16 @@ namespace Navigate.Controllers
         //
         // GET: /WorkItem/Create
 
-        public ActionResult Create()
+        public ActionResult Create(string start = null, string end = null)
         {
             var model = new WorkItemDataInputModel();
+            if (!String.IsNullOrEmpty(start) && !String.IsNullOrEmpty(end))
+            {
+                DateTime dtStart = DateTime.ParseExact(start, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+                DateTime dtEnd = DateTime.ParseExact(end, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+                model.StartDate = dtStart;
+                model.EndDate = dtEnd;
+            }
             populateDropDownLists(model);
             return View(model);
         }
@@ -153,7 +161,8 @@ namespace Navigate.Controllers
                             End = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemEnd.Value.Hour, model.RecurringItemEnd.Value.Minute, model.RecurringItemEnd.Value.Second),
                             OriginalDate = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemStart.Value.Hour, model.RecurringItemStart.Value.Minute, model.RecurringItemStart.Value.Second),
                             IndividualBody = workItem.Body,
-                            IndividualLocation = workItem.Location
+                            IndividualLocation = workItem.Location,
+                            UpdatedAt = DateTime.Now
                         });
                     }
                 }
@@ -161,8 +170,8 @@ namespace Navigate.Controllers
                 this.dataContext.WorkItems.Add(workItem);
                 this.dataContext.SaveChanges();
 
-                var scheduler = new ReminderScheduler();
-                scheduler.ScheduleReminder(workItem);
+                //var scheduler = new ReminderScheduler();
+                //scheduler.ScheduleReminder(workItem);
 
                 return RedirectToAction("Index");
             }
@@ -292,14 +301,6 @@ namespace Navigate.Controllers
 
         public void populateDropDownLists(WorkItemDataInputModel model)
         {
-            var users = (from r in this.dataContext.UserProfiles
-                            select r).ToList();
-            model.AllUsers = users.Select(o => new SelectListItem
-            {
-                Value = o.UserId.ToString(),
-                Text = o.UserName
-            });
-
             model.Categories = this.dataContext.Categories.ToList();
         }
 

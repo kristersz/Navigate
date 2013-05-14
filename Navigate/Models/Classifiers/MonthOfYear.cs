@@ -8,42 +8,40 @@ namespace Navigate.Models.Classifiers
 {
     public enum MonthOfYear
     {
-        None = 0,
-
-        [Description("January")]
+        [Description("Janvāris")]
         January = 1,
 
-        [Description("February")]
+        [Description("Februāris")]
         February = 2,
 
-        [Description("March")]
+        [Description("Marts")]
         March = 3,
 
-        [Description("April")]
+        [Description("Aprīlis")]
         April = 4,
 
-        [Description("May")]
+        [Description("Maijs")]
         May = 5,
 
-        [Description("June")]
+        [Description("Jūnijs")]
         June = 6,
 
-        [Description("July")]
+        [Description("Jūlijs")]
         July = 7,
 
-        [Description("August")]
+        [Description("Augusts")]
         August = 8,
 
-        [Description("September")]
+        [Description("Septembris")]
         September = 9,
 
-        [Description("October")]
+        [Description("Oktobris")]
         October = 10,
 
-        [Description("November")]
+        [Description("Novembris")]
         November = 11,
 
-        [Description("December")]
+        [Description("Decembris")]
         December = 12,
     }
 }

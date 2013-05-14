@@ -4,15 +4,15 @@
     ViewBag.Title = "Create";
 }
 
-<h2>Create New Work Item!</h2>
+<h2>Izveidot jaunu uzdevumu!</h2>
 
-@using (Html.BeginForm("Create","WorkItem", FormMethod.Post, new { @id = "createEditForm", @class = "form-horizontal" })) {
+@using (Html.BeginForm("Create", "WorkItem", FormMethod.Post, new { @id = "createEditForm", @class = "form-horizontal" })) {
     @Html.ValidationSummary(true)
     <div class="well">
         <fieldset>
-            <legend>Work Item</legend>
+            <legend>Uzdevums</legend>
             <fieldset class="groupbox">
-                <legend>Work Item metadata</legend>
+                <legend>Uzdevuma pamatinformācija</legend>
                 <div class="editor-label">
                     @Html.LabelFor(model => model.Subject)
                 </div>
@@ -37,6 +37,7 @@
                     @Html.ValidationMessageFor(model => model.Body)
                 </div>
 
+                <label>Kategorijas</label>
                 <div style="overflow: auto">
                     @foreach (var category in Model.Categories)
                     {
@@ -53,9 +54,8 @@
                     @Html.ValidationMessageFor(model => model.WorkItemType)
                 </div>
             </fieldset>
-            <fieldset class="groupbox">
-                <legend>Task specific data</legend>
-
+            <fieldset class="groupbox" id="taskInfo">
+                <legend>Uzdevuma informācija</legend>
                 <div class="editor-label">
                     @Html.LabelFor(model => model.DueDate)
                 </div>
@@ -80,8 +80,8 @@
                     @Html.ValidationMessageFor(model => model.Priority)
                 </div>
             </fieldset>
-            <fieldset class="groupbox">
-                <legend>Appointment specific data</legend>
+            <fieldset class="groupbox" id="appointmentInfo">
+                <legend>Tikšanās informācija</legend>
                 <div class="editor-label">
                     @Html.LabelFor(model => model.StartDate)
                 </div>
@@ -97,9 +97,7 @@
                     @Html.EditorFor(model => model.EndDate)
                     @Html.ValidationMessageFor(model => model.EndDate)
                 </div>
-            </fieldset>
-            <fieldset class="groupbox">
-                <legend>Recurrence settings</legend>
+            
                 <div class="editor-label">
                     @Html.LabelFor(model => model.isRecurring)
                 </div>

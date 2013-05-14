@@ -79,6 +79,13 @@ namespace Navigate.Controllers
                 {
                     WebSecurity.CreateUserAndAccount(model.UserName, model.Password);
                     WebSecurity.Login(model.UserName, model.Password);
+
+                    NavigateDb db = new NavigateDb();
+                    var userProfile = db.UserProfiles.Where(o => o.UserName == model.UserName).FirstOrDefault();
+                    userProfile.Email = model.Email;
+                    userProfile.BaseLocation = model.BaseLocation;
+                    db.SaveChanges();
+
                     return RedirectToAction("Index", "Home");
                 }
                 catch (MembershipCreateUserException e)
@@ -162,6 +169,12 @@ namespace Navigate.Controllers
 
                     if (changePasswordSucceeded)
                     {
+                        NavigateDb db = new NavigateDb();
+                        var userProfile = db.UserProfiles.Where(o => o.UserName == User.Identity.Name).FirstOrDefault();
+                        userProfile.Email = model.Email;
+                        userProfile.BaseLocation = model.BaseLocation;
+                        db.SaveChanges();
+
                         return RedirectToAction("Manage", new { Message = ManageMessageId.ChangePasswordSuccess });
                     }
                     else

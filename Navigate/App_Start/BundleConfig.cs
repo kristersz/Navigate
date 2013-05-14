@@ -31,7 +31,8 @@ namespace Navigate
 
             bundles.Add(new ScriptBundle("~/bundles/globalization").Include(
                         "~/Scripts/globalize.js",
-                        "~/Scripts/globalize.culture.lv-LV.js"));
+                        "~/Scripts/globalize.culture.lv-LV.js",
+                        "~/Scripts/moment.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/navigate").Include(
                         "~/Scripts/Navigate.js"));

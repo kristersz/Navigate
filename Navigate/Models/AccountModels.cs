@@ -35,6 +35,13 @@ namespace Navigate.Models
         [Display(Name = "Confirm new password")]
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
+        [DataType(DataType.EmailAddress)]
+        [Display(Name = "E-pasta adrese")]
+        public string Email { get; set; }
+
+        [Display(Name = "Bāzes atrašānās vieta")]
+        public string BaseLocation { get; set; }
     }
 
     public class LoginModel
@@ -68,6 +75,13 @@ namespace Navigate.Models
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
+        [DataType(DataType.EmailAddress)]
+        [Display(Name = "E-pasta adrese")]
+        public string Email { get; set; }
+
+        [Display(Name = "Bāzes atrašānās vieta")]
+        public string BaseLocation { get; set; }
     }
 
     public class ExternalLogin
