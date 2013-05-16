@@ -11,26 +11,31 @@ namespace Navigate.Models.Classifiers
         /// <summary>
         /// Task of exceptional priority
         /// </summary>
-        //[Display(Name = "Exceptional")]
-        [Description("Exceptional")]
+        [Description("Ļoti augsta")]
         ExceptionalPriority = 1,
 
         /// <summary>
         /// Task of high priority
         /// </summary>
-        [Description("High")]
+        [Description("Augsta")]
         HighPriority = 2,
 
         /// <summary>
         /// Task of normal priority
         /// </summary>
-        [Description("Normal")]
+        [Description("Parasta")]
         NormalPriority = 3,
 
         /// <summary>
         /// Task of low priority
         /// </summary>
-        [Description("Low")]
+        [Description("Zema")]
         LowPriority = 4,
+
+        /// <summary>
+        /// Task of very low priority
+        /// </summary>
+        [Description(" Ļoti zema")]
+        VeryLowPriority = 5,
     }
 }

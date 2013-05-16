@@ -54,7 +54,7 @@
                     @Html.ValidationMessageFor(model => model.WorkItemType)
                 </div>
             </fieldset>
-            <fieldset class="groupbox" id="taskInfo">
+            <fieldset class="groupbox workItemTypeFieldsets" id="Task">
                 <legend>Uzdevuma informācija</legend>
                 <div class="editor-label">
                     @Html.LabelFor(model => model.DueDate)
@@ -80,7 +80,7 @@
                     @Html.ValidationMessageFor(model => model.Priority)
                 </div>
             </fieldset>
-            <fieldset class="groupbox" id="appointmentInfo">
+            <fieldset class="groupbox workItemTypeFieldsets" id="Appointment">
                 <legend>Tikšanās informācija</legend>
                 <div class="editor-label">
                     @Html.LabelFor(model => model.StartDate)
@@ -203,19 +203,24 @@
 
 @section Scripts { 
     <script>
-        function evaluate() {
-            var item = $(this);
-            var relatedItem = $("#recurrenceOptions");
-
-            if (item.is(":checked")) {
-                relatedItem.show();
-            } else {
-                relatedItem.hide();
-            }
-        }
-        $("#isRecurring").click(evaluate).each(evaluate);
-
         $(document).ready(function () {
+            $('#WorkItemType').change(function () {
+                $('.workItemTypeFieldsets').hide();
+                $('#' + $(this).val()).show();
+            });
+
+            if ($("#isRecurring").is(":checked")) {
+                $("#recurrenceOptions").show();
+            };
+
+            $("#isRecurring").change(function () {
+                if ($(this).is(":checked")) {
+                    $("#recurrenceOptions").show();
+                } else {
+                    $("#recurrenceOptions").hide();
+                };
+            });
+
             $("input[name=RecurrenceType]").change(function () {
                 var pattern = $(this).val();
                 $(".patterns").hide();
@@ -224,12 +229,5 @@
             var val = ($("#recurrenceOptions input:checked").val());
             $("#" + val).show();
         });
-
-        //$("#patterns").find("#Daily input").attr('disabled', 'disabled');
-        //$("#patterns").find("#Monthly input").attr('disabled', 'disabled');
-        //$("#patterns").find("#MonthNth input").attr('disabled', 'disabled');
-        //$("#patterns").find("#Yearly input").attr('disabled', 'disabled');
-        //$("#patterns").find("#YearNth input").attr('disabled', 'disabled');
-        //$("#patterns").find("#monthlyPattern input").removeAttr('disabled', 'disabled');
-     </script>
+    </script>
 }

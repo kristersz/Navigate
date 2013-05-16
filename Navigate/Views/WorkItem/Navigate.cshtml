@@ -1,45 +1,50 @@
 ﻿@{
-    ViewBag.Title = "Navigation";
-    var origin = "Enter your origin..";
+    ViewBag.Title = "Navigācija";
+    var origin = "Ievadiet starta adresi..";
     var destination = (string)ViewBag.Location;
 }
 
+<h2>Iegūt norādes uz @destination</h2>
+<div class="well">
+    <table>
+        <tr>
+            <td>
+                <strong>Sākums: </strong>
+            </td>
+            <td>
+                <strong>Galamērķis: </strong>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.TextBox("origin", @origin, new { @id = "start" })
+            </td>
+            <td>
+                @Html.TextBox("destination", @destination, new { @id = "end" })
+            </td>
+        </tr>
+    </table>
+    <form id="navigationProperties">
+        Es
+    <input type="radio" name="travelMode" value="DRIVING" checked="checked" style="width: 20px">braukšu ar auto
+    <input type="radio" name="travelMode" value="WALKING" style="width: 20px">iešu ar kājām
+    <input type="radio" name="travelMode" value="TRANSIT" style="width: 20px">izmantošu publisko transportu
+    </form>
+    <button id="navigateToLocation" onclick="calcRoute(); calcDistance()" class="btn btn-primary">Iegūt norādēs</button>
+</div>
+<div id="warnings_panel" style="display: none; text-align:center" class="alert"></div>
+<div id="distanceOutput" class="alert alert-info" style="display: none"></div>
+<div id="directions_panel" style="width: 300px; height: 480px; float:right; overflow: auto"></div>
+<div id="map-canvas" style="width: 800px; height: 500px;" />
+
 @section Scripts {
-    <script type="text/javascript"
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDRB5Lq6cJATlN4-BDhE0-laoR1mfYx-Ys&sensor=false">
+    <script type="text/javascript">
+        $(function () {
+            $("#navigateToLocation").click(function () {
+                var destination  = $("#end").val();
+                $("h2").text("Iegūt norādes uz " + destination);
+            });
+        });
     </script>   
     @Scripts.Render("~/bundles/google-apis")
 }
-
-<h2>Navigate to @destination</h2>
-
-<table>
-    <tr>
-        <td>
-            <strong>Origin: </strong>
-        </td>
-        <td>
-            <strong>Destination: </strong>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            @Html.TextBox("origin", @origin, new { @id = "start" })
-        </td>
-        <td>
-            @Html.TextBox("destination", @destination, new { @id = "end" })
-        </td>
-    </tr>
-</table>
-<form>
-    I will
-    <input type="radio" name="travelMode" value="DRIVING" checked="checked" style="width: 20px">drive
-    <input type="radio" name="travelMode" value="WALKING" style="width: 20px">walk
-    <input type="radio" name="travelMode" value="TRANSIT" style="width: 20px">use public transportation
-</form>
-<button onclick="calcRoute(); calcDistance()">Navigate</button>
-
-<div id="warnings_panel" style="width:100%; height:10%; text-align:center"></div>
-<div id="distanceOutput"></div>
-<div id="directions_panel" style="width: 300px; height: 480px; float:right; overflow: auto"></div>
-<div id="map-canvas" style="width: 640px; height: 480px;" />

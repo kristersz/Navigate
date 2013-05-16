@@ -9,20 +9,20 @@ using Navigate.Models;
 using Navigate.Models.Classifiers;
 using WebMatrix.WebData;
 using Navigate.ViewModels;
-using Microsoft.Office.Interop.Outlook;
 using Navigate.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Objects;
 using Navigate.Quartz;
 using System.Globalization;
+using UnconstrainedMelody;
+using PagedList;
 
 namespace Navigate.Controllers
 {   
     [Authorize]
     public class WorkItemController : BaseController
     {
-
-        public ActionResult Index(string searchTerm = null, string filter  = null, string sortOrder = null)
+        public ActionResult Index(string searchTerm = null, string filter  = null, string sortOrder = null, string category = null, int page = 1)
         {
             var currentUserId = this.CurrentUser.UserId;
 
@@ -38,12 +38,33 @@ namespace Navigate.Controllers
                         isCompleted = r.isCompleted,
                         Priority = r.Priority,
                         CreatedAt = r.CreatedAt,
-                        UpdatedAt = r.UpdatedAt
+                        UpdatedAt = r.UpdatedAt,
+                        Categories = r.Categories
                     }
                 );
+
+            IEnumerable<SelectListItem> categoriesList = new List<SelectListItem>();
+            categoriesList = this.dataContext.Categories
+                .Where(o => o.CreatedByUserId == this.CurrentUser.UserId)
+                .ToList()
+                .Select(o => new SelectListItem
+                    {
+                        Value = o.ID.ToString(),
+                        Text = o.Name
+                    });
+
+
+            ViewBag.Category = categoriesList;
+
             if (!String.IsNullOrEmpty(searchTerm))
             {
                 workItems = workItems.Where(r => r.Subject.Contains(searchTerm));
+            }
+
+            if (!String.IsNullOrEmpty(category))
+            {
+                var catId = Convert.ToInt32(category);
+                workItems = workItems.Where(r => r.Categories.Any(o => o.ID == catId));
             }
 
             switch (filter)
@@ -69,7 +90,7 @@ namespace Navigate.Controllers
             switch (sortOrder)
             {
                 case "deadline":
-                    workItems = workItems.OrderByDescending(r => r.EndDateTime);
+                    workItems = workItems.OrderBy(r => r.EndDateTime);
                     break;
                 case "priority":
                     workItems = workItems.OrderByDescending(r => r.Priority);
@@ -84,7 +105,7 @@ namespace Navigate.Controllers
                     workItems = workItems.OrderBy(r => r.Subject);
                     break;
                 default:
-                    workItems = workItems.OrderByDescending(r => r.EndDateTime);
+                    workItems = workItems.OrderBy(r => r.EndDateTime);
                     break;
             }
 
@@ -133,6 +154,11 @@ namespace Navigate.Controllers
         public ActionResult Create(WorkItemDataInputModel model)
         {
             populateDropDownLists(model);
+            if (model.WorkItemType == WorkItemType.None)
+            {
+                ModelState.AddModelError("", "Uzdevuma tips ir obligāts lauks");
+                return View(model);
+            }
             if (ModelState.IsValid)
             {
                 var workItem = model.TransformToWorkItem();
@@ -151,7 +177,8 @@ namespace Navigate.Controllers
                     workItem.RecurrencePattern = model.TransformToRecurrencePattern();
                     workItem.RecurrenceType = model.RecurrenceType;
 
-                    var occurrenceDates = GetOccurrenceDates(workItem);
+                    var occurrenceService = new OccurrenceService();
+                    var occurrenceDates = occurrenceService.GetOccurrenceDates(workItem);
                     workItem.RecurringItems = new List<RecurringItem>();
                     foreach (var date in occurrenceDates)
                     {
@@ -160,8 +187,9 @@ namespace Navigate.Controllers
                             Start = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemStart.Value.Hour, model.RecurringItemStart.Value.Minute, model.RecurringItemStart.Value.Second),
                             End = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemEnd.Value.Hour, model.RecurringItemEnd.Value.Minute, model.RecurringItemEnd.Value.Second),
                             OriginalDate = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemStart.Value.Hour, model.RecurringItemStart.Value.Minute, model.RecurringItemStart.Value.Second),
-                            IndividualBody = workItem.Body,
-                            IndividualLocation = workItem.Location,
+                            Subject = workItem.Subject,
+                            Body = workItem.Body,
+                            Location = workItem.Location,
                             UpdatedAt = DateTime.Now
                         });
                     }
@@ -199,16 +227,22 @@ namespace Navigate.Controllers
         // POST: /WorkItem/Edit/5
 
         [HttpPost]
-        public ActionResult Edit(WorkItem workitem)
+        public ActionResult Edit(WorkItemDataInputModel model)
         {
+            populateDropDownLists(model);
             if (ModelState.IsValid)
             {
-                this.dataContext.Entry(workitem).State = EntityState.Modified;
-                workitem.UpdatedByUserId = this.CurrentUser.UserId;
-                this.dataContext.SaveChanges();
+                WorkItem workItem = this.dataContext.WorkItems.Where(o => o.Id == model.WorkItemId).FirstOrDefault();
+                if (workItem != null)
+                {
+                    model.UpdateWorkItem(workItem);
+                    workItem.UpdatedAt = DateTime.Now;
+                    workItem.UpdatedByUserId = this.CurrentUser.UserId;
+                    this.dataContext.SaveChanges();
+                }
                 return RedirectToAction("Index");
             }
-            return View(workitem);
+            return View(model);
         }
 
         //
@@ -280,15 +314,41 @@ namespace Navigate.Controllers
         [HttpPost]
         public JsonResult GetOutlookCalendarItems(OutlookSettingsInputModel model)
         {
-            var importService = new OutlookItemImportService(this.dataContext, this.CurrentUser)
+            string message = "";
+            try
             {
-                IntervalStart = model.IntervalStart,
-                IntervalEnd = model.IntervalEnd
-            };
-            var message = "";
-            var result = importService.ImportOutlookCalendarItems();
-            if (result.Data == OutlookItemImportServiceResult.Ok) 
-                message = "all good";
+                var importService = new OutlookItemImportService(this.dataContext, this.CurrentUser)
+                {
+                    IntervalStart = model.IntervalStart,
+                    IntervalEnd = model.IntervalEnd
+                };
+
+                var result = importService.ImportOutlookCalendarItems();
+                switch (result.Data)
+                {
+                    case OutlookItemImportServiceResult.None:
+                        break;
+                    case OutlookItemImportServiceResult.Ok:
+                        message = "Uzdevumu imports veiksmīgi pabeigts!";
+                        break;
+                    case OutlookItemImportServiceResult.OkWithWarnings:
+                        message = "Uzdevumu imports pabeigts ar paziņojumiem!";
+                        break;           
+                    case OutlookItemImportServiceResult.Error:
+                        message = "Uzdevumu imports beidzies ar kļūdu!";
+                        break;
+                    case OutlookItemImportServiceResult.NotImported:
+                        message = "Uzdevumu imports netika veikts!";
+                        break;
+                }
+
+                if (result.Messages != null && result.Messages.Length > 0)
+                    message = string.Concat(message, Environment.NewLine, string.Join(" ", result.Messages.Select(m => string.Concat(m.Severity.GetDescription(), ": ", m.Text))));
+            }
+            catch (Exception ex)
+            {
+                message = "Uzdevumu imports beidzies ar kļūdu! " + ex.Message;
+            }
 
             return new JsonResult() { Data = new { Message = message } };
         }
@@ -301,173 +361,7 @@ namespace Navigate.Controllers
 
         public void populateDropDownLists(WorkItemDataInputModel model)
         {
-            model.Categories = this.dataContext.Categories.ToList();
-        }
-
-        /// <summary>
-        /// Method gets the occurrence dates of an event, given the recurrence type and pattern
-        /// </summary>
-        /// <param name="recurrenceType">The recurrence type</param>
-        /// <param name="recurrencePattern">The recurrence pattern</param>
-        /// <returns>A list of datetime objects</returns>
-        private List<DateTime> GetOccurrenceDates(WorkItem workItem)
-        {
-            var occurrenceDates = new List<DateTime>();
-            var recurrencePattern = workItem.RecurrencePattern;
-            DateTime start = (DateTime)workItem.StartDateTime;
-            DateTime end = workItem.EndDateTime;
-            int interval = recurrencePattern.Interval;
-            int dayofMonth = recurrencePattern.DayOfMonth;
-            int instance = (int)recurrencePattern.Instance;
-            int monthOfYear = (int)recurrencePattern.MonthOfYear;
-
-            if (workItem.RecurrenceType == RecurrenceType.Daily)
-            {
-                for (DateTime cur = start; cur <= end; cur = cur.AddDays(interval))
-                {
-                    occurrenceDates.Add(cur);
-                }
-                return occurrenceDates;
-            }
-
-            else if (workItem.RecurrenceType == RecurrenceType.Weekly)
-            {
-                var daysOfWeek = GetRecurringDaysOfWeek((int)recurrencePattern.DayOfWeekMask);
-
-                foreach (DayOfWeek dayOfWeek in daysOfWeek)
-                {
-                    DateTime next = GetNextWeekday(dayOfWeek, start);
-                    for (DateTime cur = next; cur <= end; cur = cur.AddDays(interval))
-                    {
-                        occurrenceDates.Add(cur);
-                    }
-                }
-                return occurrenceDates;
-            }
-
-            else if (workItem.RecurrenceType == RecurrenceType.Monthly)
-            {
-                DateTime startOfMonth = new DateTime(start.Year, start.Month, 01);
-                DateTime recurringDayInMonth = startOfMonth.AddDays(dayofMonth);
-                for (DateTime cur = recurringDayInMonth; cur <= end; cur = cur.AddMonths(interval))
-                {
-                    occurrenceDates.Add(cur);
-                }
-                return occurrenceDates;
-            }
-
-            else if (workItem.RecurrenceType == RecurrenceType.MonthNth)
-            {
-                var dayOfWeek = GetRecurringDaysOfWeek((int)recurrencePattern.DayOfWeekMask);
-                DateTime NthWeekdayDayInMonth = GetNthWeekdayDateInMonth(start, instance, dayOfWeek);
-                if (NthWeekdayDayInMonth < start)
-                {
-                    NthWeekdayDayInMonth = GetNthWeekdayDateInMonth(start = start.AddMonths(1), instance, dayOfWeek);
-                }
-                for (DateTime cur = NthWeekdayDayInMonth; cur <= end; cur = GetNthWeekdayDateInMonth(cur = cur.AddMonths(interval), instance, dayOfWeek))
-                {
-                    occurrenceDates.Add(cur);
-                }
-                return occurrenceDates;
-            }
-
-            else if (workItem.RecurrenceType == RecurrenceType.Yearly)
-            {
-                DateTime dayOfYear = new DateTime(start.Year, monthOfYear, dayofMonth);
-                for (DateTime cur = dayOfYear; cur <= end; cur = cur.AddYears(interval))
-                {
-                    occurrenceDates.Add(cur);
-                }
-                return occurrenceDates;
-            }
-
-            else
-            {
-                var dayOfWeek = GetRecurringDaysOfWeek((int)recurrencePattern.DayOfWeekMask);
-                DateTime NthWeekdayDayInMonth = GetNthWeekdayDateInMonth(start, instance, dayOfWeek);
-                if (NthWeekdayDayInMonth < start)
-                {
-                    NthWeekdayDayInMonth = GetNthWeekdayDateInMonth(start = start.AddMonths(1), instance, dayOfWeek);
-                }
-                for (DateTime cur = NthWeekdayDayInMonth; cur <= end; cur = GetNthWeekdayDateInMonth(cur = cur.AddYears(interval), instance, dayOfWeek))
-                {
-                    occurrenceDates.Add(cur);
-                }
-                return occurrenceDates;
-            }
-        }
-
-        /// <summary>
-        /// Method for converting the DaysOfWeekMask into days of week representing the recurring days in a week
-        /// </summary>
-        /// <param name="mask">The days of week mask</param>
-        /// <returns>A list of DayOfWeek objects</returns>
-        private List<DayOfWeek> GetRecurringDaysOfWeek(int mask)
-        {
-            var days = new List<DayOfWeek>();
-
-            while (mask != 0)
-            {
-                if (mask >= 64)
-                {
-                    mask = mask % 64;
-                    days.Add(DayOfWeek.Saturday);
-                }
-                else if (mask >= 32)
-                {
-                    mask = mask % 32;
-                    days.Add(DayOfWeek.Friday);
-                }
-                else if (mask >= 16)
-                {
-                    mask = mask % 16;
-                    days.Add(DayOfWeek.Thursday);
-                }
-                else if (mask >= 8)
-                {
-                    mask = mask % 8;
-                    days.Add(DayOfWeek.Wednesday);
-                }
-                else if (mask >= 4)
-                {
-                    mask = mask % 4;
-                    days.Add(DayOfWeek.Tuesday);
-                }
-                else if (mask >= 2)
-                {
-                    mask = mask % 2;
-                    days.Add(DayOfWeek.Monday);
-                }
-                else if (mask >= 1)
-                {
-                    mask = mask % 1;
-                    days.Add(DayOfWeek.Sunday);
-                }
-            }
-            return days;
-        }
-
-        /// <summary>
-        /// Method for getting the next specified weekday after the pattern start date
-        /// </summary>
-        /// <param name="day">The day of week whose date is to be determined</param>
-        /// <param name="start">The pattern start date</param>
-        /// <returns>A datetime object of the next weekday</returns>
-        static DateTime GetNextWeekday(DayOfWeek day, DateTime start)
-        {
-            DateTime result = start;
-            while (result.DayOfWeek != day)
-                result = result.AddDays(1);
-            return result;
-        }
-
-        static DateTime GetNthWeekdayDateInMonth(DateTime start, int instance, List<DayOfWeek> dayOfWeek)
-        {
-            DateTime startOfMonth = new DateTime(start.Year, start.Month, 01);
-            DateTime recurringWeekDayInMonth = GetNextWeekday(dayOfWeek[0], startOfMonth);
-            DateTime NthWeekdayDayInMonth = recurringWeekDayInMonth.AddDays((instance - 1) * 7);
-
-            return NthWeekdayDayInMonth;
+            model.Categories = this.dataContext.Categories.Where(o => o.CreatedByUserId == this.CurrentUser.UserId).ToList();
         }
     }
 }

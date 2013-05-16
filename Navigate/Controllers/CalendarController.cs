@@ -35,13 +35,12 @@ namespace Navigate.Controllers
             var endDateTime = FromUnixTimestamp(end);
 
             var events = this.dataContext.WorkItems
-                .Where(o => o.StartDateTime >= startDateTime)
                 .ToList();
             var eventList = new List<object>();
 
             foreach (var e in events)
             {
-                if (e.isRecurring == false && e.EndDateTime <= endDateTime)
+                if (e.isRecurring == false &&(e.StartDateTime >= startDateTime && e.EndDateTime <= endDateTime))
                 {
                     eventList.Add(
                         new

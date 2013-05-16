@@ -1,43 +1,37 @@
 ﻿@model Navigate.Models.RegisterModel
 @{
-    ViewBag.Title = "Register";
+    ViewBag.Title = "Reģistrēties";
 }
 
 <hgroup class="title">
-    <h1>@ViewBag.Title.</h1>
-    <h2>Create a new account.</h2>
+    <h1>@ViewBag.Title</h1>
+    <h2>Izveidot jaunu lietotāja kontu</h2>
 </hgroup>
 
 @using (Html.BeginForm()) {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary()
+    <div class="well">
+        <fieldset>
+            <legend>Reģistrācijas forma</legend>
+            @Html.LabelFor(m => m.UserName)
+            @Html.TextBoxFor(m => m.UserName, new { @class = "span3" })
 
-    <fieldset>
-        <legend>Registration Form</legend>
-        <ol>
-            <li>
-                @Html.LabelFor(m => m.UserName)
-                @Html.TextBoxFor(m => m.UserName)
-            </li>
-            <li>
-                @Html.LabelFor(m => m.Password)
-                @Html.PasswordFor(m => m.Password)
-            </li>
-            <li>
-                @Html.LabelFor(m => m.ConfirmPassword)
-                @Html.PasswordFor(m => m.ConfirmPassword)
-            </li>
-            <li>
-                @Html.LabelFor(m => m.Email)
-                @Html.TextBoxFor(m => m.Email)
-            </li>
-            <li>
-                @Html.LabelFor(m => m.BaseLocation)
-                @Html.TextBoxFor(m => m.BaseLocation)
-            </li>
-        </ol>
-        <input type="submit" value="Register" />
-    </fieldset>
+            @Html.LabelFor(m => m.Password)
+            @Html.PasswordFor(m => m.Password, new { @class = "span3" })
+
+            @Html.LabelFor(m => m.ConfirmPassword)
+            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "span3" })
+
+            @Html.LabelFor(m => m.Email)
+            @Html.TextBoxFor(m => m.Email, new { @class = "span3" })
+
+            @Html.LabelFor(m => m.BaseLocation)
+            @Html.TextBoxFor(m => m.BaseLocation, new { @class = "span3" })
+            <br />
+            <input type="submit" value="Reģistrēties" class="btn btn-primary" />
+        </fieldset>
+    </div>
 }
 
 @section Scripts {

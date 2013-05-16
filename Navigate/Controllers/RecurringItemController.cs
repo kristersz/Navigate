@@ -9,16 +9,15 @@ using Navigate.Models;
 
 namespace Navigate.Controllers
 {
-    public class RecurringItemController : Controller
+    public class RecurringItemController : BaseController
     {
-        private NavigateDb db = new NavigateDb();
 
         //
         // GET: /RecurringItem/
 
         public ActionResult Index()
         {
-            var recurringitems = db.RecurringItems.Include(r => r.WorkItem);
+            var recurringitems = this.dataContext.RecurringItems.Include(r => r.WorkItem);
             return View(recurringitems.ToList());
         }
 
@@ -27,7 +26,7 @@ namespace Navigate.Controllers
 
         public ActionResult Details(long id = 0)
         {
-            RecurringItem recurringitem = db.RecurringItems.Find(id);
+            RecurringItem recurringitem = this.dataContext.RecurringItems.Find(id);
             if (recurringitem == null)
             {
                 return HttpNotFound();
@@ -40,12 +39,12 @@ namespace Navigate.Controllers
 
         public ActionResult Edit(long id = 0)
         {
-            RecurringItem recurringitem = db.RecurringItems.Find(id);
+            RecurringItem recurringitem = this.dataContext.RecurringItems.Find(id);
             if (recurringitem == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.WorkItemId = new SelectList(db.WorkItems, "Id", "Subject", recurringitem.WorkItemId);
+            ViewBag.WorkItemId = new SelectList(this.dataContext.WorkItems, "Id", "Subject", recurringitem.WorkItemId);
             return View(recurringitem);
         }
 
@@ -58,11 +57,11 @@ namespace Navigate.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(recurringitem).State = EntityState.Modified;
-                db.SaveChanges();
+                this.dataContext.Entry(recurringitem).State = EntityState.Modified;
+                this.dataContext.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.WorkItemId = new SelectList(db.WorkItems, "Id", "Subject", recurringitem.WorkItemId);
+            ViewBag.WorkItemId = new SelectList(this.dataContext.WorkItems, "Id", "Subject", recurringitem.WorkItemId);
             return View(recurringitem);
         }
 
@@ -71,7 +70,7 @@ namespace Navigate.Controllers
 
         public ActionResult Delete(long id = 0)
         {
-            RecurringItem recurringitem = db.RecurringItems.Find(id);
+            RecurringItem recurringitem = this.dataContext.RecurringItems.Find(id);
             if (recurringitem == null)
             {
                 return HttpNotFound();
@@ -86,15 +85,15 @@ namespace Navigate.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(long id)
         {
-            RecurringItem recurringitem = db.RecurringItems.Find(id);
-            db.RecurringItems.Remove(recurringitem);
-            db.SaveChanges();
+            RecurringItem recurringitem = this.dataContext.RecurringItems.Find(id);
+            this.dataContext.RecurringItems.Remove(recurringitem);
+            this.dataContext.SaveChanges();
             return RedirectToAction("Index");
         }
 
         protected override void Dispose(bool disposing)
         {
-            db.Dispose();
+            this.dataContext.Dispose();
             base.Dispose(disposing);
         }
     }

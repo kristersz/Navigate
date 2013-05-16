@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
@@ -11,19 +12,19 @@ namespace Navigate.Services
         /// <summary>
         /// Info. Value 0
         /// </summary>
-        [Display(Name = "Info")]
+        [Description("Info")]
         Info = 0,
 
         /// <summary>
         /// Brīdinājums. Value 1
         /// </summary>
-        [Display(Name = "Brīdinājums")]
+        [Description("Brīdinājums")]
         Warning = 1,
 
         /// <summary>
         /// Kļūda. Value 2
         /// </summary>
-        [Display(Name = "Kļūda")]
+        [Description("Kļūda")]
         Error = 2
     }
 }

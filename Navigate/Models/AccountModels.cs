@@ -22,17 +22,17 @@ namespace Navigate.Models
     {
         [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Current password")]
+        [Display(Name = "Pašreizējā parole")]
         public string OldPassword { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "New password")]
+        [Display(Name = "Jaunā parole")]
         public string NewPassword { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm new password")]
+        [Display(Name = "Apstipriniet jauno paroli")]
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
 
@@ -40,47 +40,48 @@ namespace Navigate.Models
         [Display(Name = "E-pasta adrese")]
         public string Email { get; set; }
 
-        [Display(Name = "Bāzes atrašānās vieta")]
+        [Display(Name = "Pamata atrašanās vieta")]
         public string BaseLocation { get; set; }
     }
 
     public class LoginModel
     {
-        [Required]
-        [Display(Name = "User name")]
+        [Required(ErrorMessage = "Lauks {0} ir obligāts")]
+        [Display(Name = "Lietotājvārds")]
         public string UserName { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Lauks {0} ir obligāts")]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Parole")]
         public string Password { get; set; }
 
-        [Display(Name = "Remember me?")]
+        [Display(Name = "Atcerēties mani")]
         public bool RememberMe { get; set; }
     }
 
     public class RegisterModel
     {
-        [Required]
-        [Display(Name = "User name")]
+        [Required(ErrorMessage = "Lauks {0} ir obligāts")]
+        [Display(Name = "Lietotājvārds")]
         public string UserName { get; set; }
 
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [Required(ErrorMessage = "Lauks {0} ir obligāts")]
+        [StringLength(100, ErrorMessage = "Parolei jābūt vismaz {2} simbolus garai!", MinimumLength = 8)]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Parole")]
         public string Password { get; set; }
-
+        
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Display(Name = "Apstipriniet paroli")]
+        [Compare("Password", ErrorMessage = "Parolei un apstiprinājuma parolei ir jāsakrīt!")]
         public string ConfirmPassword { get; set; }
 
+        [Required(ErrorMessage = "Lauks {0} ir obligāts")]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "E-pasta adrese")]
         public string Email { get; set; }
 
-        [Display(Name = "Bāzes atrašānās vieta")]
+        [Display(Name = "Pamata atrašanās vieta")]
         public string BaseLocation { get; set; }
     }
 

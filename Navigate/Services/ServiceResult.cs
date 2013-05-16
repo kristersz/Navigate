@@ -14,7 +14,7 @@ namespace Navigate.Services
         public T Data { get; set; }
 
         /// <summary>
-        /// Gets or sets the service result messages. Messages will be populated in case if service had errors or warnings while processing request.
+        /// Gets or sets the service result messages. Messages will be populated in case service had any errors or warnings while processing the request.
         /// </summary>
         public Message[] Messages { get; set; }
 

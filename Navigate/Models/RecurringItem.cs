@@ -23,9 +23,11 @@ namespace Navigate.Models
 
         public DateTime End { get; set; }
 
-        public string IndividualLocation { get; set; }
+        public string Subject { get; set; }
 
-        public string IndividualBody { get; set; }
+        public string Location { get; set; }
+
+        public string Body { get; set; }
 
         public DateTime UpdatedAt { get; set; }
     }

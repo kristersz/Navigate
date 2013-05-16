@@ -15,10 +15,10 @@
             @Html.DisplayNameFor(model => model.End)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.IndividualLocation)
+            @Html.DisplayNameFor(model => model.Location)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.IndividualBody)
+            @Html.DisplayNameFor(model => model.Body)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.UpdatedAt)
@@ -41,18 +41,18 @@
             @Html.DisplayFor(modelItem => item.End)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.IndividualLocation)
+            @Html.DisplayFor(modelItem => item.Location)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.IndividualBody)
+            @Html.DisplayFor(modelItem => item.Body)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.UpdatedAt)
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", "RecurringItem", new { id=item.Id }, null) |
-            @Html.ActionLink("Details", "Details", "RecurringItem", null, new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", "RecurringItem", null, new { id=item.Id })
+            @Html.ActionLink("Details", "Details", "RecurringItem", new { id=item.Id }, null) |
+            @Html.ActionLink("Delete", "Delete", "RecurringItem", new { id=item.Id }, null)
         </td>
     </tr>
 }

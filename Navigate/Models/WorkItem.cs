@@ -58,6 +58,11 @@ namespace Navigate.Models
         public DateTime EndDateTime { get; set; }
 
         /// <summary>
+        /// Gets or sets the property indicating whether the work item is an all day event
+        /// </summary>
+        public bool AllDayEvent { get; set; }
+
+        /// <summary>
         /// Gets or sets the estimated time in minutes of completion for a task
         /// </summary>
         public decimal? EstimatedTime { get; set; }

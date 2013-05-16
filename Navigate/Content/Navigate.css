@@ -1,4 +1,6 @@
-﻿#ajaxRequestLoading {
+﻿@import url(http://fonts.googleapis.com/css?family=Roboto+Slab:700);
+
+#ajaxRequestLoading {
     background-color: white;
     background-color: rgba(255,255,255,0.5);
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
@@ -38,7 +40,7 @@
     width: 20px;
 }
 
-#recurrenceOptions, .patterns {
+#recurrenceOptions, .patterns, .workItemTypeFieldsets {
     display: none;
 }
 
@@ -107,6 +109,7 @@ body {
     margin: 0px auto;
     background-color: white;
     padding: 20px;
+    -webkit-border-radius: 15px;
     -moz-border-radius: 15px;
     border-radius: 15px;
 }
@@ -126,10 +129,27 @@ footer.row {
 }
 
 .workItems {
-    padding: 5px;
+    padding: 10px;
+    border-top: 1px solid black;
 }
+    .workItems #metaData {
+        padding: 5px;
+    }
+    .workItems #metaData div:first-child {
+        color: black;
+        font-family: 'Roboto Slab', serif;
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .workItems #metaData div {
+        font-size: 16px;
+    }
 .workItems:hover {
-    background-color: #FFFFCC;
+    background-color: #D1E0FF;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
 }
 
 #sortOrderSelect {
@@ -137,7 +157,24 @@ footer.row {
     margin-bottom: 20px;
 }
 
-.field-validation-error {
+#filterButtons {
+    margin-bottom: 20px;
+}
+
+#categoryContainer ul
+{
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+#categoryContainer ul li { 
+    display: inline;
+    float: left;
+    margin-right: 10px;
+}
+
+.field-validation-error, .validation-summary-errors {
     padding: 8px 35px 8px 14px;
     margin-bottom: 20px;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
@@ -147,4 +184,16 @@ footer.row {
               border-radius: 4px;
     color: #b94a48;
     background-color: #f2dede;
+}
+
+#map-canvas img, #directions_panel img {
+  max-width: none;
+}
+
+#map-canvas label { 
+  width: auto; display:inline; 
+}
+
+#navigationProperties input[type="radio"] {
+    margin: 0;
 }

@@ -24,7 +24,7 @@ namespace Navigate.Controllers
         /// <returns></returns>
         public ActionResult ListCategories()
         {
-            var categories = this.dataContext.Categories.ToList();
+            var categories = this.dataContext.Categories.Where(o => o.CreatedByUserId == this.CurrentUser.UserId).ToList();
             return View(categories);
         }
 
@@ -42,7 +42,7 @@ namespace Navigate.Controllers
                 if (string.IsNullOrEmpty(model.Name))
                     return new JsonResult() { Data = new { IsValid = false, Message = "Kategorijas nosaukums ir obligāts lauks." } };
 
-                var newCategory = new Category { Name = model.Name };
+                var newCategory = new Category { Name = model.Name, Description = model.Description, CreatedByUserId = this.CurrentUser.UserId };
                 this.dataContext.Categories.Add(newCategory);
                 this.dataContext.SaveChanges();
 

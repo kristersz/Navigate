@@ -21,14 +21,18 @@
             <button type="button" class="btn btn-inverse" value="today">Termiņš beidzas šodien</button>
             <button type="button" class="btn btn-inverse" value="late">Nokavētie</button>
         </div>
+        <div>
+            <strong>Ietilpst kategorijā:</strong>
+            @Html.DropDownList("category", "")
+        </div>
         <div id="sortOrderSelect">
-            <strong>Kārtot pēc:</strong>
+            <strong>Kārtot pēc lauka:</strong>
             @Html.DropDownList("sortOrder", new List<SelectListItem>() {
-                        new SelectListItem { Value = "deadline", Text = "Deadline" },
-                        new SelectListItem { Value = "priority", Text = "Priority" },
-                        new SelectListItem { Value = "changedate", Text = "Last Changed" },
-                        new SelectListItem { Value = "createddate", Text = "Date Created" },
-                        new SelectListItem { Value = "title", Text = "Title" },
+                        new SelectListItem { Value = "deadline", Text = "Termiņš" },
+                        new SelectListItem { Value = "priority", Text = "Prioritāte" },
+                        new SelectListItem { Value = "changedate", Text = "Pēdējoreiz mainīts" },
+                        new SelectListItem { Value = "createddate", Text = "Izveidots" },
+                        new SelectListItem { Value = "title", Text = "Nosaukums" },
                     })
         </div>
         <input type="hidden" id="filterHolder" name="filter" />
@@ -61,12 +65,11 @@
         <div class="editor-field">
             @Html.TextBox("IntervalEnd", DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy HH:mm"), new { @class = "datetimefield"})
         </div>
-        <div id="errorMsg"></div>
     }
   </div>
   <div class="modal-footer">
     <button class="btn" data-dismiss="modal" aria-hidden="true">Atcelt</button>
-    <button type="button" id="import" class="btn btn-primary" data-bind="click: Import">Import from Outlook</button>
+    <button type="button" id="import" class="btn btn-primary" data-bind="click: Import">Importēt</button>
   </div>
 </div>
 
@@ -84,10 +87,11 @@
                         if (data == null || typeof (data) == 'undefined')
                             return;
 
+                        $('#importSettingsModal').modal('hide');
+
                         showMessage(data.Message, function () {
                             document.location.href = '@Html.AttributeEncode(Url.Action("Index", "WorkItem"))';
-                        });
-                        $('#importSettingsModal').modal('hide');
+                        });                        
                     },
                     'json'
                 )
@@ -123,12 +127,12 @@
                           });
                           if ($('#workItem' + workItemId).hasClass("taskDone")) {
                               $('#workItem' + workItemId).fadeTo(100, 1);
-                              $("#changeStatus" + workItemId).html('Atzīmēt kā pabeigtu');
+                              $("#changeStatus" + workItemId).html('Atzīmēt kā izpildītu');
                               $('#workItem' + workItemId).removeClass("taskDone");
                           }
                           else {
                               $('#workItem' + workItemId).fadeTo(100, 0.5);
-                              $("#changeStatus" + workItemId).html('Atzīmēt kā nepabeigtu');
+                              $("#changeStatus" + workItemId).html('Atzīmēt kā neizpildītu');
                               $('#workItem' + workItemId).addClass("taskDone");
                           }
                       }
@@ -159,6 +163,10 @@
             });
 
             $("#sortOrder").change(function () {
+                $("#submitFilter").click();
+            });
+
+            $("#category").change(function () {
                 $("#submitFilter").click();
             });
         })

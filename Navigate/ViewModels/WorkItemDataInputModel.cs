@@ -20,13 +20,22 @@ namespace Navigate.ViewModels
             this.SelectedCategoryIds = new List<int>();
             this.StartDate = DateTime.Now;
             this.EndDate = DateTime.Now;
-            this.DueDate = DateTime.Now.AddMinutes(30);
+            this.DueDate = DateTime.Now;
+            this.DailyInterval = 1;
+            this.WeeklyInterval = 1;
+            this.MonthlyInterval = 1;
+            this.MonthNthInterval = 1;
+            this.YearlyInterval = 1;
+            this.YearNthInterval = 1;
+            this.DayOfMonth = 1;
+            this.DayOfMonthForYear = 1;
         }
 
         #region [Work Item]
 
         public WorkItemDataInputModel(WorkItem workItem)
         {
+            this.WorkItemId = workItem.Id;
             this.Subject = workItem.Subject;
             this.Location = workItem.Location;
             this.Body = workItem.Body;
@@ -36,6 +45,8 @@ namespace Navigate.ViewModels
             this.Priority = workItem.Priority;
             this.isRecurring = workItem.isRecurring;
         }
+
+        public long WorkItemId { get; set; }
 
         [Display(Name="Nosaukums")]
         [Required(ErrorMessage="Nosaukums ir obligāts lauks")]
@@ -65,6 +76,7 @@ namespace Navigate.ViewModels
         public decimal? EstimatedTime { get; set; }
 
         [Display(Name = "Uzdevuma tips")]
+        [Required]
         public WorkItemType WorkItemType { get; set; }
 
         public IEnumerable<SelectListItem> AllWorkItemTypes
@@ -114,19 +126,19 @@ namespace Navigate.ViewModels
 
         #region [Recurrence]
 
-        [Display(Name = "Ikdienas")]
+        [Display(Name = "Katru dienu")]
         [Range(1, 7)]
         public int DailyInterval { get; set; }
 
-        [Display(Name = "Iknedēļu")]
+        [Display(Name = "Katru nedēļu")]
         [Range(1, 4)]
         public int WeeklyInterval { get; set; }
 
-        [Display(Name = "Ikmēneša norādītajā datumā")]
+        [Display(Name = "Katra mēneša norādītajā datumā")]
         [Range(1, 12)]
         public int MonthlyInterval { get; set; }
 
-        [Display(Name = "Ikmēneša norādītajā dienā")]
+        [Display(Name = "Katra mēneša norādītajā dienā")]
         [Range(1, 12)]
         public int MonthNthInterval { get; set; }
 
@@ -248,5 +260,18 @@ namespace Navigate.ViewModels
         public DateTime? RecurringItemEnd { get; set; }
 
         #endregion
+
+        internal void UpdateWorkItem(WorkItem workItem)
+        {
+            workItem.Subject = this.Subject;
+            workItem.Location = this.Location;
+            workItem.Body = this.Body;
+            workItem.StartDateTime = this.StartDate;
+            workItem.EndDateTime = this.EndDate;
+            workItem.EstimatedTime = this.EstimatedTime;
+            workItem.WorkItemType = this.WorkItemType;
+            workItem.Priority = this.Priority;
+            workItem.isRecurring = this.isRecurring;
+        }
     }
 }
