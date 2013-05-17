@@ -182,6 +182,7 @@
     <Compile Include="Controllers\ClassifierController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\RecurringItemController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\WorkItemController.cs" />
     <Compile Include="Custom\MvcHtmlHelpers.cs" />
     <Compile Include="Custom\EnumFlagsModelBinder.cs" />
@@ -218,6 +219,7 @@
     <Compile Include="Services\ServiceResult.cs" />
     <Compile Include="ViewModels\EventModel.cs" />
     <Compile Include="ViewModels\OutlookSettingsInputModel.cs" />
+    <Compile Include="ViewModels\ReportViewModel.cs" />
     <Compile Include="ViewModels\WorkItemDataInputModel.cs" />
     <Compile Include="ViewModels\WorkItemListViewModel.cs" />
   </ItemGroup>
@@ -395,6 +397,9 @@
     <Content Include="Views\Classifier\Index.cshtml" />
     <Content Include="Views\Classifier\ListCategories.cshtml" />
     <Content Include="Views\WorkItem\_WorkItems.cshtml" />
+    <Content Include="Views\Report\Index.cshtml" />
+    <Content Include="Views\Report\ViewReport.cshtml" />
+    <Content Include="Views\Report\_Report.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

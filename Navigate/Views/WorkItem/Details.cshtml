@@ -43,7 +43,7 @@
     <div class="display-field">
         @Html.DisplayFor(model => model.Body)
     </div>
-    @Html.Partial("_RecurringItems", Model.RecurringItems)
+    @Html.Partial("_RecurringItems", Model.RecurringItems.OrderBy(o => o.Start))
 </fieldset>
 <p>
     @Html.ActionLink("Edit", "Edit", new { id=Model.Id }) |

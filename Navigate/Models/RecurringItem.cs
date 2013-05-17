@@ -9,6 +9,11 @@ namespace Navigate.Models
 {
     public class RecurringItem
     {
+        public RecurringItem()
+        {
+            this.isCompleted = false;
+        }
+
         [Key]
         public long Id { get; set; }
 
@@ -28,6 +33,10 @@ namespace Navigate.Models
         public string Location { get; set; }
 
         public string Body { get; set; }
+
+        public bool isCompleted { get; set; }
+
+        public DateTime? CompletedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
     }

@@ -35,6 +35,7 @@ namespace Navigate.Controllers
             var endDateTime = FromUnixTimestamp(end);
 
             var events = this.dataContext.WorkItems
+                .Where(e => e.CreatedByUserId == this.CurrentUser.UserId && e.isCompleted == false)
                 .ToList();
             var eventList = new List<object>();
 
@@ -49,14 +50,14 @@ namespace Navigate.Controllers
                             title = e.Subject,
                             start = e.StartDateTime.ToString("yyyy-MM-dd HH:mm"),
                             end = e.EndDateTime.ToString("yyyy-MM-dd HH:mm"),
-                            allDay = false,
+                            allDay = e.AllDayEvent,
                             url = "/WorkItem/Details/" + e.Id.ToString() + "/"
                         });
                 }
                 else 
                 {
                     //Display each of the occurrence in the calendar as part of a recurring item group by assigning the same id to each event
-                    foreach (var recurringItem in e.RecurringItems.Where(o => o.Start >= startDateTime && o.End <= endDateTime))
+                    foreach (var recurringItem in e.RecurringItems.Where(o => o.Start >= startDateTime && o.End <= endDateTime && o.isCompleted == false))
                     {
                         eventList.Add(
                             new

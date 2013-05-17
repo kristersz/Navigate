@@ -1,4 +1,5 @@
-﻿using Navigate.Models.Classifiers;
+﻿using Navigate.Models;
+using Navigate.Models.Classifiers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -32,13 +33,18 @@ namespace Navigate.ViewModels
 
         public bool isCompleted { get; set; }
 
+        public bool isRecurring { get; set; }
+
         public WorkItemPriority? Priority { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
 
+        public RecurringItem NextRecurringItem { get; set; }
+
         public ICollection<Category> Categories { get; set; }
+        public ICollection<RecurringItem> RecurringItems { get; set; }
 
     }
 }

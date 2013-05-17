@@ -1,7 +1,7 @@
 ﻿@model Navigate.ViewModels.WorkItemDataInputModel
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Izveidot";
 }
 
 <h2>Izveidot jaunu uzdevumu!</h2>
@@ -11,7 +11,7 @@
     <div class="well">
         <fieldset>
             <legend>Uzdevums</legend>
-            <fieldset class="groupbox">
+            <fieldset>
                 <legend>Uzdevuma pamatinformācija</legend>
                 <div class="editor-label">
                     @Html.LabelFor(model => model.Subject)
@@ -54,7 +54,7 @@
                     @Html.ValidationMessageFor(model => model.WorkItemType)
                 </div>
             </fieldset>
-            <fieldset class="groupbox workItemTypeFieldsets" id="Task">
+            <fieldset class="workItemTypeFieldsets" id="Task">
                 <legend>Uzdevuma informācija</legend>
                 <div class="editor-label">
                     @Html.LabelFor(model => model.DueDate)
@@ -80,7 +80,7 @@
                     @Html.ValidationMessageFor(model => model.Priority)
                 </div>
             </fieldset>
-            <fieldset class="groupbox workItemTypeFieldsets" id="Appointment">
+            <fieldset class="workItemTypeFieldsets" id="Appointment">
                 <legend>Tikšanās informācija</legend>
                 <div class="editor-label">
                     @Html.LabelFor(model => model.StartDate)
@@ -191,7 +191,7 @@
                 </div>
             </fieldset>
             <div>
-                <input type="submit" class="btn btn-primary" value="Create" />
+                <input type="submit" class="btn btn-primary" value="Izveidot" />
             </div>
         </fieldset>
     </div>
@@ -204,6 +204,12 @@
 @section Scripts { 
     <script>
         $(document).ready(function () {
+            $('#WorkItemType option').each(function() {
+                if($(this).is(':selected')) {
+                    $('#' + $(this).val()).show();
+                }
+            });
+
             $('#WorkItemType').change(function () {
                 $('.workItemTypeFieldsets').hide();
                 $('#' + $(this).val()).show();

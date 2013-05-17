@@ -88,6 +88,11 @@ namespace Navigate.Models
         public bool isCompleted { get; set; }
 
         /// <summary>
+        /// Gets or sets the datetime when the task was completed on
+        /// </summary>
+        public DateTime? CompletedAt { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indiciating whether the task is recurring or not
         /// </summary>
         public bool isRecurring { get; set; }

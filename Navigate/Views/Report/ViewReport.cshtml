@@ -1,0 +1,48 @@
+﻿@model Navigate.ViewModels.ReportViewModel
+
+@{
+    ViewBag.Title = "Atskaite";
+}
+<h2>Apskatīt atskaiti</h2>
+
+@using (Ajax.BeginForm("ViewReport", "Report", null, new AjaxOptions() { HttpMethod = "GET", LoadingElementId = "ajaxRequestLoading", UpdateTargetId = "reportBodyToReplace", InsertionMode = InsertionMode.Replace }, new { @id = "reportForm", @class = "form-inline" }))
+{
+    <div class="well">
+        <fieldset>
+            <legend>Atlasīt datus par</legend>
+            <label for="dateFrom">Datums no:</label>
+            <input name="dateFrom" class="datefield" type="text" />
+            <label for="dateTo">Datums līdz:</label>
+            <input name="dateTo" class="datefield" type="text" />
+            <input type="submit" id="submitReport" class="btn btn-primary" value="Veidot atskaiti" />
+        </fieldset>
+    </div>
+}
+
+<div id="reportBodyToReplace">
+    @Html.Partial("_Report", Model)
+</div>
+
+@section Scripts {
+    <script>
+        $("#submitReport").click(function () {
+            $.ajax({
+                url: '@Url.Action("ViewReport", "Report")',
+                type: 'GET',
+                data: $("#reportForm").serialize(),
+                success: function () {
+                    $("#reportBody").show();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Notika kļūda, lūdzu mēģiniet vēlreiz.");
+                },
+                complete: function (jqXHR, textStatus) {
+                    $("#ajaxRequestLoading").hide();
+                },
+                beforeSend: function (jqXHR, settings) {
+                    $("#ajaxRequestLoading").show();
+                }
+            });
+        });
+    </script>
+}

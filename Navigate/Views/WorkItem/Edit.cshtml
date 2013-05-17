@@ -1,193 +1,200 @@
 ﻿@model Navigate.ViewModels.WorkItemDataInputModel
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Rediģēt";
 }
 
-<h2>Edit Work Item!</h2>
+<h2>Rediģēt uzdevumu!</h2>
 
-@using (Html.BeginForm("Edit","WorkItem", FormMethod.Post, new { @id = "createEditForm" })) {
+@using (Html.BeginForm("Edit", "WorkItem", FormMethod.Post, new { @id = "createEditForm", @class = "form-horizontal" })) {
     @Html.ValidationSummary(true)
-
-    <fieldset>
-        <legend>Work Item</legend>
-        <fieldset class="groupbox">
-            <legend>Work Item metadata</legend>
-            <div class="editor-label">
-                @Html.LabelFor(model => model.Subject)
-            </div>
-            <div class="editor-field">
-                @Html.EditorFor(model => model.Subject)
-                @Html.ValidationMessageFor(model => model.Subject)
-            </div>
-
-            <div class="editor-label">
-                @Html.LabelFor(model => model.Location)
-            </div>
-            <div class="editor-field">
-                @Html.EditorFor(model => model.Location)
-                @Html.ValidationMessageFor(model => model.Location)
-            </div>
-
-            <div class="editor-label">
-                @Html.LabelFor(model => model.Body)
-            </div>
-            <div class="editor-field">
-                @Html.TextAreaFor(model => model.Body, 4, 1, new { @id = "bodyTextArea"})
-                @Html.ValidationMessageFor(model => model.Body)
-            </div>
-
-            <div class="editor-label">
-                @Html.LabelFor(model => model.WorkItemType)
-            </div>
-            <div class="editor-field">
-                @Html.DropDownListFor(model => model.WorkItemType, Model.AllWorkItemTypes)
-                @Html.ValidationMessageFor(model => model.WorkItemType)
-            </div>
-        </fieldset>
-        <fieldset class="groupbox">
-            <legend>Task specific data</legend>
-
-            <div class="editor-label">
-                @Html.LabelFor(model => model.DueDate)
-            </div>
-            <div class="editor-field">
-                @Html.EditorFor(model => model.DueDate)
-                @Html.ValidationMessageFor(model => model.DueDate)
-            </div>
-
-            <div class="editor-label">
-                @Html.LabelFor(model => model.EstimatedTime)
-            </div>
-            <div class="editor-field">
-                @Html.EditorFor(model => model.EstimatedTime)
-                @Html.ValidationMessageFor(model => model.EstimatedTime)
-            </div>
-
-            <div class="editor-label">
-                @Html.LabelFor(model => model.Priority)
-            </div>  
-            <div class="editor-field">
-                @Html.DropDownListFor(model => model.Priority, Model.AllPriorities)
-                @Html.ValidationMessageFor(model => model.Priority)
-            </div>
-        </fieldset>
-        <fieldset class="groupbox">
-            <legend>Appointment specific data</legend>
-            <div class="editor-label">
-                @Html.LabelFor(model => model.StartDate)
-            </div>
-            <div class="editor-field">
-                @Html.EditorFor(model => model.StartDate)
-                @Html.ValidationMessageFor(model => model.StartDate)
-            </div>
-
-            <div class="editor-label">
-                @Html.LabelFor(model => model.EndDate)
-            </div>
-            <div class="editor-field">
-                @Html.EditorFor(model => model.EndDate)
-                @Html.ValidationMessageFor(model => model.EndDate)
-            </div>
-        </fieldset>
-        <fieldset class="groupbox">
-            <legend>Recurrence settings</legend>
-            <div class="editor-label">
-                @Html.LabelFor(model => model.isRecurring)
-            </div>
-            <div class="editor-field">
-                @Html.CheckBoxFor(model => model.isRecurring)
-                @Html.ValidationMessageFor(model => model.isRecurring)
-            </div>
-            <div id="recurrenceOptions" class="hidden">
-                <div id="appointmentTime">
-                    <div class="editor-label">
-                        @Html.LabelFor(model => model.RecurringItemStart)
-                    </div>
-                    <div class="editor-field">
-                        @Html.EditorFor(model => model.RecurringItemStart)
-                        @Html.ValidationMessageFor(model => model.RecurringItemStart)
-                    </div>
-
-                    <div class="editor-label">
-                        @Html.LabelFor(model => model.RecurringItemEnd)
-                    </div>
-                    <div class="editor-field">
-                        @Html.EditorFor(model => model.RecurringItemEnd)
-                        @Html.ValidationMessageFor(model => model.RecurringItemEnd)
-                    </div>
+    <div class="well">
+        <fieldset>
+            <legend>Uzdevums</legend>
+            <fieldset class="groupbox">
+                <legend>Uzdevuma pamatinformācija</legend>
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.Subject)
                 </div>
-                <div id="recurrencePatternOptions">
-                    <div id="recurrenceTypes">
-                        <div class ="editor-label">
-                            @Html.LabelFor(model => model.RecurrenceType)
+                <div class="editor-field">
+                    @Html.EditorFor(model => model.Subject)
+                    @Html.ValidationMessageFor(model => model.Subject)
+                </div>
+
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.Location)
+                </div>
+                <div class="editor-field">
+                    @Html.EditorFor(model => model.Location)
+                    @Html.ValidationMessageFor(model => model.Location)
+                </div>
+
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.Body)
+                </div>
+                <div class="editor-field">
+                    @Html.TextAreaFor(model => model.Body, 4, 1, new { @id = "bodyTextArea"})
+                    @Html.ValidationMessageFor(model => model.Body)
+                </div>
+
+                <label>Kategorijas</label>
+                <div style="overflow: auto">
+                    @foreach (var category in Model.Categories)
+                    {
+                        <label for="category@(category.ID)" class="checkbox inline">
+                            <input id="category@(category.ID) " type="checkbox" name="SelectedCategoryIds" value="@category.ID" @(Model.SelectedCategoryIds.Contains((int)category.ID) ? "checked" : "") /> @category.Name
+                        </label>
+                    }
+                </div>
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.WorkItemType)
+                </div>
+                <div class="editor-field">
+                    @Html.DropDownListFor(model => model.WorkItemType, Model.AllWorkItemTypes)
+                    @Html.ValidationMessageFor(model => model.WorkItemType)
+                </div>
+            </fieldset>
+            <fieldset class="groupbox workItemTypeFieldsets" id="Task">
+                <legend>Uzdevuma informācija</legend>
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.DueDate)
+                </div>
+                <div class="editor-field">
+                    @Html.EditorFor(model => model.DueDate)
+                    @Html.ValidationMessageFor(model => model.DueDate)
+                </div>
+
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.EstimatedTime)
+                </div>
+                <div class="editor-field">
+                    @Html.EditorFor(model => model.EstimatedTime)
+                    @Html.ValidationMessageFor(model => model.EstimatedTime)
+                </div>
+
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.Priority)
+                </div>  
+                <div class="editor-field">
+                    @Html.DropDownListFor(model => model.Priority, Model.AllPriorities)
+                    @Html.ValidationMessageFor(model => model.Priority)
+                </div>
+            </fieldset>
+            <fieldset class="groupbox workItemTypeFieldsets" id="Appointment">
+                <legend>Tikšanās informācija</legend>
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.StartDate)
+                </div>
+                <div class="editor-field">
+                    @Html.EditorFor(model => model.StartDate)
+                    @Html.ValidationMessageFor(model => model.StartDate)
+                </div>
+
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.EndDate)
+                </div>
+                <div class="editor-field">
+                    @Html.EditorFor(model => model.EndDate)
+                    @Html.ValidationMessageFor(model => model.EndDate)
+                </div>
+            
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.isRecurring)
+                </div>
+                <div class="editor-field">
+                    @Html.CheckBoxFor(model => model.isRecurring)
+                    @Html.ValidationMessageFor(model => model.isRecurring)
+                </div>
+                <div id="recurrenceOptions">
+                    <div id="appointmentTime">
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.RecurringItemStart)
                         </div>
-                        <div>
-                            @Html.EditorFor(model => model.RecurrenceType, "Enum_RadioButtonList")
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.RecurringItemStart)
+                            @Html.ValidationMessageFor(model => model.RecurringItemStart)
+                        </div>
+
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.RecurringItemEnd)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.RecurringItemEnd)
+                            @Html.ValidationMessageFor(model => model.RecurringItemEnd)
                         </div>
                     </div>
-                    <div id="recurrencePatterns">
-                        <div id="Daily" class="hidden patterns">
-                            <div class="editor-field">
-                                Every @Html.EditorFor(model => model.DailyInterval) day(s)
-                                @Html.ValidationMessageFor(model => model.DailyInterval)
+                    <div id="recurrencePatternOptions">
+                        <div id="recurrenceTypes">
+                            <div class ="editor-label">
+                                @Html.LabelFor(model => model.RecurrenceType)
                             </div>
                             <div>
-                                @Html.CheckBoxFor(model => model.EveryWeekday) 
-                                @Html.LabelFor(model => model.EveryWeekday)
+                                @Html.EditorFor(model => model.RecurrenceType, "Enum_RadioButtonList")
                             </div>
                         </div>
+                        <div id="recurrencePatterns">
+                            <div id="Daily" class="patterns">
+                                <div class="editor-field">
+                                    Every @Html.EditorFor(model => model.DailyInterval) day(s)
+                                    @Html.ValidationMessageFor(model => model.DailyInterval)
+                                </div>
+                                <div>
+                                    @Html.CheckBoxFor(model => model.EveryWeekday) 
+                                    @Html.LabelFor(model => model.EveryWeekday)
+                                </div>
+                            </div>
 
-                        <div id="Weekly" class="hidden patterns">
-                            <div class="editor-field">
-                                Recur every @Html.EditorFor(model => model.WeeklyInterval) week(s) on:
-                                @Html.ValidationMessageFor(model => model.WeeklyInterval)
+                            <div id="Weekly" class="patterns">
+                                <div class="editor-field">
+                                    Recur every @Html.EditorFor(model => model.WeeklyInterval) week(s) on:
+                                    @Html.ValidationMessageFor(model => model.WeeklyInterval)
+                                </div>
+                                <div id ="daysOfWeek">
+                                    @Html.CheckBoxesForEnumFlagsFor(model => model.WeekDays)
+                                </div>
                             </div>
-                            <div id ="daysOfWeek">
-                                @Html.CheckBoxesForEnumFlagsFor(model => model.WeekDays)
+                            <div id="Monthly" class="patterns">
+                                <div class="editor-field">
+                                    Day @Html.EditorFor(model => model.DayOfMonth) of every @Html.EditorFor(model => model.MonthlyInterval) month(s)
+                                    @Html.ValidationMessageFor(model => model.DayOfMonth)
+                                    @Html.ValidationMessageFor(model => model.MonthlyInterval)
+                                </div>
                             </div>
-                        </div>
-                        <div id="Monthly" class="hidden patterns">
-                            <div class="editor-field">
-                                Day @Html.EditorFor(model => model.DayOfMonth) of every @Html.EditorFor(model => model.MonthlyInterval) month(s)
-                                @Html.ValidationMessageFor(model => model.DayOfMonth)
-                                @Html.ValidationMessageFor(model => model.MonthlyInterval)
-                            </div>
-                        </div>
 
-                        <div id="MonthNth" class="hidden patterns">
-                            <div class="editor-field">
-                                The @Html.DropDownListFor(model => model.MonthInstance, Model.AllInstances) @Html.DropDownListFor(model => model.MonthDayOfWeekMask, Model.AllDaysOfWeek) of every @Html.EditorFor(model => model.MonthNthInterval) month(s)
-                                @Html.ValidationMessageFor(model => model.MonthInstance)
-                                @Html.ValidationMessageFor(model => model.MonthNthInterval)
+                            <div id="MonthNth" class="patterns">
+                                <div class="editor-field">
+                                    The @Html.DropDownListFor(model => model.MonthInstance, Model.AllInstances) @Html.DropDownListFor(model => model.MonthDayOfWeekMask, Model.AllDaysOfWeek) of every @Html.EditorFor(model => model.MonthNthInterval) month(s)
+                                    @Html.ValidationMessageFor(model => model.MonthInstance)
+                                    @Html.ValidationMessageFor(model => model.MonthNthInterval)
+                                </div>
                             </div>
-                        </div>
 
-                        <div id="Yearly" class="hidden patterns">
-                            <div class="editor-field">
-                                Recur every @Html.EditorFor(model => model.YearlyInterval) year(s) on: <br /> 
-                                @Html.DropDownListFor(model => model.YearMonthOfYear, Model.AllMonthsOfYear) @Html.EditorFor(model => model.DayOfMonthForYear)
-                                @Html.ValidationMessageFor(model => model.YearlyInterval)
-                                @Html.ValidationMessageFor(model => model.YearMonthOfYear)
+                            <div id="Yearly" class="patterns">
+                                <div class="editor-field">
+                                    Recur every @Html.EditorFor(model => model.YearlyInterval) year(s) on: <br /> 
+                                    @Html.DropDownListFor(model => model.YearMonthOfYear, Model.AllMonthsOfYear) @Html.EditorFor(model => model.DayOfMonthForYear)
+                                    @Html.ValidationMessageFor(model => model.YearlyInterval)
+                                    @Html.ValidationMessageFor(model => model.YearMonthOfYear)
+                                </div>
                             </div>
-                        </div>
 
-                        <div id="YearNth" class="hidden patterns">
-                            <div class="editor-field">
-                                Recur every @Html.EditorFor(model => model.YearNthInterval) year(s) on the: <br /> 
-                                @Html.DropDownListFor(model => model.YearInstance, Model.AllInstances) @Html.DropDownListFor(model => model.YearDayOfWeekMask, Model.AllDaysOfWeek) of @Html.DropDownListFor(model => model.YearNthMonthOfYear, Model.AllMonthsOfYear)
-                                @Html.ValidationMessageFor(model => model.YearNthInterval)
-                                @Html.ValidationMessageFor(model => model.YearNthMonthOfYear)
+                            <div id="YearNth" class="patterns">
+                                <div class="editor-field">
+                                    Recur every @Html.EditorFor(model => model.YearNthInterval) year(s) on the: <br /> 
+                                    @Html.DropDownListFor(model => model.YearInstance, Model.AllInstances) @Html.DropDownListFor(model => model.YearDayOfWeekMask, Model.AllDaysOfWeek) of @Html.DropDownListFor(model => model.YearNthMonthOfYear, Model.AllMonthsOfYear)
+                                    @Html.ValidationMessageFor(model => model.YearNthInterval)
+                                    @Html.ValidationMessageFor(model => model.YearNthMonthOfYear)
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </fieldset>
+            <div>
+                <input type="submit" class="btn btn-primary" value="Saglabāt" />
             </div>
         </fieldset>
-        <p>
-            <input type="submit" value="Create" />
-        </p>
-    </fieldset>
+    </div>
 }
 
 <div>
@@ -196,19 +203,30 @@
 
 @section Scripts { 
     <script>
-        function evaluate() {
-            var item = $(this);
-            var relatedItem = $("#recurrenceOptions");
-
-            if (item.is(":checked")) {
-                relatedItem.show();
-            } else {
-                relatedItem.hide();
-            }
-        }
-        $("#isRecurring").click(evaluate).each(evaluate);
-
         $(document).ready(function () {
+            $('#WorkItemType option').each(function () {
+                if ($(this).is(':selected')) {
+                    $('#' + $(this).val()).show();
+                }
+            });
+
+            $('#WorkItemType').change(function () {
+                $('.workItemTypeFieldsets').hide();
+                $('#' + $(this).val()).show();
+            });
+
+            if ($("#isRecurring").is(":checked")) {
+                $("#recurrenceOptions").show();
+            };
+
+            $("#isRecurring").change(function () {
+                if ($(this).is(":checked")) {
+                    $("#recurrenceOptions").show();
+                } else {
+                    $("#recurrenceOptions").hide();
+                };
+            });
+
             $("input[name=RecurrenceType]").change(function () {
                 var pattern = $(this).val();
                 $(".patterns").hide();
@@ -217,12 +235,5 @@
             var val = ($("#recurrenceOptions input:checked").val());
             $("#" + val).show();
         });
-
-        //$("#patterns").find("#Daily input").attr('disabled', 'disabled');
-        //$("#patterns").find("#Monthly input").attr('disabled', 'disabled');
-        //$("#patterns").find("#MonthNth input").attr('disabled', 'disabled');
-        //$("#patterns").find("#Yearly input").attr('disabled', 'disabled');
-        //$("#patterns").find("#YearNth input").attr('disabled', 'disabled');
-        //$("#patterns").find("#monthlyPattern input").removeAttr('disabled', 'disabled');
-     </script>
+    </script>
 }

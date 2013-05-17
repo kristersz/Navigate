@@ -57,6 +57,7 @@ namespace Navigate.Services
             outlookCalendarItems.Sort("[Start]");
             outlookCalendarItems.IncludeRecurrences = true;
 
+            //if there are no items in the calendar folder within the specified interval, return and notify the user
             if (outlookCalendarItems.GetFirst() == null)
             {
                 var message = "Norādītajā laika periodā Jūsu Outlook kalendārā netika atrasts neviens uzdevums";
@@ -76,40 +77,18 @@ namespace Navigate.Services
                 {
                     if (existingWorkItem == null)
                     {
-                        var workItem = new WorkItem();
-                        workItem.Subject = item.Subject;
-                        workItem.Location = item.Location;
-                        workItem.Body = item.Body;
-                        workItem.OutlookEntryId = item.EntryID;
-                        workItem.StartDateTime = item.Start;
-                        workItem.EndDateTime = item.End;
-                        workItem.AllDayEvent = item.AllDayEvent;
-                        workItem.EstimatedTime = item.Duration;                    
-                        workItem.WorkItemType = WorkItemType.Appointment;
-                        workItem.isRecurring = false;
-                        workItem.CreatedByUserId = this.CurrentUser.UserId;
-                        workItem.UpdatedByUserId = this.CurrentUser.UserId;
-
+                        var workItem = CreateNonRecurringWorkItem(item);
                         this.dataContext.WorkItems.Add(workItem);
                     }
                     else
                     {
                         if (existingWorkItem.UpdatedAt <= item.LastModificationTime)
                         {
-                            existingWorkItem.Subject = item.Subject;
-                            existingWorkItem.Location = item.Location;
-                            existingWorkItem.Body = item.Body;
-                            existingWorkItem.StartDateTime = item.Start;
-                            existingWorkItem.EndDateTime = item.End;
-                            existingWorkItem.AllDayEvent = item.AllDayEvent;
-                            existingWorkItem.EstimatedTime = item.Duration;                           
-                            existingWorkItem.UpdatedAt = DateTime.Now;
-                            existingWorkItem.UpdatedByUserId = this.CurrentUser.UserId;
+                            UpdateWorkItem(existingWorkItem, item);
                         }
                     }
                     this.dataContext.SaveChanges();
                 }
-
                 else if (item.IsRecurring)
                 {
                     Outlook.RecurrencePattern recurrencePattern = item.GetRecurrencePattern();
@@ -156,6 +135,7 @@ namespace Navigate.Services
                     {
                         //Create a new work item that will act as a parent for all of its recurring items
                         var workItem = new WorkItem();
+
                         //if recurrence pattern has end date we save it,
                         //else we only create recurring items until the end of the current year to avoid large data sets
                         if (hasEndDate == true)
@@ -235,12 +215,7 @@ namespace Navigate.Services
                             var existingRecurringItem = this.dataContext.RecurringItems.Where(o => o.OriginalDate == exception.OriginalDate).FirstOrDefault();
                             if (existingRecurringItem != null)
                             {
-                                existingRecurringItem.Start = item.Start;
-                                existingRecurringItem.End = item.End;
-                                existingRecurringItem.Subject = item.Subject;
-                                existingRecurringItem.Body = item.Body;
-                                existingRecurringItem.Location = item.Location;
-                                existingRecurringItem.UpdatedAt = DateTime.Now;
+                                UpdateRecurringItem(existingRecurringItem, item);
                             }
                             else 
                             {
@@ -275,12 +250,7 @@ namespace Navigate.Services
                             }
                             else
                             {
-                                existingRecurringItem.Start = item.Start;
-                                existingRecurringItem.End = item.End;
-                                existingRecurringItem.Subject = item.Subject;
-                                existingRecurringItem.Body = item.Body;
-                                existingRecurringItem.Location = item.Location;
-                                existingRecurringItem.UpdatedAt = DateTime.Now;
+                                UpdateRecurringItem(existingRecurringItem, item);
                             }
                         }
                         this.dataContext.SaveChanges();
@@ -303,6 +273,47 @@ namespace Navigate.Services
                 result.Data = OutlookItemImportServiceResult.Ok;
 
             return result;
+        }
+
+        public WorkItem CreateNonRecurringWorkItem(Outlook.AppointmentItem item)
+        {
+            var workItem = new WorkItem();
+            workItem.Subject = item.Subject;
+            workItem.Location = item.Location;
+            workItem.Body = item.Body;
+            workItem.OutlookEntryId = item.EntryID;
+            workItem.StartDateTime = item.Start;
+            workItem.EndDateTime = item.End;
+            workItem.AllDayEvent = item.AllDayEvent;
+            workItem.EstimatedTime = item.Duration;
+            workItem.WorkItemType = WorkItemType.Appointment;
+            workItem.isRecurring = false;
+            workItem.CreatedByUserId = this.CurrentUser.UserId;
+            workItem.UpdatedByUserId = this.CurrentUser.UserId;
+            return workItem;
+        }
+
+        public void UpdateWorkItem(WorkItem existingWorkItem, Outlook.AppointmentItem item)
+        {
+            existingWorkItem.Subject = item.Subject;
+            existingWorkItem.Location = item.Location;
+            existingWorkItem.Body = item.Body;
+            existingWorkItem.StartDateTime = item.Start;
+            existingWorkItem.EndDateTime = item.End;
+            existingWorkItem.AllDayEvent = item.AllDayEvent;
+            existingWorkItem.EstimatedTime = item.Duration;
+            existingWorkItem.UpdatedAt = DateTime.Now;
+            existingWorkItem.UpdatedByUserId = this.CurrentUser.UserId;
+        }
+
+        public void UpdateRecurringItem(RecurringItem existingRecurringItem, Outlook.AppointmentItem item)
+        {
+            existingRecurringItem.Start = item.Start;
+            existingRecurringItem.End = item.End;
+            existingRecurringItem.Subject = item.Subject;
+            existingRecurringItem.Body = item.Body;
+            existingRecurringItem.Location = item.Location;
+            existingRecurringItem.UpdatedAt = DateTime.Now;
         }
     }
 }

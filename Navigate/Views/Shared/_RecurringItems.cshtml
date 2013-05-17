@@ -6,7 +6,7 @@
             @Html.DisplayNameFor(model => model.OriginalDate)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.WorkItem.Subject)
+            @Html.DisplayNameFor(model => model.Subject)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Start)
@@ -27,12 +27,12 @@
     </tr>
 
 @foreach (var item in Model) {
-    <tr>
+    <tr class="@if (item.isCompleted == true) {<text>taskDone</text>}">
         <td>
             @Html.DisplayFor(modelItem => item.OriginalDate)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.WorkItem.Subject)
+            @Html.DisplayFor(modelItem => item.Subject)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Start)

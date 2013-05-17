@@ -1,5 +1,6 @@
 ﻿@import url(http://fonts.googleapis.com/css?family=Roboto+Slab:700);
 
+/* Global styles */
 #ajaxRequestLoading {
     background-color: white;
     background-color: rgba(255,255,255,0.5);
@@ -32,6 +33,40 @@
     font-family: 'Segoe UI', Tahoma;
 }
 
+#content {
+    margin: 0px auto;
+    background-color: white;
+    padding: 20px;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+}
+
+#body {
+    margin-bottom: 30px;
+}
+
+footer.row {
+    border-top: 3px solid #C8C8C8;
+}
+
+.ui-widget { 
+    font-size: 1em; 
+}
+
+.field-validation-error, .validation-summary-errors {
+    padding: 8px 35px 8px 14px;
+    margin-bottom: 20px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    border: 1px solid #eed3d7;
+      -webkit-border-radius: 4px;
+         -moz-border-radius: 4px;
+              border-radius: 4px;
+    color: #b94a48;
+    background-color: #f2dede;
+}
+
+/* Work Item CreateEdit Form */
 .editor-radio label, #daysOfWeek label {
     display: inline;
     padding-right: 10px;
@@ -105,25 +140,7 @@ body {
   }
 }
 
-#content {
-    margin: 0px auto;
-    background-color: white;
-    padding: 20px;
-    -webkit-border-radius: 15px;
-    -moz-border-radius: 15px;
-    border-radius: 15px;
-}
-
-#body {
-    margin-bottom: 30px;
-}
-
-footer.row {
-    border-top: 3px solid #C8C8C8;
-}
-
-.ui-widget { font-size: 1em; }
-
+/* Work Item List */
 .taskDone {
     opacity: 0.5;
 }
@@ -174,18 +191,7 @@ footer.row {
     margin-right: 10px;
 }
 
-.field-validation-error, .validation-summary-errors {
-    padding: 8px 35px 8px 14px;
-    margin-bottom: 20px;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
-    border: 1px solid #eed3d7;
-      -webkit-border-radius: 4px;
-         -moz-border-radius: 4px;
-              border-radius: 4px;
-    color: #b94a48;
-    background-color: #f2dede;
-}
-
+/* Google maps API */
 #map-canvas img, #directions_panel img {
   max-width: none;
 }

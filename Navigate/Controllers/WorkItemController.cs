@@ -7,7 +7,6 @@ using System.Web;
 using System.Web.Mvc;
 using Navigate.Models;
 using Navigate.Models.Classifiers;
-using WebMatrix.WebData;
 using Navigate.ViewModels;
 using Navigate.Services;
 using System.ComponentModel.DataAnnotations;
@@ -36,10 +35,13 @@ namespace Navigate.Controllers
                         StartDateTime = r.StartDateTime,
                         EndDateTime = r.EndDateTime,
                         isCompleted = r.isCompleted,
+                        isRecurring = r.isRecurring,
                         Priority = r.Priority,
                         CreatedAt = r.CreatedAt,
                         UpdatedAt = r.UpdatedAt,
-                        Categories = r.Categories
+                        Categories = r.Categories,
+                        //NextRecurringItem = r.RecurringItems.OrderBy(o => o.Start).FirstOrDefault(o => o.isCompleted == false),
+                        RecurringItems = r.RecurringItems
                     }
                 );
 
@@ -78,10 +80,10 @@ namespace Navigate.Controllers
                     workItems = workItems.Where(r => r.Priority != (int)WorkItemPriority.None);
                     break;
                 case "late":
-                    workItems = workItems.Where(r => r.EndDateTime < DateTime.Today);
+                    workItems = workItems.Where(r => r.EndDateTime < DateTime.Today && r.isCompleted == false);
                     break;
                 case "today":
-                    workItems = workItems.Where(r => EntityFunctions.TruncateTime(r.EndDateTime) == EntityFunctions.TruncateTime(DateTime.Now));
+                    workItems = workItems.Where(r => EntityFunctions.TruncateTime(r.EndDateTime) == EntityFunctions.TruncateTime(DateTime.Now) && r.EndDateTime >= DateTime.Now);
                     break;
                 default:
                     break;
@@ -96,7 +98,7 @@ namespace Navigate.Controllers
                     workItems = workItems.OrderByDescending(r => r.Priority);
                     break;
                 case "changedate":
-                    workItems = workItems.OrderByDescending(r => r.UpdatedAt);
+                    workItems = workItems.OrderBy(r => r.UpdatedAt);
                     break;
                 case "createdate":
                     workItems = workItems.OrderByDescending(r => r.CreatedAt);
@@ -122,12 +124,12 @@ namespace Navigate.Controllers
 
         public ActionResult Details(int id = 0)
         {
-            WorkItem workitem = this.dataContext.WorkItems.Find(id);
-            if (workitem == null)
+            WorkItem workItem = this.dataContext.WorkItems.Find(id);
+            if (workItem == null)
             {
                 return HttpNotFound();
             }
-            return View(workitem);
+            return View(workItem);
         }
 
         //
@@ -220,6 +222,10 @@ namespace Navigate.Controllers
 
             var model = new WorkItemDataInputModel(workItem);
             populateDropDownLists(model);
+            foreach (var category in workItem.Categories)
+            {
+                model.SelectedCategoryIds.Add((int)category.ID);
+            }
             return View(model);
         }
 
@@ -288,22 +294,47 @@ namespace Navigate.Controllers
         {
             WorkItem workItem = this.dataContext.WorkItems.Find(id);
             var message = "";
-            if (workItem == null)
+
+            if (workItem.isRecurring == true)
             {
-                message = "Uzdevums netika atrasts";
-                return new JsonResult() { Data = new { IsValid = false, Message = message } };
-            }
-            else
-            {
-                if (workItem.isCompleted == false)
+                var recurringItem = workItem.RecurringItems.OrderBy(o => o.Start).FirstOrDefault(o => o.isCompleted == false);
+                var nextRecurringitem = workItem.RecurringItems.OrderBy(o => o.Start).SkipWhile(o => o.isCompleted != false).Skip(1).FirstOrDefault();
+                if (recurringItem == null)
                 {
-                    workItem.isCompleted = true;
-                    message = "Uzdevums "+ workItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā izpildīts";
+                    message = "Periodiskais uzdevums netika atrasts";
+                    return new JsonResult() { Data = new { IsValid = false, Message = message } };
                 }
                 else
                 {
-                    workItem.isCompleted = false;
-                    message = "Uzdevums " + workItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā neizpildīts";
+                    if (recurringItem.isCompleted == false)
+                    {
+                        recurringItem.isCompleted = true;
+                        recurringItem.CompletedAt = DateTime.Now;
+                        message = "Periodiskais uzdevums " + recurringItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā izpildīts, nākamais notikums: " + nextRecurringitem.Start;
+                    }
+                }
+            }
+            else
+            {
+                if (workItem == null)
+                {
+                    message = "Uzdevums netika atrasts";
+                    return new JsonResult() { Data = new { IsValid = false, Message = message } };
+                }
+                else
+                {
+                    if (workItem.isCompleted == false)
+                    {
+                        workItem.isCompleted = true;
+                        workItem.CompletedAt = DateTime.Now;
+                        message = "Uzdevums " + workItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā izpildīts";
+                    }
+                    else
+                    {
+                        workItem.isCompleted = false;
+                        workItem.CompletedAt = null;
+                        message = "Uzdevums " + workItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā neizpildīts";
+                    }
                 }
             }
             this.dataContext.SaveChanges();

@@ -35,15 +35,60 @@ namespace Navigate.ViewModels
 
         public WorkItemDataInputModel(WorkItem workItem)
         {
+            this.Categories = new List<Category>();
+            this.SelectedCategoryIds = new List<int>();
+
             this.WorkItemId = workItem.Id;
             this.Subject = workItem.Subject;
             this.Location = workItem.Location;
             this.Body = workItem.Body;
-            this.EndDate = workItem.EndDateTime;
-            this.EstimatedTime = workItem.EstimatedTime;
             this.WorkItemType = workItem.WorkItemType;
+            if (workItem.WorkItemType == WorkItemType.Task)
+            {
+                this.DueDate = workItem.EndDateTime;
+            }
+            else if (workItem.WorkItemType == WorkItemType.Appointment)
+            {
+                this.StartDate = workItem.StartDateTime;
+                this.EndDate = workItem.EndDateTime;
+            }
+            this.EstimatedTime = workItem.EstimatedTime;         
             this.Priority = workItem.Priority;
             this.isRecurring = workItem.isRecurring;
+            if (workItem.isRecurring)
+            {
+                var recurrencePattern = workItem.RecurrencePattern;
+                this.RecurrenceType = (RecurrenceType)workItem.RecurrenceType;
+                switch (workItem.RecurrenceType)
+                {
+                    case RecurrenceType.Daily:
+                        this.DailyInterval = recurrencePattern.Interval;
+                        break;
+                    case RecurrenceType.Weekly:
+                        this.WeeklyInterval = recurrencePattern.Interval;
+                        var mask = (int)recurrencePattern.DayOfWeekMask;
+                        this.WeekDays = (DaysOfWeek)Enum.ToObject(typeof(DaysOfWeek), mask);
+                        break;
+                    case RecurrenceType.Monthly:
+                        this.MonthlyInterval =  recurrencePattern.Interval;
+                        this.DayOfMonth = recurrencePattern.DayOfMonth;
+                        break;
+                    case RecurrenceType.MonthNth:
+                        this.MonthNthInterval = recurrencePattern.Interval;
+                        this.MonthInstance = recurrencePattern.Instance;
+                        this.MonthDayOfWeekMask = recurrencePattern.DayOfWeekMask;
+                        break;
+                    case RecurrenceType.Yearly:
+                        this.YearlyInterval =  recurrencePattern.Interval;
+                        this.DayOfMonthForYear = recurrencePattern.DayOfMonth;
+                        break;
+                    case RecurrenceType.YearNth:
+                        this.YearNthInterval = recurrencePattern.Interval;
+                        this.YearInstance = recurrencePattern.Instance;
+                        this.YearDayOfWeekMask = recurrencePattern.DayOfWeekMask;
+                        break;
+                }
+            }
         }
 
         public long WorkItemId { get; set; }

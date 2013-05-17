@@ -11,16 +11,33 @@
         }
         <div id="workItem@(item.Id.ToString())" class="@if (completed == 1) {<text>taskDone</text> }workItems">
             <div id="metaData">
-                <div>
-                    @Html.DisplayFor(model => item.Subject)
-                </div>
-                <div>
-                    @Html.DisplayFor(model => item.Location)
-                </div>
-                <div>
-                    @Html.DisplayFor(model => item.StartDateTime) - 
-                    @Html.DisplayFor(model => item.EndDateTime)
-                </div>
+                @if (item.isRecurring && !item.isCompleted)
+                {
+                    <div>
+                        @Html.DisplayFor(model => item.NextRecurringItem.Subject) <i class="icon-retweet"></i>
+                    </div>
+                    <div>
+                        @Html.DisplayFor(model => item.NextRecurringItem.Location)
+                    </div>
+                    <div>
+                        Periodisks uzdevums, nākamais notikums:
+                        @Html.DisplayFor(model => item.NextRecurringItem.Start) - 
+                        @Html.DisplayFor(model => item.NextRecurringItem.End)
+                    </div>
+                }
+                else
+                {
+                    <div>
+                        @Html.DisplayFor(model => item.Subject)
+                    </div>
+                    <div>
+                        @Html.DisplayFor(model => item.Location)
+                    </div>
+                    <div>
+                        @Html.DisplayFor(model => item.StartDateTime) - 
+                        @Html.DisplayFor(model => item.EndDateTime)
+                    </div>
+                }
                 <div id="categoryContainer">
                     @foreach (var category in item.Categories)
                     {
@@ -35,10 +52,10 @@
             {
                 <a href="@Url.Action("Navigate", new { id = item.Id })" class="btn"><i class='icon-road'></i> Iegūt norādes</a>
             }
-            <button id="changeStatus@(item.Id.ToString())" class="btn" onclick="changeStatus(@item.Id.ToString())"><i class="icon-ok"> </i>@if (completed == 0) {<text>Atzīmēt kā izpildītu</text>} else {<text>Atzīmēt kā neizpildītu</text>}</button>
+            <button id="changeStatus@(item.Id.ToString())" class="btn" onclick="changeStatus(@item.Id.ToString())">@if (completed == 0) {<text><i class="icon-ok"></i> Atzīmēt kā izpildītu</text>} else {<text><i class="icon-remove"></i> Atzīmēt kā neizpildītu</text>}</button>
             <a href="@Url.Action("Details", new { id = item.Id })" class="btn"><i class='icon-list'></i> Apskatīt</a>
             <a href="@Url.Action("Edit", new { id = item.Id })" class="btn"><i class='icon-edit'></i> Rediģēt</a>           
-            <a href="@Url.Action("Delete", new { id = item.Id })" class="btn"><i class='icon-remove'></i> Dzēst</a>
+            <a href="@Url.Action("Delete", new { id = item.Id })" class="btn"><i class='icon-trash'></i> Dzēst</a>
         </div>
     }
 </div>

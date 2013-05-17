@@ -140,7 +140,7 @@
                             window.location.reload(true);
                         }
                         else {
-                            alert(data.Message);
+                            showMessage(data.Message);
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
@@ -165,8 +165,8 @@
                 var resp = $.parseJSON(data.responseText);
                 //If there was an error, display it to the user
                 if (resp.IsValid == false) {
-                    alert(resp.Message);
-                    $("#newCategoryForm").modal("show");
+                    showMessage(resp.Message);
+                    //$("#newCategoryForm").modal("show");
                     return;
                 }
                 else {

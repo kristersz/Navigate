@@ -127,12 +127,12 @@
                           });
                           if ($('#workItem' + workItemId).hasClass("taskDone")) {
                               $('#workItem' + workItemId).fadeTo(100, 1);
-                              $("#changeStatus" + workItemId).html('Atzīmēt kā izpildītu');
+                              $("#changeStatus" + workItemId).html('<i class="icon-ok"></i> Atzīmēt kā izpildītu');
                               $('#workItem' + workItemId).removeClass("taskDone");
                           }
                           else {
                               $('#workItem' + workItemId).fadeTo(100, 0.5);
-                              $("#changeStatus" + workItemId).html('Atzīmēt kā neizpildītu');
+                              $("#changeStatus" + workItemId).html('<i class="icon-remove"></i> Atzīmēt kā neizpildītu');
                               $('#workItem' + workItemId).addClass("taskDone");
                           }
                       }

@@ -42,7 +42,15 @@ namespace Navigate.Controllers
                 if (string.IsNullOrEmpty(model.Name))
                     return new JsonResult() { Data = new { IsValid = false, Message = "Kategorijas nosaukums ir obligāts lauks." } };
 
-                var newCategory = new Category { Name = model.Name, Description = model.Description, CreatedByUserId = this.CurrentUser.UserId };
+                if(this.dataContext.Categories.Any(o => o.Name == model.Name && o.CreatedByUserId == this.CurrentUser.UserId))
+                    return new JsonResult() { Data = new { IsValid = false, Message = "Kategorija ar šādu nosaukumu jau eksistē" } };
+
+                var newCategory = new Category 
+                { 
+                    Name = model.Name, 
+                    Description = model.Description, 
+                    CreatedByUserId = this.CurrentUser.UserId 
+                };
                 this.dataContext.Categories.Add(newCategory);
                 this.dataContext.SaveChanges();
 

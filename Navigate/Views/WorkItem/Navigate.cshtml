@@ -41,6 +41,7 @@
     <script type="text/javascript">
         $(function () {
             $("#navigateToLocation").click(function () {
+                $("#distanceOutput").show();
                 var destination  = $("#end").val();
                 $("h2").text("Iegūt norādes uz " + destination);
             });

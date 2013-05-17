@@ -1,0 +1,29 @@
+﻿@model Navigate.ViewModels.ReportViewModel
+
+<div id="reportBody">
+    <table class="table table-bordered table-striped" style="width: 500px;">
+        <tbody>
+            <tr>
+                <td>Uzdevumu skaits, kuru izpilde tika ieplānota norādītajā periodā:
+                </td>
+                <td>
+                    @Model.CountOfPlannedItems
+                </td>
+            </tr>
+            <tr>
+                <td>No ieplānotajiem uzdevumiem tika izpildīti:
+                </td>
+                <td>
+                    @Model.CountOfCompletedItems
+                </td>
+            </tr>
+            <tr>
+                <td>No tiem laikā tika izpildīti:
+                </td>
+                <td>
+                    @Model.CountOfCompletedInTime
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
