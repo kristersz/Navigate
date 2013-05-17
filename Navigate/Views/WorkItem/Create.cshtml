@@ -41,8 +41,8 @@
                 <div style="overflow: auto">
                     @foreach (var category in Model.Categories)
                     {
-                        <label for="category@(category.ID)" class="checkbox inline">
-                            <input id="category@(category.ID) " type="checkbox" name="SelectedCategoryIds" value="@category.ID" @(Model.SelectedCategoryIds.Contains((int)category.ID) ? "checked" : "") /> @category.Name
+                        <label for="category@(category.Id)" class="checkbox inline">
+                            <input id="category@(category.Id) " type="checkbox" name="SelectedCategoryIds" value="@category.Id" @(Model.SelectedCategoryIds.Contains((int)category.Id) ? "checked" : "") /> @category.Name
                         </label>
                     }
                 </div>
@@ -96,6 +96,13 @@
                 <div class="editor-field">
                     @Html.EditorFor(model => model.EndDate)
                     @Html.ValidationMessageFor(model => model.EndDate)
+                </div>
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.AllDayEvent)
+                </div>
+                <div class="editor-field">
+                    @Html.CheckBoxFor(model => model.AllDayEvent)
+                    @Html.ValidationMessageFor(model => model.AllDayEvent)
                 </div>
             
                 <div class="editor-label">
@@ -204,6 +211,22 @@
 @section Scripts { 
     <script>
         $(document).ready(function () {
+
+            $("#AllDayEvent").change(function () {
+                if ($(this).is(":checked")) {
+                    $("#StartDate").removeClass("datetimefield").addClass("datefield").datetimepicker("destroy");
+                    $("#StartDate").datepicker();
+                    $("#EndDate").removeClass("datetimefield").addClass("datefield").datetimepicker("destroy");
+                    $("#EndDate").datepicker();
+                }
+                else {
+                    $("#StartDate").removeClass("datefield").addClass("datetimefield").datepicker("destroy");
+                    $("#StartDate").datetimepicker({ controlType: 'select' });
+                    $("#EndDate").removeClass("datefield").addClass("datetimefield").datepicker("destroy");
+                    $("#EndDate").datetimepicker({ controlType: 'select' });
+                }
+            });
+
             $('#WorkItemType option').each(function() {
                 if($(this).is(':selected')) {
                     $('#' + $(this).val()).show();

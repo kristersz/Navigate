@@ -8,6 +8,7 @@ using System.Web;
 
 namespace Navigate.Models
 {
+    [Table("RecurrencePatterns")]
     public class WIRecurrencePattern
     {
         [Key]

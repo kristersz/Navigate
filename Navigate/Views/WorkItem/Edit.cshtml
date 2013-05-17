@@ -41,8 +41,8 @@
                 <div style="overflow: auto">
                     @foreach (var category in Model.Categories)
                     {
-                        <label for="category@(category.ID)" class="checkbox inline">
-                            <input id="category@(category.ID) " type="checkbox" name="SelectedCategoryIds" value="@category.ID" @(Model.SelectedCategoryIds.Contains((int)category.ID) ? "checked" : "") /> @category.Name
+                        <label for="category@(category.Id)" class="checkbox inline">
+                            <input id="category@(category.Id) " type="checkbox" name="SelectedCategoryIds" value="@category.Id" @(Model.SelectedCategoryIds.Contains((int)category.Id) ? "checked" : "") /> @category.Name
                         </label>
                     }
                 </div>

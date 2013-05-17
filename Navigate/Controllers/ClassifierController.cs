@@ -7,6 +7,7 @@ using System.Web.Mvc;
 
 namespace Navigate.Controllers
 {
+    [Authorize]
     public class ClassifierController : BaseController
     {
         /// <summary>
@@ -71,7 +72,7 @@ namespace Navigate.Controllers
             if (categoryId == 0)
                 return new JsonResult() { Data = new { IsValid = false, Message = "Kategorija netika atrasta" } };
 
-            var category = this.dataContext.Categories.Where(o => o.ID == categoryId).FirstOrDefault();
+            var category = this.dataContext.Categories.Where(o => o.Id == categoryId).FirstOrDefault();
             if (category == null)
                 return new JsonResult() { Data = new { IsValid = false, Message = "Kategorija netika atrasta" } };
 

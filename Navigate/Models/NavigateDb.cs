@@ -33,7 +33,7 @@ namespace Navigate.Models
                 .HasMany(p => p.Categories).WithMany(p => p.WorkItems)
                 .Map(t => t.MapLeftKey("WorkItemId")
                     .MapRightKey("CategoryId")
-                    .ToTable("WorkItemCategories"));
+                    .ToTable("WorkItemsInCategories"));
         }
     }
 }

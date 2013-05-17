@@ -40,8 +40,8 @@ namespace Navigate.Controllers
                         CreatedAt = r.CreatedAt,
                         UpdatedAt = r.UpdatedAt,
                         Categories = r.Categories,
-                        //NextRecurringItem = r.RecurringItems.OrderBy(o => o.Start).FirstOrDefault(o => o.isCompleted == false),
-                        RecurringItems = r.RecurringItems
+                        RecurringItems = r.RecurringItems,
+                        NextRecurringItem = r.RecurringItems.OrderBy(o => o.Start).FirstOrDefault(o => o.isCompleted == false),
                     }
                 );
 
@@ -51,7 +51,7 @@ namespace Navigate.Controllers
                 .ToList()
                 .Select(o => new SelectListItem
                     {
-                        Value = o.ID.ToString(),
+                        Value = o.Id.ToString(),
                         Text = o.Name
                     });
 
@@ -66,7 +66,7 @@ namespace Navigate.Controllers
             if (!String.IsNullOrEmpty(category))
             {
                 var catId = Convert.ToInt32(category);
-                workItems = workItems.Where(r => r.Categories.Any(o => o.ID == catId));
+                workItems = workItems.Where(r => r.Categories.Any(o => o.Id == catId));
             }
 
             switch (filter)
@@ -144,6 +144,7 @@ namespace Navigate.Controllers
                 DateTime dtEnd = DateTime.ParseExact(end, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
                 model.StartDate = dtStart;
                 model.EndDate = dtEnd;
+                model.WorkItemType = WorkItemType.Appointment;
             }
             populateDropDownLists(model);
             return View(model);
@@ -224,7 +225,7 @@ namespace Navigate.Controllers
             populateDropDownLists(model);
             foreach (var category in workItem.Categories)
             {
-                model.SelectedCategoryIds.Add((int)category.ID);
+                model.SelectedCategoryIds.Add((int)category.Id);
             }
             return View(model);
         }
@@ -256,12 +257,12 @@ namespace Navigate.Controllers
 
         public ActionResult Delete(int id = 0)
         {
-            WorkItem workitem = this.dataContext.WorkItems.Find(id);
-            if (workitem == null)
+            WorkItem workItem = this.dataContext.WorkItems.Find(id);
+            if (workItem == null)
             {
                 return HttpNotFound();
             }
-            return View(workitem);
+            return View(workItem);
         }
 
         //
@@ -270,8 +271,12 @@ namespace Navigate.Controllers
         [HttpPost, ActionName("Delete")]
         public ActionResult DeleteConfirmed(int id)
         {
-            WorkItem workitem = this.dataContext.WorkItems.Find(id);
-            this.dataContext.WorkItems.Remove(workitem);
+            WorkItem workItem = this.dataContext.WorkItems.Find(id);
+            if (workItem.RecurrencePattern != null)
+            {
+                this.dataContext.WIRecurrencePatterns.Remove(workItem.RecurrencePattern);
+            }
+            this.dataContext.WorkItems.Remove(workItem);
             this.dataContext.SaveChanges();
             return RedirectToAction("Index");
         }
@@ -344,44 +349,57 @@ namespace Navigate.Controllers
 
         [HttpPost]
         public JsonResult GetOutlookCalendarItems(OutlookSettingsInputModel model)
-        {
-            string message = "";
-            try
+        {          
+            if (ModelState.IsValid)
             {
-                var importService = new OutlookItemImportService(this.dataContext, this.CurrentUser)
+                string message = "";
+                if (model.IntervalStart >= model.IntervalEnd)
                 {
-                    IntervalStart = model.IntervalStart,
-                    IntervalEnd = model.IntervalEnd
-                };
+                    message = "Datumam No ir jābūt lielākam par Datums Līdz";
+                    return new JsonResult() { Data = new { IsValid = true, Message = message } };
+                }
+               
+                try
+                {
+                    var importService = new OutlookItemImportService(this.dataContext, this.CurrentUser)
+                    {
+                        IntervalStart = model.IntervalStart,
+                        IntervalEnd = model.IntervalEnd
+                    };
 
-                var result = importService.ImportOutlookCalendarItems();
-                switch (result.Data)
+                    var result = importService.ImportOutlookCalendarItems();
+                    switch (result.Data)
+                    {
+                        case OutlookItemImportServiceResult.None:
+                            break;
+                        case OutlookItemImportServiceResult.Ok:
+                            message = "Uzdevumu imports veiksmīgi pabeigts!";
+                            break;
+                        case OutlookItemImportServiceResult.OkWithWarnings:
+                            message = "Uzdevumu imports pabeigts ar paziņojumiem!";
+                            break;
+                        case OutlookItemImportServiceResult.Error:
+                            message = "Uzdevumu imports beidzies ar kļūdu!";
+                            break;
+                        case OutlookItemImportServiceResult.NotImported:
+                            message = "Uzdevumu imports netika veikts!";
+                            break;
+                    }
+
+                    if (result.Messages != null && result.Messages.Length > 0)
+                        message = string.Concat(message, Environment.NewLine, string.Join(" ", result.Messages.Select(m => string.Concat(m.Severity.GetDescription(), ": ", m.Text))));
+                }
+                catch (Exception ex)
                 {
-                    case OutlookItemImportServiceResult.None:
-                        break;
-                    case OutlookItemImportServiceResult.Ok:
-                        message = "Uzdevumu imports veiksmīgi pabeigts!";
-                        break;
-                    case OutlookItemImportServiceResult.OkWithWarnings:
-                        message = "Uzdevumu imports pabeigts ar paziņojumiem!";
-                        break;           
-                    case OutlookItemImportServiceResult.Error:
-                        message = "Uzdevumu imports beidzies ar kļūdu!";
-                        break;
-                    case OutlookItemImportServiceResult.NotImported:
-                        message = "Uzdevumu imports netika veikts!";
-                        break;
+                    message = "Uzdevumu imports beidzies ar kļūdu! " + ex.Message;
                 }
 
-                if (result.Messages != null && result.Messages.Length > 0)
-                    message = string.Concat(message, Environment.NewLine, string.Join(" ", result.Messages.Select(m => string.Concat(m.Severity.GetDescription(), ": ", m.Text))));
+                return new JsonResult() { Data = new { IsValid = true, Message = message } };
             }
-            catch (Exception ex)
+            else
             {
-                message = "Uzdevumu imports beidzies ar kļūdu! " + ex.Message;
+                return new JsonResult() { Data = new { IsValid = false, Message = string.Join("; ", ModelState.Values.SelectMany(o => o.Errors).Select(x => x.ErrorMessage)) } };
             }
-
-            return new JsonResult() { Data = new { Message = message } };
         }
 
         protected override void Dispose(bool disposing)

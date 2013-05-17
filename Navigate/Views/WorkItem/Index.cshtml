@@ -50,66 +50,56 @@
   </div>
   <div class="modal-body">
     <p>Lūdzu norādiet laika intervālu, par kuru importēt uzdevumus</p>
-    @using (Html.BeginForm("GetOutlookCalendarItems", "WorkItem", FormMethod.Post, new { @id = "outlookSettingsForm", @class = "form-horizontal" }))
+    @using (Ajax.BeginForm("GetOutlookCalendarItems", "WorkItem", null, new AjaxOptions() { HttpMethod = "POST", LoadingElementId = "ajaxRequestLoading", OnComplete = "requestCompleted"}, new { @id = "outlookSettingsForm", @class = "form-horizontal" }))
     {
         @Html.ValidationSummary(true)
         <div class="editor-label">
             <label for="IntervalStart">No:</label>
         </div>
         <div class="editor-field">
-            @Html.TextBox("IntervalStart", DateTime.Now.ToString("dd.MM.yyyy HH:mm"), new { @class = "datetimefield"})
+            @Html.TextBox("IntervalStart", DateTime.Now.ToString("dd.MM.yyyy HH:mm"), new { @class = "datetimefield",  @data_val_required = "Datums no ir obligāts lauks", @data_val = "true", @data_val_date = "Datums no ir jābūt datumam"})
+            @Html.ValidationMessage("IntervalStart")
         </div>
         <div class="editor-label">
             <label for="IntervalEnd">Līdz:</label>
         </div>
         <div class="editor-field">
-            @Html.TextBox("IntervalEnd", DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy HH:mm"), new { @class = "datetimefield"})
+            @Html.TextBox("IntervalEnd", DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy HH:mm"), new { @class = "datetimefield", @data_val_required = "Datums līdz ir obligāts lauks", @data_val = "true", @data_val_date = "Datums līdz ir jābūt datumam"})
+            @Html.ValidationMessage("IntervalEnd")
         </div>
     }
   </div>
   <div class="modal-footer">
     <button class="btn" data-dismiss="modal" aria-hidden="true">Atcelt</button>
-    <button type="button" id="import" class="btn btn-primary" data-bind="click: Import">Importēt</button>
+    <button type="button" id="importOutlookItems" class="btn btn-primary" data-bind="click: Import">Importēt</button>
   </div>
 </div>
 
 @section Scripts
 {
     <script type="text/javascript">
-        function viewModel() {
-            var _this = {};
-            /************************ Public Functions ************************/
-            _this.Import = function () {
-                var url = '@Url.Action("GetOutlookCalendarItems", "WorkItem")';
-                $("#ajaxRequestLoading").show();
-                $.post(url, $('#outlookSettingsForm').serializeArray(),
-                    function (data) {
-                        if (data == null || typeof (data) == 'undefined')
-                            return;
+        $("#importOutlookItems").click(function () {
+            $("#outlookSettingsForm").submit();
+        });
 
-                        $('#importSettingsModal').modal('hide');
-
-                        showMessage(data.Message, function () {
-                            document.location.href = '@Html.AttributeEncode(Url.Action("Index", "WorkItem"))';
-                        });                        
-                    },
-                    'json'
-                )
-                .error(function (jqXHR, textStatus) {
-                    if (jqXHR != null && typeof (jqXHR) != 'undefined') {
-                        if (jqXHR.responseText != null && $(jqXHR.responseText).length == 9) {
-                            showMessage($($(jqXHR.responseText)[6]).text());
-                        }
-                    }
-                })
-                .always(function () {
-                    $("#ajaxRequestLoading").hide();
-                });
+        function requestCompleted(data, status, xhr) {
+            if (typeof (data) === 'undefined' || data == null) {
+                return;
             }
-            /************************ Initialization ************************/
-            ko.applyBindings(_this, $("body").get(0));
+
+            if (status == 'success') {
+                var resp = $.parseJSON(data.responseText);
+                //If there was an error, display it to the user
+                if (resp.IsValid == false) {
+                    showMessage(resp.Message);                    
+                    return;
+                }
+                else {
+                    $('#importSettingsModal').modal('hide');
+                    showMessage(resp.Message);
+                }
+            }
         }
-        viewModel();
 
         function changeStatus(workItemId) {
               $.ajax({

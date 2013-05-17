@@ -7,6 +7,7 @@ using System.Web.Mvc;
 
 namespace Navigate.Controllers
 {
+    [Authorize]
     public class ReportController : BaseController
     {
 

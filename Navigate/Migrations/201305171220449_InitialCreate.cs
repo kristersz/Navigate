@@ -8,11 +8,13 @@ namespace Navigate.Migrations
         public override void Up()
         {
             CreateTable(
-                "dbo.UserProfile",
+                "dbo.UserProfiles",
                 c => new
                     {
                         UserId = c.Int(nullable: false, identity: true),
                         UserName = c.String(),
+                        Email = c.String(),
+                        BaseLocation = c.String(),
                     })
                 .PrimaryKey(t => t.UserId);
             
@@ -21,57 +23,31 @@ namespace Navigate.Migrations
                 c => new
                     {
                         Id = c.Long(nullable: false, identity: true),
-                        Subject = c.String(nullable: false, maxLength: 40),
+                        Subject = c.String(nullable: false, maxLength: 180),
                         Location = c.String(maxLength: 255),
-                        StartDateTime = c.DateTime(),
-                        EndDateTime = c.DateTime(nullable: false),
-                        EstimatedTime = c.Decimal(precision: 18, scale: 2),
-                        WorkItemTypeId = c.Int(nullable: false),
-                        Priority = c.Int(),
                         Body = c.String(),
+                        StartDateTime = c.DateTime(nullable: false),
+                        EndDateTime = c.DateTime(nullable: false),
+                        AllDayEvent = c.Boolean(nullable: false),
+                        EstimatedTime = c.Decimal(precision: 18, scale: 2),
+                        WorkItemType = c.Int(nullable: false),
+                        Priority = c.Int(),
                         OutlookEntryId = c.String(),
                         isCompleted = c.Boolean(nullable: false),
+                        CompletedAt = c.DateTime(),
                         isRecurring = c.Boolean(nullable: false),
                         RecurrenceType = c.Int(),
                         CreatedByUserId = c.Int(nullable: false),
                         UpdatedByUserId = c.Int(nullable: false),
-                        AssignedToUserId = c.Int(),
                         CreatedAt = c.DateTime(nullable: false),
                         UpdatedAt = c.DateTime(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.WorkItemTypes", t => t.WorkItemTypeId, cascadeDelete: true)
-                .ForeignKey("dbo.UserProfile", t => t.CreatedByUserId, cascadeDelete: true)
-                .Index(t => t.WorkItemTypeId)
+                .ForeignKey("dbo.UserProfiles", t => t.CreatedByUserId, cascadeDelete: true)
                 .Index(t => t.CreatedByUserId);
             
             CreateTable(
-                "dbo.WorkItemTypes",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        Type = c.String(nullable: false, maxLength: 20),
-                    })
-                .PrimaryKey(t => t.Id);
-            
-            CreateTable(
-                "dbo.RecurringItems",
-                c => new
-                    {
-                        Id = c.Long(nullable: false, identity: true),
-                        OriginalDate = c.DateTime(nullable: false),
-                        WorkItemId = c.Long(nullable: false),
-                        Start = c.DateTime(nullable: false),
-                        End = c.DateTime(nullable: false),
-                        IndividualLocation = c.String(),
-                        IndividualBody = c.String(),
-                    })
-                .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.WorkItems", t => t.WorkItemId, cascadeDelete: true)
-                .Index(t => t.WorkItemId);
-            
-            CreateTable(
-                "dbo.WIRecurrencePatterns",
+                "dbo.RecurrencePatterns",
                 c => new
                     {
                         WorkItemId = c.Long(nullable: false),
@@ -89,13 +65,35 @@ namespace Navigate.Migrations
                 "dbo.Categories",
                 c => new
                     {
-                        ID = c.Int(nullable: false, identity: true),
-                        Name = c.String(),
+                        Id = c.Int(nullable: false, identity: true),
+                        Name = c.String(nullable: false, maxLength: 140),
+                        Description = c.String(),
+                        CreatedByUserId = c.Int(nullable: false),
                     })
-                .PrimaryKey(t => t.ID);
+                .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.WorkItemCategories",
+                "dbo.RecurringItems",
+                c => new
+                    {
+                        Id = c.Long(nullable: false, identity: true),
+                        OriginalDate = c.DateTime(nullable: false),
+                        WorkItemId = c.Long(nullable: false),
+                        Start = c.DateTime(nullable: false),
+                        End = c.DateTime(nullable: false),
+                        Subject = c.String(),
+                        Location = c.String(),
+                        Body = c.String(),
+                        isCompleted = c.Boolean(nullable: false),
+                        CompletedAt = c.DateTime(),
+                        UpdatedAt = c.DateTime(nullable: false),
+                    })
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.WorkItems", t => t.WorkItemId, cascadeDelete: true)
+                .Index(t => t.WorkItemId);
+            
+            CreateTable(
+                "dbo.WorkItemsInCategories",
                 c => new
                     {
                         WorkItemId = c.Long(nullable: false),
@@ -111,25 +109,22 @@ namespace Navigate.Migrations
         
         public override void Down()
         {
-            DropIndex("dbo.WorkItemCategories", new[] { "CategoryId" });
-            DropIndex("dbo.WorkItemCategories", new[] { "WorkItemId" });
-            DropIndex("dbo.WIRecurrencePatterns", new[] { "WorkItemId" });
+            DropIndex("dbo.WorkItemsInCategories", new[] { "CategoryId" });
+            DropIndex("dbo.WorkItemsInCategories", new[] { "WorkItemId" });
             DropIndex("dbo.RecurringItems", new[] { "WorkItemId" });
+            DropIndex("dbo.RecurrencePatterns", new[] { "WorkItemId" });
             DropIndex("dbo.WorkItems", new[] { "CreatedByUserId" });
-            DropIndex("dbo.WorkItems", new[] { "WorkItemTypeId" });
-            DropForeignKey("dbo.WorkItemCategories", "CategoryId", "dbo.Categories");
-            DropForeignKey("dbo.WorkItemCategories", "WorkItemId", "dbo.WorkItems");
-            DropForeignKey("dbo.WIRecurrencePatterns", "WorkItemId", "dbo.WorkItems");
+            DropForeignKey("dbo.WorkItemsInCategories", "CategoryId", "dbo.Categories");
+            DropForeignKey("dbo.WorkItemsInCategories", "WorkItemId", "dbo.WorkItems");
             DropForeignKey("dbo.RecurringItems", "WorkItemId", "dbo.WorkItems");
-            DropForeignKey("dbo.WorkItems", "CreatedByUserId", "dbo.UserProfile");
-            DropForeignKey("dbo.WorkItems", "WorkItemTypeId", "dbo.WorkItemTypes");
-            DropTable("dbo.WorkItemCategories");
-            DropTable("dbo.Categories");
-            DropTable("dbo.WIRecurrencePatterns");
+            DropForeignKey("dbo.RecurrencePatterns", "WorkItemId", "dbo.WorkItems");
+            DropForeignKey("dbo.WorkItems", "CreatedByUserId", "dbo.UserProfiles");
+            DropTable("dbo.WorkItemsInCategories");
             DropTable("dbo.RecurringItems");
-            DropTable("dbo.WorkItemTypes");
+            DropTable("dbo.Categories");
+            DropTable("dbo.RecurrencePatterns");
             DropTable("dbo.WorkItems");
-            DropTable("dbo.UserProfile");
+            DropTable("dbo.UserProfiles");
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Navigate.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201305061145463_InitialCreate"; }
+            get { return "201305171220449_InitialCreate"; }
         }
         
         string IMigrationMetadata.Source

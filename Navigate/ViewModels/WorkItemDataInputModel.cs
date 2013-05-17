@@ -49,6 +49,7 @@ namespace Navigate.ViewModels
             }
             else if (workItem.WorkItemType == WorkItemType.Appointment)
             {
+                this.AllDayEvent = workItem.AllDayEvent;
                 this.StartDate = workItem.StartDateTime;
                 this.EndDate = workItem.EndDateTime;
             }
@@ -117,6 +118,9 @@ namespace Navigate.ViewModels
         [DataType(DataType.DateTime)]
         public DateTime DueDate { get; set; }
 
+        [Display(Name = "Notiek visu dienu")]
+        public bool AllDayEvent { get; set; }
+
         [Display(Name = "Izpildes ilgums")]
         public decimal? EstimatedTime { get; set; }
 
@@ -160,6 +164,7 @@ namespace Navigate.ViewModels
             workItem.Body = this.Body;
             workItem.StartDateTime = this.StartDate;
             workItem.EndDateTime = this.EndDate;
+            workItem.AllDayEvent = this.AllDayEvent;
             workItem.EstimatedTime = this.EstimatedTime;
             workItem.WorkItemType = this.WorkItemType;
             workItem.Priority = this.Priority;
@@ -172,19 +177,19 @@ namespace Navigate.ViewModels
         #region [Recurrence]
 
         [Display(Name = "Katru dienu")]
-        [Range(1, 7)]
+        [Range(1, 6)]
         public int DailyInterval { get; set; }
 
         [Display(Name = "Katru nedēļu")]
-        [Range(1, 4)]
+        [Range(1, 3)]
         public int WeeklyInterval { get; set; }
 
         [Display(Name = "Katra mēneša norādītajā datumā")]
-        [Range(1, 12)]
+        [Range(1, 11)]
         public int MonthlyInterval { get; set; }
 
         [Display(Name = "Katra mēneša norādītajā dienā")]
-        [Range(1, 12)]
+        [Range(1, 11)]
         public int MonthNthInterval { get; set; }
 
         [Display(Name = "Katra gada norādītajā datumā")]
@@ -313,6 +318,7 @@ namespace Navigate.ViewModels
             workItem.Body = this.Body;
             workItem.StartDateTime = this.StartDate;
             workItem.EndDateTime = this.EndDate;
+            workItem.AllDayEvent = this.AllDayEvent;
             workItem.EstimatedTime = this.EstimatedTime;
             workItem.WorkItemType = this.WorkItemType;
             workItem.Priority = this.Priority;

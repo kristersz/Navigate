@@ -39,7 +39,7 @@
                         @Html.DisplayFor(modelItem => item.Description)
                     </td>
                     <td>
-                       <a href="#" onclick="deleteCategory(@item.ID.ToString());">Dzēst</a>
+                       <a href="#" onclick="deleteCategory(@item.Id.ToString());">Dzēst</a>
                     </td>
                 </tr>
             }
@@ -60,7 +60,7 @@
     @using (Ajax.BeginForm("CreateCategory", "Classifier", null, new AjaxOptions() { HttpMethod = "POST", LoadingElementId = "ajaxRequestLoading", OnComplete = "requestCompleted" }, new { @id = "newCategoryForm" }))
     {
         @Html.ValidationSummary(true)
-        @Html.Hidden("ID")
+        @Html.Hidden("Id")
         <div class="editor-label">
             <label for="Name">Kategorijas nosaukums</label>
         </div>

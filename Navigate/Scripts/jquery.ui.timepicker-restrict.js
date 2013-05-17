@@ -40,9 +40,10 @@ $('.datetimefield').datetimepicker({
     controlType: 'select',
 });
 
+$(".datefield").datepicker();
+
 $(".timefield").timepicker({
     controlType: 'select',
 });
-$(".timefield").timepicker({
-    controlType: 'select',
-});
+
+$('#ui-datepicker-div').draggable();

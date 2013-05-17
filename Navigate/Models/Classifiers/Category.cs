@@ -9,7 +9,7 @@ namespace Navigate.Models.Classifiers
 {
     public class Category
     {
-        public int? ID { get; set; }
+        public int? Id { get; set; }
 
         [Display(Name = "Kategorija")]
         [Required(ErrorMessage = "Kategorijas nosaukums ir obligāts lauks")]

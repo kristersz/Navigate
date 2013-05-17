@@ -9,6 +9,7 @@ using Navigate.Models;
 
 namespace Navigate.Controllers
 {
+    [Authorize]
     public class RecurringItemController : BaseController
     {
 

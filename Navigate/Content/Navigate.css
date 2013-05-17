@@ -66,6 +66,10 @@ footer.row {
     background-color: #f2dede;
 }
 
+#loginControls {
+    color: white;
+}
+
 /* Work Item CreateEdit Form */
 .editor-radio label, #daysOfWeek label {
     display: inline;

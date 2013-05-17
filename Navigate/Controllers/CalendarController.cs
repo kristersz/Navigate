@@ -8,6 +8,7 @@ using System.Web.Mvc;
 
 namespace Navigate.Controllers
 {
+    [Authorize]
     public class CalendarController : BaseController
     {
         private readonly EventModel eventModel;
