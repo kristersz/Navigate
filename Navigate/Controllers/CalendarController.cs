@@ -49,7 +49,7 @@ namespace Navigate.Controllers
                         {
                             id = e.Id,
                             title = e.Subject,
-                            start = e.StartDateTime.ToString("yyyy-MM-dd HH:mm"),
+                            start = e.StartDateTime.Value.ToString("yyyy-MM-dd HH:mm"),
                             end = e.EndDateTime.ToString("yyyy-MM-dd HH:mm"),
                             allDay = e.AllDayEvent,
                             url = "/WorkItem/Details/" + e.Id.ToString() + "/"
@@ -81,7 +81,7 @@ namespace Navigate.Controllers
         /// Converts unix timestamp to a datetime object
         /// </summary>
         /// <param name="timestamp">The unix timestamp</param>
-        /// <returns>Datetime object</returns>
+        /// <returns>The datetime object</returns>
         private static DateTime FromUnixTimestamp(double timestamp)
         {
             var origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);

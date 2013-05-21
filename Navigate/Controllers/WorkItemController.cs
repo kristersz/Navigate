@@ -21,6 +21,15 @@ namespace Navigate.Controllers
     [Authorize]
     public class WorkItemController : BaseController
     {
+        /// <summary>
+        /// Displays the list of work items, provides filtering, searching and sorting of returned elements
+        /// </summary>
+        /// <param name="searchTerm">The search term</param>
+        /// <param name="filter">The filter</param>
+        /// <param name="sortOrder">The sort order</param>
+        /// <param name="category">The chosen category</param>
+        /// <param name="page">The current page</param>
+        /// <returns>The index view</returns>
         public ActionResult Index(string searchTerm = null, string filter  = null, string sortOrder = null, string category = null, int page = 1)
         {
             var currentUserId = this.CurrentUser.UserId;
@@ -119,9 +128,11 @@ namespace Navigate.Controllers
             return View(workItems);
         }
 
-        //
-        // GET: /WorkItem/Details/5
-
+        /// <summary>
+        /// Displays the detailed view of a given work item
+        /// </summary>
+        /// <param name="id">The work item id</param>
+        /// <returns>The details view</returns>
         public ActionResult Details(int id = 0)
         {
             WorkItem workItem = this.dataContext.WorkItems.Find(id);
@@ -129,12 +140,39 @@ namespace Navigate.Controllers
             {
                 return HttpNotFound();
             }
-            return View(workItem);
+            var workItems = this.dataContext.WorkItems
+                .Where((r => r.CreatedByUserId == this.CurrentUser.UserId && r.Id == id))
+                .Select(r => new WorkItemDetailsViewModel
+                {
+                    Id = r.Id,
+                    Subject = r.Subject,
+                    Location = r.Location,
+                    StartDateTime = r.StartDateTime,
+                    EndDateTime = r.EndDateTime,
+                    Duration = r.Duration.Value,
+                    Body = r.Body,
+                    WorkItemType = r.WorkItemType,
+                    isCompleted = r.isCompleted,
+                    isRecurring = r.isRecurring,
+                    Priority = r.Priority,
+                    CreatedAt = r.CreatedAt,
+                    UpdatedAt = r.UpdatedAt,
+                    Categories = r.Categories,
+                    RecurringItems = r.RecurringItems,
+                }
+            ).Single();
+
+            return View(workItems);
         }
 
-        //
-        // GET: /WorkItem/Create
-
+        /// <summary>
+        /// Displays the work item create form
+        /// </summary>
+        /// Parameters are used only when the user selects a time span in the calendar and invokes this method
+        /// <param name="start">Start datetime of a work item</param>
+        /// <param name="end">End datetime of a work item</param>
+        /// <returns>The create view</returns>
+        [HttpGet]
         public ActionResult Create(string start = null, string end = null)
         {
             var model = new WorkItemDataInputModel();
@@ -146,24 +184,34 @@ namespace Navigate.Controllers
                 model.EndDate = dtEnd;
                 model.WorkItemType = WorkItemType.Appointment;
             }
-            populateDropDownLists(model);
+            PopulateDropDownLists(model);
             return View(model);
         }
 
-        //
-        // POST: /WorkItem/Create
-
+        /// <summary>
+        /// The method that responds to the HttpPost request of create action
+        /// </summary>
+        /// <param name="model">The WorkItemDataInputModel</param>
+        /// <returns>Redirect to index action if there are no errors in the create form, otherwise redisplays the create form with the error messages</returns>
         [HttpPost]
         public ActionResult Create(WorkItemDataInputModel model)
         {
-            populateDropDownLists(model);
-            if (model.WorkItemType == WorkItemType.None)
-            {
-                ModelState.AddModelError("", "Uzdevuma tips ir obligāts lauks");
-                return View(model);
-            }
+            PopulateDropDownLists(model);
+
             if (ModelState.IsValid)
             {
+                if (model.WorkItemType == WorkItemType.None)
+                {
+                    ModelState.AddModelError("", "Uzdevuma tips ir obligāts lauks");
+                    return View(model);
+                }
+
+                if ((model.Reminder == Reminder.Driving || model.Reminder == Reminder.Walking) && model.Location == null)
+                {
+                    ModelState.AddModelError("", "Lai izvēlētos šo atgādinājumu, ir jānorāda uzdevuma atrašanās vieta");
+                    return View(model);
+                }
+
                 var workItem = model.TransformToWorkItem();
                 workItem.CreatedByUserId = this.CurrentUser.UserId;
                 workItem.UpdatedByUserId = this.CurrentUser.UserId;
@@ -179,30 +227,17 @@ namespace Navigate.Controllers
                 {
                     workItem.RecurrencePattern = model.TransformToRecurrencePattern();
                     workItem.RecurrenceType = model.RecurrenceType;
-
-                    var occurrenceService = new OccurrenceService();
-                    var occurrenceDates = occurrenceService.GetOccurrenceDates(workItem);
-                    workItem.RecurringItems = new List<RecurringItem>();
-                    foreach (var date in occurrenceDates)
-                    {
-                        workItem.RecurringItems.Add(new RecurringItem
-                        {
-                            Start = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemStart.Value.Hour, model.RecurringItemStart.Value.Minute, model.RecurringItemStart.Value.Second),
-                            End = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemEnd.Value.Hour, model.RecurringItemEnd.Value.Minute, model.RecurringItemEnd.Value.Second),
-                            OriginalDate = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemStart.Value.Hour, model.RecurringItemStart.Value.Minute, model.RecurringItemStart.Value.Second),
-                            Subject = workItem.Subject,
-                            Body = workItem.Body,
-                            Location = workItem.Location,
-                            UpdatedAt = DateTime.Now
-                        });
-                    }
+                    CreateOccurrences(workItem, model);
                 }
 
                 this.dataContext.WorkItems.Add(workItem);
                 this.dataContext.SaveChanges();
 
-                //var scheduler = new ReminderScheduler();
-                //scheduler.ScheduleReminder(workItem);
+                if (workItem.Reminder != Reminder.None)
+                {
+                    var scheduler = new ReminderScheduler();
+                    scheduler.ScheduleReminder(workItem);
+                }
 
                 return RedirectToAction("Index");
             }
@@ -210,9 +245,11 @@ namespace Navigate.Controllers
             return View(model);
         }
 
-        //
-        // GET: /WorkItem/Edit/5
-
+        /// <summary>
+        /// Displays the work item edit form
+        /// </summary>
+        /// <param name="id">The work item id</param>
+        /// <returns>The edit view</returns>
         public ActionResult Edit(int id = 0)
         {
             WorkItem workItem = this.dataContext.WorkItems.Find(id);
@@ -222,7 +259,7 @@ namespace Navigate.Controllers
             }
 
             var model = new WorkItemDataInputModel(workItem);
-            populateDropDownLists(model);
+            PopulateDropDownLists(model);
             foreach (var category in workItem.Categories)
             {
                 model.SelectedCategoryIds.Add((int)category.Id);
@@ -230,19 +267,86 @@ namespace Navigate.Controllers
             return View(model);
         }
 
-        //
-        // POST: /WorkItem/Edit/5
-
+        /// <summary>
+        /// The method that responds to the HttpPost request of the edit action
+        /// </summary>
+        /// <param name="model">The WorkItemDataInputModel</param>
+        /// <returns>Redirect to index action if there are no errors in the edit form, otherwise redisplays the edit form with the error messages</returns>
         [HttpPost]
         public ActionResult Edit(WorkItemDataInputModel model)
         {
-            populateDropDownLists(model);
+            PopulateDropDownLists(model);
+            if (model.WorkItemType == WorkItemType.None)
+            {
+                ModelState.AddModelError("", "Uzdevuma tips ir obligāts lauks");
+                return View(model);
+            }
             if (ModelState.IsValid)
             {
                 WorkItem workItem = this.dataContext.WorkItems.Where(o => o.Id == model.WorkItemId).FirstOrDefault();
                 if (workItem != null)
                 {
                     model.UpdateWorkItem(workItem);
+
+                    if (workItem.isRecurring == true)
+                    {
+                        var newPattern = model.TransformToRecurrencePattern();
+                        if (workItem.RecurrencePattern == null)
+                        {
+                            workItem.RecurrencePattern = newPattern;
+                            workItem.RecurrenceType = model.RecurrenceType;
+                            CreateOccurrences(workItem, model);
+                        }
+                        else
+                        {
+                            //Check if recurrence pattern has not changed
+                            var existingPattern = workItem.RecurrencePattern;
+                            int mismatch = 0;
+                            if (existingPattern.Interval != newPattern.Interval) mismatch = 1;
+                            if ((int)existingPattern.DayOfWeekMask != (int)newPattern.DayOfWeekMask) mismatch = 1;
+                            if ((int)existingPattern.Instance != (int)newPattern.Instance) mismatch = 1;
+                            if (existingPattern.DayOfMonth != newPattern.DayOfMonth) mismatch = 1;
+                            if ((int)existingPattern.MonthOfYear != (int)newPattern.MonthOfYear) mismatch = 1;
+
+                            if (mismatch == 1)
+                            {
+                                //if the pattern has changed delete all of the old recurring items, save the new pattern and asociate it with the work item
+                                RemoveRecurringItems(workItem);
+                                this.dataContext.WIRecurrencePatterns.Remove(existingPattern);
+                                workItem.RecurrencePattern = newPattern;
+                                workItem.RecurrenceType = model.RecurrenceType;
+                                CreateOccurrences(workItem, model);
+                            }
+                            else
+                            {
+                                //if pattern hasn`t changed maybe the time span of the pattern has changed, if so, update the datetime values and remove unnecessary recurring items
+                                if (model.StartDate != workItem.StartDateTime || model.EndDate != workItem.EndDateTime)
+                                {
+                                    foreach (var recurringItem in workItem.RecurringItems
+                                        .Where(o => o.Start < workItem.StartDateTime
+                                            || o.End > workItem.EndDateTime)
+                                        .ToList())
+                                    {
+                                        this.dataContext.RecurringItems.Remove(recurringItem);
+                                    }
+
+                                    workItem.StartDateTime = model.StartDate;
+                                    workItem.StartDateTime = model.EndDate;
+                                }
+                            }
+                        }
+                    }
+                    else 
+                    {
+                        if (workItem.RecurrencePattern != null)
+                        {
+                            var existingPattern = workItem.RecurrencePattern;
+                            RemoveRecurringItems(workItem);
+                            this.dataContext.WIRecurrencePatterns.Remove(existingPattern);
+                            workItem.RecurrenceType = null;
+                        }
+                    }
+
                     workItem.UpdatedAt = DateTime.Now;
                     workItem.UpdatedByUserId = this.CurrentUser.UserId;
                     this.dataContext.SaveChanges();
@@ -252,9 +356,11 @@ namespace Navigate.Controllers
             return View(model);
         }
 
-        //
-        // GET: /WorkItem/Delete/5
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public ActionResult Delete(int id = 0)
         {
             WorkItem workItem = this.dataContext.WorkItems.Find(id);
@@ -303,7 +409,7 @@ namespace Navigate.Controllers
             if (workItem.isRecurring == true)
             {
                 var recurringItem = workItem.RecurringItems.OrderBy(o => o.Start).FirstOrDefault(o => o.isCompleted == false);
-                var nextRecurringitem = workItem.RecurringItems.OrderBy(o => o.Start).SkipWhile(o => o.isCompleted != false).Skip(1).FirstOrDefault();
+                var nextRecurringItem = workItem.RecurringItems.OrderBy(o => o.Start).SkipWhile(o => o.isCompleted != false).Skip(1).FirstOrDefault();
                 if (recurringItem == null)
                 {
                     message = "Periodiskais uzdevums netika atrasts";
@@ -315,7 +421,13 @@ namespace Navigate.Controllers
                     {
                         recurringItem.isCompleted = true;
                         recurringItem.CompletedAt = DateTime.Now;
-                        message = "Periodiskais uzdevums " + recurringItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā izpildīts, nākamais notikums: " + nextRecurringitem.Start;
+                        if (nextRecurringItem == null)
+                        {
+                            workItem.isCompleted = true;
+                            workItem.CompletedAt = DateTime.Now;
+                            message = "Periodiskais uzdevums " + recurringItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā izpildīts, šis bija pēdējais notikums šajā notikumu sērijā";
+                        }
+                        else message = "Periodiskais uzdevums " + recurringItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā izpildīts, nākamais notikums: " + nextRecurringItem.Start;
                     }
                 }
             }
@@ -344,7 +456,6 @@ namespace Navigate.Controllers
             }
             this.dataContext.SaveChanges();
             return new JsonResult() { Data = new { IsValid = true, Message = message } };
-
         }
 
         [HttpPost]
@@ -408,9 +519,38 @@ namespace Navigate.Controllers
             base.Dispose(disposing);
         }
 
-        public void populateDropDownLists(WorkItemDataInputModel model)
+        public void PopulateDropDownLists(WorkItemDataInputModel model)
         {
             model.Categories = this.dataContext.Categories.Where(o => o.CreatedByUserId == this.CurrentUser.UserId).ToList();
+        }
+
+        public void CreateOccurrences(WorkItem workItem, WorkItemDataInputModel model)
+        {
+            var occurrenceService = new OccurrenceService();
+            var occurrenceDates = occurrenceService.GetOccurrenceDates(workItem);
+            workItem.RecurringItems = new List<RecurringItem>();
+            foreach (var date in occurrenceDates)
+            {
+                workItem.RecurringItems.Add(new RecurringItem
+                {
+                    Start = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemStart.Value.Hour, model.RecurringItemStart.Value.Minute, model.RecurringItemStart.Value.Second),
+                    End = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemEnd.Value.Hour, model.RecurringItemEnd.Value.Minute, model.RecurringItemEnd.Value.Second),
+                    OriginalDate = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemStart.Value.Hour, model.RecurringItemStart.Value.Minute, model.RecurringItemStart.Value.Second),
+                    Exception = false,
+                    Subject = workItem.Subject,
+                    Body = workItem.Body,
+                    Location = workItem.Location,
+                    UpdatedAt = DateTime.Now
+                });
+            }
+        }
+
+        public void RemoveRecurringItems(WorkItem workItem)
+        {
+            foreach (var recurringItem in workItem.RecurringItems.ToList())
+            {
+                this.dataContext.RecurringItems.Remove(recurringItem);
+            }
         }
     }
 }

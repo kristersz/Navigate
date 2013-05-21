@@ -89,17 +89,17 @@ function calcRoute() {
 
         // Else we handle errors and show them to the user
         else if (status == google.maps.DirectionsStatus.NOT_FOUND) {
-            showMessage("The specified location could not be found, please enter a more specific location", function () {
+            showMessage("Viena no norādītajām adresēm netika atrasta, lūdzu norādiet precīzāku adresi", function () {
                 document.location.href = '@Html.AttributeEncode(Url.Action("Navigate", "WorkItem"))';
             });
         }
         else if (status == google.maps.DirectionsStatus.ZERO_RESULTS) {
-            showMessage("A route between these locations could not be found", function () {
+            showMessage("Maršruts starp šīm adresēm netika atrasts", function () {
                 document.location.href = '@Html.AttributeEncode(Url.Action("Navigate", "WorkItem"))';
             });
         }
         else if (status == google.maps.DirectionsStatus.UNKNOWN_ERROR) {
-            showMessage("An unexpected error occured", function () {
+            showMessage("Notika negaidīta kļūda", function () {
                 document.location.href = '@Html.AttributeEncode(Url.Action("Navigate", "WorkItem"))';
             });
         }
@@ -133,15 +133,53 @@ function attachInstructionText(marker, text) {
 function calcDistance() {
     // Instantiate a Distance Matrix service
     distanceService = new google.maps.DistanceMatrixService();
-    distanceService.getDistanceMatrix(
-      {
-          origins: [document.getElementById("start").value],
-          destinations: [document.getElementById("end").value],
-          travelMode: google.maps.TravelMode.DRIVING,
-          unitSystem: google.maps.UnitSystem.METRIC,
-          avoidHighways: false,
-          avoidTolls: false
-      }, callback);
+    var travelMode = getRadioValue();
+    switch (travelMode) {
+        case "DRIVING":
+            distanceService.getDistanceMatrix(
+              {
+                  origins: [document.getElementById("start").value],
+                  destinations: [document.getElementById("end").value],
+                  travelMode: google.maps.TravelMode.DRIVING,
+                  unitSystem: google.maps.UnitSystem.METRIC,
+                  avoidHighways: false,
+                  avoidTolls: false
+              }, callback);
+            break;
+        case "WALKING":
+            distanceService.getDistanceMatrix(
+              {
+                  origins: [document.getElementById("start").value],
+                  destinations: [document.getElementById("end").value],
+                  travelMode: google.maps.TravelMode.WALKING,
+                  unitSystem: google.maps.UnitSystem.METRIC,
+                  avoidHighways: false,
+                  avoidTolls: false
+              }, callback);
+            break;
+        case "TRANSIT":
+            distanceService.getDistanceMatrix(
+              {
+                  origins: [document.getElementById("start").value],
+                  destinations: [document.getElementById("end").value],
+                  travelMode: google.maps.TravelMode.TRANSIT,
+                  unitSystem: google.maps.UnitSystem.METRIC,
+                  avoidHighways: false,
+                  avoidTolls: false
+              }, callback);
+            break;
+        default:
+            distanceService.getDistanceMatrix(
+              {
+                  origins: [document.getElementById("start").value],
+                  destinations: [document.getElementById("end").value],
+                  travelMode: google.maps.TravelMode.DRIVING,
+                  unitSystem: google.maps.UnitSystem.METRIC,
+                  avoidHighways: false,
+                  avoidTolls: false
+              }, callback);
+            break;
+    }
 }
 
 function callback(response, status) {

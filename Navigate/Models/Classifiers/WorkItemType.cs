@@ -11,10 +11,10 @@ namespace Navigate.Models.Classifiers
     {
         None = 0,
 
-        [Description("Uzdevums")]
+        [Description("Task")]
         Task = 1,
 
-        [Description("Tikšanās")]
+        [Description("Appointment")]
         Appointment = 2,
     }
 }

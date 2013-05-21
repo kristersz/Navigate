@@ -25,20 +25,51 @@ namespace Navigate.Quartz
         {
             var reminderDateTime = new DateTime();
             var dueDate = new DateTime();
-            var estimatedTime = (double)workItem.EstimatedTime;
 
-            //determine the time for reminder
-            if (workItem.WorkItemType == WorkItemType.Task)
+            switch (workItem.Reminder)
             {
-                reminderDateTime = workItem.EndDateTime.AddHours(-estimatedTime);
-                dueDate = workItem.EndDateTime;
-            }
-            else if (workItem.WorkItemType == WorkItemType.Appointment)
-            {
-                reminderDateTime = workItem.StartDateTime;
-                dueDate = workItem.StartDateTime;
+                case Reminder.None:
+                    break;
+                case Reminder.Driving:
+                    var drivingDuration = GetTravelDurationInMinutes(workItem.CreatedBy.BaseLocation, workItem.Location, "driving");
+                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddMinutes(-drivingDuration);
+                    else reminderDateTime = workItem.StartDateTime.Value.AddMinutes(-drivingDuration);
+                    break;
+                case Reminder.Walking:
+                    var walkingDuration = GetTravelDurationInMinutes(workItem.CreatedBy.BaseLocation, workItem.Location, "walking");
+                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddMinutes(-walkingDuration);
+                    else reminderDateTime = workItem.StartDateTime.Value.AddMinutes(-walkingDuration);
+                    break;
+                case Reminder.FifteenMinutes:
+                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddMinutes(-15);
+                    else reminderDateTime = workItem.StartDateTime.Value.AddMinutes(-15);
+                    break;
+                case Reminder.ThirtyMinutes:
+                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddMinutes(-30);
+                    else reminderDateTime = workItem.StartDateTime.Value.AddMinutes(-30);
+                    break;
+                case Reminder.OneHour:
+                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddHours(-1);
+                    else reminderDateTime = workItem.StartDateTime.Value.AddHours(-1);
+                    break;
+                case Reminder.TwoHours:
+                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddHours(-2);
+                    else reminderDateTime = workItem.StartDateTime.Value.AddHours(-2);
+                    break;
+                case Reminder.OneDay:
+                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddDays(-1);
+                    else reminderDateTime = workItem.StartDateTime.Value.AddDays(-1);
+                    break;
+                case Reminder.TwoDays:
+                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddDays(-2);
+                    else reminderDateTime = workItem.StartDateTime.Value.AddDays(-2);
+                    break;
+                default:
+                    break;
             }
 
+            if (workItem.WorkItemType == WorkItemType.Task) dueDate = workItem.EndDateTime;
+            else dueDate = workItem.StartDateTime.Value;
 
             // construct job info
             IJobDetail jobDetail = JobBuilder.Create<SendReminderMailJob>()
@@ -61,12 +92,12 @@ namespace Navigate.Quartz
             scheduler.ScheduleJob(jobDetail, trigger);
         }
 
-        public static double GetDrivingDurationInMinutes(string origin, string destination)
+        public static double GetTravelDurationInMinutes(string origin, string destination, string mode)
         {
-            var duration = 0;
+            double duration = 0;
             string url = @"http://maps.googleapis.com/maps/api/distancematrix/xml?origins=" +
               origin + "&destinations=" + destination +
-              "&mode=driving&sensor=false&language=en-EN&units=metric";
+              "&mode=" + mode + "&sensor=false&language=en-EN&units=metric";
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             WebResponse response = request.GetResponse();
@@ -80,12 +111,12 @@ namespace Navigate.Quartz
 
             if (xmldoc.GetElementsByTagName("status")[0].ChildNodes[0].InnerText == "OK")
             {
-                XmlNodeList distance = xmldoc.GetElementsByTagName("duration");
-                var durationString = distance[0].ChildNodes[0].ToString();
-                duration = Convert.ToInt32(durationString);
+                XmlNodeList durationNode = xmldoc.GetElementsByTagName("duration");
+                var durationString = durationNode[0].ChildNodes[0].InnerText;
+                duration = Convert.ToDouble(durationString);
             }
 
-            return duration;
+            return duration / 60;
         }
     }
 }

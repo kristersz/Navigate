@@ -24,20 +24,29 @@ namespace Navigate.Models
         [ForeignKey("WorkItemId")]
         public virtual WorkItem WorkItem { get; set; }
 
+        [Display(Name = "Sākums")]
         public DateTime Start { get; set; }
 
+        [Display(Name = "Beigas")]
         public DateTime End { get; set; }
 
+        [Display(Name = "Nosaukums")]
         public string Subject { get; set; }
 
+        [Display(Name = "Atrašanās vieta")]
         public string Location { get; set; }
 
+        [Display(Name = "Informācija")]
         public string Body { get; set; }
 
         public bool isCompleted { get; set; }
 
+        public bool Exception { get; set; }
+
+        [Display(Name = "Pabeigts")]
         public DateTime? CompletedAt { get; set; }
 
+        [Display(Name = "Rediģēts")]
         public DateTime UpdatedAt { get; set; }
     }
 }

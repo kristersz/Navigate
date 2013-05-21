@@ -48,7 +48,7 @@ namespace Navigate.Models
         /// Needed only if the work item is scheduled for a predetermined amount of time, which would then require explicit start and end times
         /// </summary>       
         [DataType(DataType.DateTime)]
-        public DateTime StartDateTime { get; set; }
+        public DateTime? StartDateTime { get; set; }
 
         /// <summary>
         /// Gets or sets the end date time of a scheduled task or the due date of a more generic task with a estimated amount of time for completion
@@ -63,9 +63,9 @@ namespace Navigate.Models
         public bool AllDayEvent { get; set; }
 
         /// <summary>
-        /// Gets or sets the estimated time in minutes of completion for a task
+        /// Gets or sets the duration in minutes of completion for a task or the duration of a appointment
         /// </summary>
-        public decimal? EstimatedTime { get; set; }
+        public double? Duration { get; set; }
 
         /// <summary>
         /// Gets or sets the work item type, which reference the work item type classifier
@@ -91,6 +91,11 @@ namespace Navigate.Models
         /// Gets or sets the datetime when the task was completed on
         /// </summary>
         public DateTime? CompletedAt { get; set; }
+
+        /// <summary>
+        /// Get or sets the value for reminder
+        /// </summary>
+        public Reminder Reminder { get; set; }
 
         /// <summary>
         /// Gets or sets a value indiciating whether the task is recurring or not

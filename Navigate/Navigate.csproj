@@ -201,6 +201,7 @@
     <Compile Include="Models\Classifiers\MonthOfYear.cs" />
     <Compile Include="Models\Classifiers\DayOfWeekMask.cs" />
     <Compile Include="Models\Classifiers\RecurrenceType.cs" />
+    <Compile Include="Models\Classifiers\Reminder.cs" />
     <Compile Include="Models\NavigateDb.cs" />
     <Compile Include="Models\WIRecurrencePattern.cs" />
     <Compile Include="Models\RecurringItem.cs" />
@@ -221,6 +222,7 @@
     <Compile Include="ViewModels\OutlookSettingsInputModel.cs" />
     <Compile Include="ViewModels\ReportViewModel.cs" />
     <Compile Include="ViewModels\WorkItemDataInputModel.cs" />
+    <Compile Include="ViewModels\WorkItemDetailsViewModel.cs" />
     <Compile Include="ViewModels\WorkItemListViewModel.cs" />
   </ItemGroup>
   <ItemGroup>

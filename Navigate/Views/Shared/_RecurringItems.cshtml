@@ -3,9 +3,6 @@
 <table class="table table-striped table-bordered">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.OriginalDate)
-        </th>
-        <th>
             @Html.DisplayNameFor(model => model.Subject)
         </th>
         <th>
@@ -21,6 +18,9 @@
             @Html.DisplayNameFor(model => model.Body)
         </th>
         <th>
+            @Html.DisplayNameFor(model => model.CompletedAt)
+        </th>
+        <th>
             @Html.DisplayNameFor(model => model.UpdatedAt)
         </th>
         <th></th>
@@ -28,9 +28,6 @@
 
 @foreach (var item in Model) {
     <tr class="@if (item.isCompleted == true) {<text>taskDone</text>}">
-        <td>
-            @Html.DisplayFor(modelItem => item.OriginalDate)
-        </td>
         <td>
             @Html.DisplayFor(modelItem => item.Subject)
         </td>
@@ -45,6 +42,9 @@
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Body)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.CompletedAt)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.UpdatedAt)

@@ -21,6 +21,11 @@ namespace Navigate.ViewModels
             this.StartDate = DateTime.Now;
             this.EndDate = DateTime.Now;
             this.DueDate = DateTime.Now;
+            SetInitialValues();
+        }
+
+        public void SetInitialValues()
+        {
             this.DailyInterval = 1;
             this.WeeklyInterval = 1;
             this.MonthlyInterval = 1;
@@ -37,29 +42,36 @@ namespace Navigate.ViewModels
         {
             this.Categories = new List<Category>();
             this.SelectedCategoryIds = new List<int>();
+            SetInitialValues();
 
             this.WorkItemId = workItem.Id;
             this.Subject = workItem.Subject;
             this.Location = workItem.Location;
             this.Body = workItem.Body;
+            this.Priority = workItem.Priority;
+            this.Reminder = workItem.Reminder;
             this.WorkItemType = workItem.WorkItemType;
             if (workItem.WorkItemType == WorkItemType.Task)
             {
                 this.DueDate = workItem.EndDateTime;
+                this.StartDate = DateTime.Now;
+                this.EndDate = DateTime.Now;
             }
             else if (workItem.WorkItemType == WorkItemType.Appointment)
             {
                 this.AllDayEvent = workItem.AllDayEvent;
                 this.StartDate = workItem.StartDateTime;
                 this.EndDate = workItem.EndDateTime;
+                this.DueDate = DateTime.Now;
             }
-            this.EstimatedTime = workItem.EstimatedTime;         
-            this.Priority = workItem.Priority;
+            this.Duration = workItem.Duration.Value;         
             this.isRecurring = workItem.isRecurring;
             if (workItem.isRecurring)
             {
                 var recurrencePattern = workItem.RecurrencePattern;
                 this.RecurrenceType = (RecurrenceType)workItem.RecurrenceType;
+                this.RecurringItemStart = workItem.RecurringItems.FirstOrDefault(o => o.Exception == false).Start;
+                this.RecurringItemEnd = workItem.RecurringItems.FirstOrDefault(o => o.Exception == false).End;
                 switch (workItem.RecurrenceType)
                 {
                     case RecurrenceType.Daily:
@@ -95,7 +107,7 @@ namespace Navigate.ViewModels
         public long WorkItemId { get; set; }
 
         [Display(Name="Nosaukums")]
-        [Required(ErrorMessage="Nosaukums ir obligāts lauks")]
+        [Required(ErrorMessage="{0} ir obligāts lauks")]
         [MaxLength(180, ErrorMessage="Nosaukums nevar pārsniegt 180 simbolu garumu")]
         public string Subject { get; set; }
 
@@ -103,29 +115,31 @@ namespace Navigate.ViewModels
         [MaxLength(180, ErrorMessage = "Atrašānās vietas nosaukums nevar pārsniegt 255 simbolu garumu")]
         public string Location { get; set; }
 
-        [Display(Name = "Informācija")]
+        [Display(Name = "Papildus informācija")]
         public string Body { get; set; }
 
         [Display(Name = "Sākuma laiks")]
+        [Required(ErrorMessage = "{0} ir obligāts lauks")]
         [DataType(DataType.DateTime)]
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
         [Display(Name = "Beigu laiks")]
+        [Required(ErrorMessage = "{0} ir obligāts lauks")]
         [DataType(DataType.DateTime)]
         public DateTime EndDate { get; set; }
 
         [Display(Name = "Termiņš")]
+        [Required(ErrorMessage = "{0} ir obligāts lauks")]
         [DataType(DataType.DateTime)]
         public DateTime DueDate { get; set; }
 
         [Display(Name = "Notiek visu dienu")]
         public bool AllDayEvent { get; set; }
 
-        [Display(Name = "Izpildes ilgums")]
-        public decimal? EstimatedTime { get; set; }
+        [Display(Name = "Izpildes ilgums stundās")]
+        public double Duration { get; set; }
 
         [Display(Name = "Uzdevuma tips")]
-        [Required]
         public WorkItemType WorkItemType { get; set; }
 
         public IEnumerable<SelectListItem> AllWorkItemTypes
@@ -156,19 +170,41 @@ namespace Navigate.ViewModels
         [Display(Name = "Periodiskums")]
         public RecurrenceType RecurrenceType { get; set; }
 
+        [Display(Name = "Atgādinājums")]
+        public Reminder Reminder { get; set; }
+
+        public IEnumerable<SelectListItem> AllReminders
+        {
+            get
+            {
+                return Enums.GetValues<Reminder>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
+            }
+        }
+
         public WorkItem TransformToWorkItem()
         {
             var workItem = new WorkItem();
             workItem.Subject = this.Subject;
             workItem.Location = this.Location;
             workItem.Body = this.Body;
-            workItem.StartDateTime = this.StartDate;
-            workItem.EndDateTime = this.EndDate;
-            workItem.AllDayEvent = this.AllDayEvent;
-            workItem.EstimatedTime = this.EstimatedTime;
-            workItem.WorkItemType = this.WorkItemType;
             workItem.Priority = this.Priority;
-            workItem.isRecurring = this.isRecurring;
+            workItem.Reminder = this.Reminder;
+            workItem.WorkItemType = this.WorkItemType;           
+            if (this.WorkItemType == WorkItemType.Task)
+            {
+                workItem.Duration = this.Duration;
+                workItem.StartDateTime = null;
+                workItem.EndDateTime = this.DueDate;
+            }
+            else
+            {
+                workItem.StartDateTime = this.StartDate;
+                workItem.EndDateTime = this.EndDate;
+                workItem.AllDayEvent = this.AllDayEvent;
+                workItem.isRecurring = this.isRecurring;
+                workItem.Duration = (this.EndDate - this.StartDate.Value).TotalHours;
+            }         
+
             return workItem;
         }
 
@@ -199,9 +235,6 @@ namespace Navigate.ViewModels
         [Display(Name = "Katra gada norādītajā dienā")]
         [Range(1, 2)]
         public int YearNthInterval { get; set; }
-
-        [Display(Name = "Katru darbadienu")]
-        public bool EveryWeekday { get; set; }
 
         public DaysOfWeek WeekDays { get; set; }
 
@@ -262,12 +295,7 @@ namespace Navigate.ViewModels
             var recurrencePattern = new WIRecurrencePattern();
             if (this.RecurrenceType == RecurrenceType.Daily)
             {
-                if (this.EveryWeekday == true)
-                {
-                    recurrencePattern.DayOfWeekMask = DayOfWeekMask.Weekdays;
-                    this.RecurrenceType = RecurrenceType.Weekly;
-                }
-                else recurrencePattern.Interval = this.DailyInterval;
+                recurrencePattern.Interval = this.DailyInterval;
             }
             else if (this.RecurrenceType == RecurrenceType.Weekly)
             {
@@ -303,9 +331,11 @@ namespace Navigate.ViewModels
             return recurrencePattern;
         }
 
+        [Display(Name = "Sākuma laiks")]
         [DataType(DataType.Time)]
         public DateTime? RecurringItemStart { get; set; }
 
+        [Display(Name = "Beigu laiks")]
         [DataType(DataType.Time)]
         public DateTime? RecurringItemEnd { get; set; }
 
@@ -315,14 +345,23 @@ namespace Navigate.ViewModels
         {
             workItem.Subject = this.Subject;
             workItem.Location = this.Location;
-            workItem.Body = this.Body;
-            workItem.StartDateTime = this.StartDate;
-            workItem.EndDateTime = this.EndDate;
-            workItem.AllDayEvent = this.AllDayEvent;
-            workItem.EstimatedTime = this.EstimatedTime;
+            workItem.Body = this.Body;          
+            workItem.Duration = this.Duration;
+            workItem.Priority = this.Priority; 
             workItem.WorkItemType = this.WorkItemType;
-            workItem.Priority = this.Priority;
-            workItem.isRecurring = this.isRecurring;
+            if (this.WorkItemType == WorkItemType.Task)
+            {
+                workItem.isRecurring = false;
+                workItem.StartDateTime = DateTime.Now;
+                workItem.EndDateTime = this.DueDate;
+            }
+            else
+            {
+                workItem.AllDayEvent = this.AllDayEvent;
+                workItem.StartDateTime = this.StartDate;
+                workItem.isRecurring = this.isRecurring;
+                workItem.EndDateTime = this.EndDate;
+            }                      
         }
     }
 }

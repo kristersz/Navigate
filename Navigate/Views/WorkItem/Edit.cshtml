@@ -8,6 +8,7 @@
 
 @using (Html.BeginForm("Edit", "WorkItem", FormMethod.Post, new { @id = "createEditForm", @class = "form-horizontal" })) {
     @Html.ValidationSummary(true)
+    @Html.Hidden("WorkItemId")
     <div class="well">
         <fieldset>
             <legend>Uzdevums</legend>
@@ -65,11 +66,11 @@
                 </div>
 
                 <div class="editor-label">
-                    @Html.LabelFor(model => model.EstimatedTime)
+                    @Html.LabelFor(model => model.Duration)
                 </div>
                 <div class="editor-field">
-                    @Html.EditorFor(model => model.EstimatedTime)
-                    @Html.ValidationMessageFor(model => model.EstimatedTime)
+                    @Html.EditorFor(model => model.Duration)
+                    @Html.ValidationMessageFor(model => model.Duration)
                 </div>
 
                 <div class="editor-label">
@@ -137,10 +138,6 @@
                                 <div class="editor-field">
                                     Every @Html.EditorFor(model => model.DailyInterval) day(s)
                                     @Html.ValidationMessageFor(model => model.DailyInterval)
-                                </div>
-                                <div>
-                                    @Html.CheckBoxFor(model => model.EveryWeekday) 
-                                    @Html.LabelFor(model => model.EveryWeekday)
                                 </div>
                             </div>
 

@@ -9,34 +9,34 @@ namespace Navigate.Models.Classifiers
     [Flags]
     public enum DayOfWeekMask
     {
-        [Description("Svētdiena")]
+        [Description("Svētdienā")]
         Sunday = 1,
 
-        [Description("Pirmdiena")]
+        [Description("Pirmdienā")]
         Monday = 2,
 
-        [Description("Otrdiena")]
+        [Description("Otrdienā")]
         Tuesday = 4,
 
-        [Description("Trešdiena")]
+        [Description("Trešdienā")]
         Wednesday = 8,
 
-        [Description("Ceturtdiena")]
+        [Description("Ceturtdienā")]
         Thursday = 16,
 
-        [Description("Piektdiena")]
+        [Description("Piektdienā")]
         Friday = 32,
 
-        [Description("Svētdiena")]
+        [Description("Sestdienā")]
         Saturday = 64,
 
-        [Description("Diena")]
+        [Description("Dienā")]
         All = Sunday | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday,
 
-        [Description("Darbadiena")]
+        [Description("Darbadienā")]
         Weekdays = Monday | Tuesday | Wednesday | Thursday | Friday,
 
-        [Description("Nēdēļas nogale")]
+        [Description("Nēdēļas nogales dienā")]
         Weekend = Sunday | Saturday,
     }
 }

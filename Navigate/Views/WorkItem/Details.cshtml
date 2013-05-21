@@ -1,14 +1,13 @@
-﻿@model Navigate.Models.WorkItem
+﻿@model Navigate.ViewModels.WorkItemDetailsViewModel
 
 @{
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
+<h2>Apskatīt uzdevumu</h2>
 
 <fieldset>
     <legend>Uzdevums</legend>
-
     <div class="display-label">
          @Html.DisplayNameFor(model => model.Subject)
     </div>
@@ -24,26 +23,61 @@
     </div>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.StartDateTime)
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.StartDateTime)
-    </div>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.EstimatedTime)
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.EstimatedTime)
-    </div>
-
-    <div class="display-label">
          @Html.DisplayNameFor(model => model.Body)
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Body)
     </div>
-    @Html.Partial("_RecurringItems", Model.RecurringItems.OrderBy(o => o.Start))
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.WorkItemType)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.WorkItemType)
+    </div>
+    @if (@Model.WorkItemType == Navigate.Models.Classifiers.WorkItemType.Task)
+    {
+        <label for="EndDateTime">Termiņš</label>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.EndDateTime)
+        </div>
+        
+        <label for="Duration">Novērtētais izpildes ilgums</label>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.Duration)
+        </div>
+    }
+    else
+    {
+        if (@Model.isRecurring == false)
+        {
+            <div class="display-label">
+                 @Html.DisplayNameFor(model => model.StartDateTime)
+            </div>
+            <div class="display-field">
+                @Html.DisplayFor(model => model.StartDateTime)
+            </div>
+        
+            <div class="display-label">
+                 @Html.DisplayNameFor(model => model.EndDateTime)
+            </div>
+            <div class="display-field">
+                @Html.DisplayFor(model => model.EndDateTime)
+            </div>
+        }
+        else
+        { 
+            <p>
+                periodisks uzdevums...
+            </p>
+            <div id="recurringItemsContainer">
+                <h4>Periodiskie uzdevumi</h4>
+                @Html.Partial("_RecurringItems", Model.RecurringItems.OrderBy(o => o.Start))
+            </div>
+        }         
+    }
+  
+    
 </fieldset>
 <p>
     @Html.ActionLink("Edit", "Edit", new { id=Model.Id }) |

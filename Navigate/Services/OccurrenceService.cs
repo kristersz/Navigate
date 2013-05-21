@@ -52,8 +52,7 @@ namespace Navigate.Services
 
             else if (workItem.RecurrenceType == RecurrenceType.Monthly)
             {
-                DateTime startOfMonth = new DateTime(start.Year, start.Month, 01);
-                DateTime recurringDayInMonth = startOfMonth.AddDays(dayOfMonth - 1);
+                DateTime recurringDayInMonth = new DateTime(start.Year, start.Month, dayOfMonth);
                 for (DateTime cur = recurringDayInMonth; cur <= end; cur = cur.AddMonths(interval))
                 {
                     occurrenceDates.Add(cur);
@@ -175,11 +174,92 @@ namespace Navigate.Services
         /// <returns>DateTime object</returns>
         static DateTime GetNthWeekdayDateInMonth(DateTime start, int instance, List<DayOfWeek> dayOfWeek)
         {
-            DateTime startOfMonth = new DateTime(start.Year, start.Month, 01);
-            DateTime recurringWeekDayInMonth = GetNextWeekday(dayOfWeek[0], startOfMonth);
-            DateTime NthWeekdayDayInMonth = recurringWeekDayInMonth.AddDays((instance - 1) * 7);
+            if (dayOfWeek.Count() == 7)
+            {
+                if (instance == 5)
+                    return new DateTime(start.Year, start.Month, DateTime.DaysInMonth(start.Year, start.Month));
+                else
+                    return new DateTime(start.Year, start.Month, instance);
+            }
+            else if (dayOfWeek.Count() == 5)
+            {
+                if (instance == 5)
+                {
+                    var dt = new DateTime(start.Year, start.Month, DateTime.DaysInMonth(start.Year, start.Month));
+                    if (dt.DayOfWeek == DayOfWeek.Sunday) dt = dt.AddDays(-2);
+                    else if (dt.DayOfWeek == DayOfWeek.Saturday) dt = dt.AddDays(-1);
+                    return dt;
+                }
+                else
+                {
+                    var dtStart = new DateTime(start.Year, start.Month, 01);
+                    var dt = dtStart;
+                    int i = 0;
+                    if (dt.DayOfWeek != DayOfWeek.Saturday && dt.DayOfWeek != DayOfWeek.Sunday)
+                    {
+                        i++;
+                    }
+                    while (i < instance)
+                    {
+                        dt = dt.AddDays(1);
+                        if (dt.DayOfWeek != DayOfWeek.Saturday && dt.DayOfWeek != DayOfWeek.Sunday)
+                        {          
+                            i++;
+                        }                        
+                    }
+                    return dt;
+                }
+            }
+            else if (dayOfWeek.Count() == 2)
+            {
+                if (instance == 5)
+                {
+                    var dt = new DateTime(start.Year, start.Month, DateTime.DaysInMonth(start.Year, start.Month));
+                    if (dt.DayOfWeek != DayOfWeek.Sunday && dt.DayOfWeek != DayOfWeek.Saturday) dt = dt.AddDays(-(int)dt.DayOfWeek);
+                    return dt;
+                }
+                else
+                {
+                    var dtStart = new DateTime(start.Year, start.Month, 01);
+                    var dt = dtStart;
+                    int i = 0;
+                    if (dt.DayOfWeek == DayOfWeek.Saturday || dt.DayOfWeek == DayOfWeek.Sunday)
+                    {
+                        i++;
+                    } 
+                    while (i < instance)
+                    {
+                        dt = dt.AddDays(1);
+                        if (dt.DayOfWeek == DayOfWeek.Saturday || dt.DayOfWeek == DayOfWeek.Sunday)
+                        {
+                            i++;
+                        }                       
+                    }
+                    return dt;
+                }
+            }
+            else
+            {
+                DateTime startOfMonth = new DateTime(start.Year, start.Month, 01);
+                DateTime recurringWeekDayInMonth = GetNextWeekday(dayOfWeek[0], startOfMonth);
+                DateTime NthWeekdayDayInMonth = new DateTime();
+                if (instance == 5)
+                {
+                    var firstDayOfNextMonth = startOfMonth.AddMonths(1);
+                    NthWeekdayDayInMonth = firstDayOfNextMonth.AddDays(-1);
+                    while (NthWeekdayDayInMonth.DayOfWeek != recurringWeekDayInMonth.DayOfWeek)
+                    {
+                        NthWeekdayDayInMonth = NthWeekdayDayInMonth.AddDays(-1);
+                    }
+                    return NthWeekdayDayInMonth;
+                }
+                else
+                {
+                    NthWeekdayDayInMonth = recurringWeekDayInMonth.AddDays((instance - 1) * 7);
+                }
 
-            return NthWeekdayDayInMonth;
+                return NthWeekdayDayInMonth;
+            }
         }
     }
 }

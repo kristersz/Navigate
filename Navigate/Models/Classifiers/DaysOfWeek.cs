@@ -9,25 +9,25 @@ namespace Navigate.Models.Classifiers
     [Flags]
     public enum DaysOfWeek
     {
-        [Display(Name="Svētdiena")]
+        [Display(Name="Svētdienā")]
         Sunday = 1,
 
-        [Display(Name = "Pirmdiena")]
+        [Display(Name = "Pirmdienā")]
         Monday = 2,
 
-        [Display(Name = "Otrdiena")]
+        [Display(Name = "Otrdienā")]
         Tuesday = 4,
 
-        [Display(Name = "Trešdiena")]
+        [Display(Name = "Trešdienā")]
         Wednesday = 8,
 
-        [Display(Name = "Ceturtdiena")]
+        [Display(Name = "Ceturtdienā")]
         Thursday = 16,
 
-        [Display(Name = "Piektdiena")]
+        [Display(Name = "Piektdienā")]
         Friday = 32,
 
-        [Display(Name = "Sestdiena")]
+        [Display(Name = "Sestdienā")]
         Saturday = 64,
     }
 }

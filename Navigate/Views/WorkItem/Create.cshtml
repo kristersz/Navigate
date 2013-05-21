@@ -37,7 +37,17 @@
                     @Html.ValidationMessageFor(model => model.Body)
                 </div>
 
-                <label>Kategorijas</label>
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.Priority)
+                </div>  
+                <div class="editor-field">
+                    @Html.DropDownListFor(model => model.Priority, Model.AllPriorities)
+                    @Html.ValidationMessageFor(model => model.Priority)
+                </div>
+
+                <div class="editor-label">
+                    <label>Kategorijas</label>
+                </div>               
                 <div style="overflow: auto">
                     @foreach (var category in Model.Categories)
                     {
@@ -46,6 +56,15 @@
                         </label>
                     }
                 </div>
+
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.Reminder)
+                </div>
+                <div class="editor-field">
+                    @Html.DropDownListFor(model => model.Reminder, Model.AllReminders)
+                    @Html.ValidationMessageFor(model => model.WorkItemType)
+                </div>
+
                 <div class="editor-label">
                     @Html.LabelFor(model => model.WorkItemType)
                 </div>
@@ -65,19 +84,11 @@
                 </div>
 
                 <div class="editor-label">
-                    @Html.LabelFor(model => model.EstimatedTime)
+                    @Html.LabelFor(model => model.Duration)
                 </div>
                 <div class="editor-field">
-                    @Html.EditorFor(model => model.EstimatedTime)
-                    @Html.ValidationMessageFor(model => model.EstimatedTime)
-                </div>
-
-                <div class="editor-label">
-                    @Html.LabelFor(model => model.Priority)
-                </div>  
-                <div class="editor-field">
-                    @Html.DropDownListFor(model => model.Priority, Model.AllPriorities)
-                    @Html.ValidationMessageFor(model => model.Priority)
+                    @Html.EditorFor(model => model.Duration)
+                    @Html.ValidationMessageFor(model => model.Duration)
                 </div>
             </fieldset>
             <fieldset class="workItemTypeFieldsets" id="Appointment">
@@ -96,20 +107,15 @@
                 <div class="editor-field">
                     @Html.EditorFor(model => model.EndDate)
                     @Html.ValidationMessageFor(model => model.EndDate)
-                </div>
-                <div class="editor-label">
-                    @Html.LabelFor(model => model.AllDayEvent)
-                </div>
-                <div class="editor-field">
+                </div>                    
+                <div class="editor-field">                  
                     @Html.CheckBoxFor(model => model.AllDayEvent)
+                    @Html.LabelFor(model => model.AllDayEvent, new { @class = "checkbox inline editor-label" })
                     @Html.ValidationMessageFor(model => model.AllDayEvent)
-                </div>
-            
-                <div class="editor-label">
-                    @Html.LabelFor(model => model.isRecurring)
                 </div>
                 <div class="editor-field">
                     @Html.CheckBoxFor(model => model.isRecurring)
+                    @Html.LabelFor(model => model.isRecurring, new { @class = "checkbox inline editor-label" })
                     @Html.ValidationMessageFor(model => model.isRecurring)
                 </div>
                 <div id="recurrenceOptions">
@@ -142,18 +148,14 @@
                         <div id="recurrencePatterns">
                             <div id="Daily" class="patterns">
                                 <div class="editor-field">
-                                    Every @Html.EditorFor(model => model.DailyInterval) day(s)
+                                    Katru @Html.TextBoxFor(model => model.DailyInterval, new { @class = "number-input" }) dienu
                                     @Html.ValidationMessageFor(model => model.DailyInterval)
-                                </div>
-                                <div>
-                                    @Html.CheckBoxFor(model => model.EveryWeekday) 
-                                    @Html.LabelFor(model => model.EveryWeekday)
                                 </div>
                             </div>
 
                             <div id="Weekly" class="patterns">
                                 <div class="editor-field">
-                                    Recur every @Html.EditorFor(model => model.WeeklyInterval) week(s) on:
+                                    Atkārtojas katras @Html.TextBoxFor(model => model.WeeklyInterval, new { @class = "number-input" }) nedēļas:
                                     @Html.ValidationMessageFor(model => model.WeeklyInterval)
                                 </div>
                                 <div id ="daysOfWeek">
@@ -162,7 +164,7 @@
                             </div>
                             <div id="Monthly" class="patterns">
                                 <div class="editor-field">
-                                    Day @Html.EditorFor(model => model.DayOfMonth) of every @Html.EditorFor(model => model.MonthlyInterval) month(s)
+                                    Katra @Html.TextBoxFor(model => model.MonthlyInterval, new { @class = "number-input" }) mēneša @Html.TextBoxFor(model => model.DayOfMonth, new { @class = "number-input" }) dienā
                                     @Html.ValidationMessageFor(model => model.DayOfMonth)
                                     @Html.ValidationMessageFor(model => model.MonthlyInterval)
                                 </div>
@@ -170,7 +172,7 @@
 
                             <div id="MonthNth" class="patterns">
                                 <div class="editor-field">
-                                    The @Html.DropDownListFor(model => model.MonthInstance, Model.AllInstances) @Html.DropDownListFor(model => model.MonthDayOfWeekMask, Model.AllDaysOfWeek) of every @Html.EditorFor(model => model.MonthNthInterval) month(s)
+                                    Katra @Html.TextBoxFor(model => model.MonthNthInterval, new { @class = "number-input" }) mēneša @Html.DropDownListFor(model => model.MonthInstance, Model.AllInstances) @Html.DropDownListFor(model => model.MonthDayOfWeekMask, Model.AllDaysOfWeek)
                                     @Html.ValidationMessageFor(model => model.MonthInstance)
                                     @Html.ValidationMessageFor(model => model.MonthNthInterval)
                                 </div>
@@ -178,8 +180,8 @@
 
                             <div id="Yearly" class="patterns">
                                 <div class="editor-field">
-                                    Recur every @Html.EditorFor(model => model.YearlyInterval) year(s) on: <br /> 
-                                    @Html.DropDownListFor(model => model.YearMonthOfYear, Model.AllMonthsOfYear) @Html.EditorFor(model => model.DayOfMonthForYear)
+                                    Atkārtojas katra @Html.TextBoxFor(model => model.YearlyInterval, new { @class = "number-input" }) gada:
+                                    @Html.TextBoxFor(model => model.DayOfMonthForYear, new { @class = "number-input" }) @Html.DropDownListFor(model => model.YearMonthOfYear, Model.AllMonthsOfYear)
                                     @Html.ValidationMessageFor(model => model.YearlyInterval)
                                     @Html.ValidationMessageFor(model => model.YearMonthOfYear)
                                 </div>
@@ -187,8 +189,8 @@
 
                             <div id="YearNth" class="patterns">
                                 <div class="editor-field">
-                                    Recur every @Html.EditorFor(model => model.YearNthInterval) year(s) on the: <br /> 
-                                    @Html.DropDownListFor(model => model.YearInstance, Model.AllInstances) @Html.DropDownListFor(model => model.YearDayOfWeekMask, Model.AllDaysOfWeek) of @Html.DropDownListFor(model => model.YearNthMonthOfYear, Model.AllMonthsOfYear)
+                                    Atkārtojas katra @Html.TextBoxFor(model => model.YearNthInterval, new { @class = "number-input" }) gada: <br /> 
+                                    @Html.DropDownListFor(model => model.YearInstance, Model.AllInstances) @Html.DropDownListFor(model => model.YearNthMonthOfYear, Model.AllMonthsOfYear) @Html.DropDownListFor(model => model.YearDayOfWeekMask, Model.AllDaysOfWeek)
                                     @Html.ValidationMessageFor(model => model.YearNthInterval)
                                     @Html.ValidationMessageFor(model => model.YearNthMonthOfYear)
                                 </div>
@@ -198,6 +200,7 @@
                 </div>
             </fieldset>
             <div>
+                <hr />
                 <input type="submit" class="btn btn-primary" value="Izveidot" />
             </div>
         </fieldset>
@@ -205,7 +208,7 @@
 }
 
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Atpakaļ uz sarakstu", "Index")
 </div>
 
 @section Scripts { 

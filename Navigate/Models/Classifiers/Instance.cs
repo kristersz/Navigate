@@ -8,19 +8,19 @@ namespace Navigate.Models.Classifiers
 {
     public enum Instance
     {
-        [Description("First")]
+        [Description("Pirmajā")]
         First = 1,
 
-        [Description("Second")]
+        [Description("Otrajā")]
         Second = 2,
 
-        [Description("Third")]
+        [Description("Trešajā")]
         Third = 3,
 
-        [Description("Fourth")]
+        [Description("Ceturtajā")]
         Fourth = 4,
 
-        [Description("Last")]
+        [Description("Pēdējā")]
         Last = 5,
     }
 }

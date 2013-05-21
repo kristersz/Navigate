@@ -149,7 +149,7 @@ namespace Navigate.Services
                         workItem.Body = item.Parent.Body;
                         workItem.OutlookEntryId = item.Parent.EntryID;
                         workItem.StartDateTime = recurrencePattern.PatternStartDate;
-                        workItem.EstimatedTime = item.Parent.Duration;
+                        workItem.Duration = item.Parent.Duration / 60;
                         workItem.WorkItemType = WorkItemType.Appointment;
                         workItem.isRecurring = true;
 
@@ -245,6 +245,7 @@ namespace Navigate.Services
                                 existingWorkItem.RecurringItems.Add(new RecurringItem
                                 {
                                     OriginalDate = item.Start,
+                                    Exception = true,
                                     Start = item.Start,
                                     End = item.End,
                                     Subject = item.Subject,
@@ -263,6 +264,7 @@ namespace Navigate.Services
                                 existingWorkItem.RecurringItems.Add(new RecurringItem
                                 {
                                     OriginalDate = item.Start,
+                                    Exception = false,
                                     Start = item.Start,
                                     End = item.End,
                                     Subject = item.Subject,
@@ -307,7 +309,7 @@ namespace Navigate.Services
             workItem.StartDateTime = item.Start;
             workItem.EndDateTime = item.End;
             workItem.AllDayEvent = item.AllDayEvent;
-            workItem.EstimatedTime = item.Duration;
+            workItem.Duration = item.Duration / 60;
             workItem.WorkItemType = WorkItemType.Appointment;
             workItem.isRecurring = false;
             workItem.CreatedByUserId = this.CurrentUser.UserId;
@@ -323,7 +325,7 @@ namespace Navigate.Services
             existingWorkItem.StartDateTime = item.Start;
             existingWorkItem.EndDateTime = item.End;
             existingWorkItem.AllDayEvent = item.AllDayEvent;
-            existingWorkItem.EstimatedTime = item.Duration;
+            existingWorkItem.Duration = item.Duration / 60;
             existingWorkItem.UpdatedAt = DateTime.Now;
             existingWorkItem.UpdatedByUserId = this.CurrentUser.UserId;
         }
