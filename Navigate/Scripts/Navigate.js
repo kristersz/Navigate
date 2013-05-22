@@ -1,32 +1,24 @@
-﻿function showMessage(message) {
+﻿//to invoke the modal dialog for various information and error prompts accross the application
+function showMessage(message) {
     $("#myModalBody").text(message);
     $("#myModal").modal('show');
 };
 
 $(document).ready(function () {
-    //$("#dialogMessage").dialog({
-    //    autoOpen: false,
-    //    modal: true,
-    //    resizable: false,
-    //    draggable: false,
-    //    minWidth: 400,
-    //    buttons: {
-    //        "Labi": function () {
-    //            $(this).dialog("close");
-    //        }
-    //    }
-    //});
-
+    //Various settings for third party JavaScript libraries used in this application
     $.culture = Globalize.culture('lv-LV');
     $.pnotify.defaults.styling = "bootstrap";
 
+    //to make main menu active elements inset
     var url = window.location;
     $('ul.nav a[href="' + url + '"]').parent().addClass('active');
     $('ul.nav a').filter(function () {
         return this.href == url;
     }).parent().addClass('active');
+
 });
 
+//Custom validators for form inputs
 $.validator.methods.date = function (value, element) {
     if (Globalize.parseDate(value)) {
         return true;

@@ -8,14 +8,6 @@
 
 <fieldset>
     <legend>RecurringItem</legend>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.OriginalDate)
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.OriginalDate)
-    </div>
-
     <div class="display-label">
          @Html.DisplayNameFor(model => model.WorkItem.Subject)
     </div>
@@ -59,6 +51,6 @@
     </div>
 </fieldset>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id=Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Rediģēt", "Edit", new { id=Model.Id }) |
+    @Html.ActionLink("Atpakaļ uz sarakstu", "Index")
 </p>

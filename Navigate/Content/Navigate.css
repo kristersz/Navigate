@@ -1,6 +1,7 @@
 ﻿@import url(http://fonts.googleapis.com/css?family=Roboto+Slab:700);
 
-/* Global styles */
+/* Global styles 
+----------------------------------------------------------------------*/
 #ajaxRequestLoading {
     background-color: white;
     background-color: rgba(255,255,255,0.5);
@@ -79,7 +80,19 @@ footer.row {
     font-size: 16px;
 }
 
-/* Work Item CreateEdit Form */
+#alertMessageContainer {
+    padding: 10px;
+    background-color: white;
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+    height: 40px;
+    margin-bottom: 10px;
+}
+
+
+/* Work Item CreateEdit Form styles
+----------------------------------------------------------------------*/
 .editor-radio label, #daysOfWeek label {
     display: inline;
     padding-right: 10px;
@@ -144,6 +157,8 @@ footer.row {
     width: 30px;
 }
 
+/* Fixing the boostrap navbar
+----------------------------------------------------------------------*/
 /* Add top padding for navbar-top-fixed */
 body {
   padding-top: 60px;
@@ -157,7 +172,8 @@ body {
   }
 }
 
-/* Work Item List */
+/* Work Item List styles
+----------------------------------------------------------------------*/
 .taskDone {
     opacity: 0.5;
 }
@@ -208,7 +224,8 @@ body {
     margin-right: 10px;
 }
 
-/* Google maps API */
+/* Google maps API styles
+----------------------------------------------------------------------*/
 #map-canvas img, #directions_panel img {
   max-width: none;
 }
@@ -219,4 +236,17 @@ body {
 
 #navigationProperties input[type="radio"], .patterns input[type="checkbox"] {
     margin: 0;
+}
+
+/* FullCalendar styles
+----------------------------------------------------------------------*/
+#calendar-wrapper {
+    text-align: center;
+    font-size: 14px;
+    font-family: Arial,Helvetica,Arial,Verdana,sans-serif;
+}
+
+#calendar {
+    width: 900px;
+    margin: 0 auto;
 }

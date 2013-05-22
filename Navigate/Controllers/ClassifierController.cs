@@ -13,7 +13,7 @@ namespace Navigate.Controllers
         /// <summary>
         /// Displays a list of all editable classifiers
         /// </summary>
-        /// <returns>View</returns>
+        /// <returns>The view</returns>
         public ActionResult Index()
         {
             return View();
@@ -22,7 +22,7 @@ namespace Navigate.Controllers
         /// <summary>
         /// Lists all categories
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The view</returns>
         public ActionResult ListCategories()
         {
             var categories = this.dataContext.Categories.Where(o => o.CreatedByUserId == this.CurrentUser.UserId).ToList();
@@ -55,6 +55,8 @@ namespace Navigate.Controllers
                 this.dataContext.Categories.Add(newCategory);
                 this.dataContext.SaveChanges();
 
+                TempData["Message"] = "Kategorija " + newCategory.Name + " veiksmīgi saglabāta!";
+                TempData["Alert-Level"] = "alert-success";
                 return new JsonResult() { Data = new { IsValid = true, Message = "Kategorija veiksmīgi pievienota" } };
             }
 
@@ -79,6 +81,8 @@ namespace Navigate.Controllers
             this.dataContext.Categories.Remove(category);
             this.dataContext.SaveChanges();
 
+            TempData["Message"] = "Kategorija " + category.Name + " veiksmīgi izdzēsta!";
+            TempData["Alert-Level"] = "alert-success";
             return new JsonResult() { Data = new { IsValid = true, Message = "Kategorija veiksmīgi izdzēsta" } };
         }
     }

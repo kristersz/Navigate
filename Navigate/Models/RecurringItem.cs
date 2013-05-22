@@ -25,9 +25,11 @@ namespace Navigate.Models
         public virtual WorkItem WorkItem { get; set; }
 
         [Display(Name = "Sākums")]
+        [DataType(DataType.DateTime)]
         public DateTime Start { get; set; }
 
         [Display(Name = "Beigas")]
+        [DataType(DataType.DateTime)]
         public DateTime End { get; set; }
 
         [Display(Name = "Nosaukums")]

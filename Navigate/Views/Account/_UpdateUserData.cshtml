@@ -1,0 +1,20 @@
+﻿@model Navigate.Models.UserDataModel
+
+@using (Html.BeginForm("Update", "Account")) {
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    <div class="well">
+        <fieldset>
+            <legend>Lietotāja datu rediģēšanas forma</legend>
+                @Html.LabelFor(m => m.Email)
+                @Html.EditorFor(m => m.Email, new { @class = "span3" })
+                @Html.ValidationMessageFor(m => m.Email)
+
+                @Html.LabelFor(m => m.BaseLocation)
+                @Html.EditorFor(m => m.BaseLocation, new { @class = "span3" })
+                @Html.ValidationMessageFor(m => m.BaseLocation)
+            <br />
+            <input type="submit" value="Saglabāt" class="btn btn-primary" />
+        </fieldset>
+    </div>
+}

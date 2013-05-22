@@ -1,10 +1,7 @@
 ﻿@model Navigate.ViewModels.WorkItemDetailsViewModel
 
-@{
-    ViewBag.Title = "Details";
-}
 
-<h2>Apskatīt uzdevumu</h2>
+<h2>@ViewBag.Pagetitle</h2>
 
 <fieldset>
     <legend>Uzdevums</legend>
@@ -35,14 +32,28 @@
     <div class="display-field">
         @Html.DisplayFor(model => model.WorkItemType)
     </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.CreatedAt)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.CreatedAt)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.UpdatedAt)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.UpdatedAt)
+    </div>
     @if (@Model.WorkItemType == Navigate.Models.Classifiers.WorkItemType.Task)
     {
-        <label for="EndDateTime">Termiņš</label>
+        <label for="EndDateTime" class="editor-label">Termiņš</label>
         <div class="display-field">
             @Html.DisplayFor(model => model.EndDateTime)
         </div>
         
-        <label for="Duration">Novērtētais izpildes ilgums</label>
+        <label for="Duration" class="editor-label">Novērtētais izpildes ilgums stundās</label>
         <div class="display-field">
             @Html.DisplayFor(model => model.Duration)
         </div>
@@ -64,6 +75,13 @@
             <div class="display-field">
                 @Html.DisplayFor(model => model.EndDateTime)
             </div>
+        
+            <div class="display-label">
+                @Html.DisplayNameFor(model => model.Duration)
+            </div>
+            <div class="display-field">
+                @Html.DisplayFor(model => model.Duration)
+            </div>
         }
         else
         { 
@@ -76,10 +94,8 @@
             </div>
         }         
     }
-  
-    
 </fieldset>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id=Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Rediģēt", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Atpakaļ uz sarakstu", "Index")
 </p>

@@ -32,6 +32,8 @@ namespace Navigate.Controllers
         [HttpGet]
         public JsonResult GetEvents(double start, double end)
         {
+            // FullCalendar passes Unix timestamps in the query string indicating the time period that it needs the events for
+            // so we first convert these timestamps to datetime objects and then use them to query the database for events that we need to display
             var startDateTime = FromUnixTimestamp(start);
             var endDateTime = FromUnixTimestamp(end);
 
@@ -42,6 +44,8 @@ namespace Navigate.Controllers
 
             foreach (var e in events)
             {
+                // we display non-recurring items as they are
+                // for recurring work items however, we display each of their occurrences 
                 if (e.isRecurring == false &&(e.StartDateTime >= startDateTime && e.EndDateTime <= endDateTime))
                 {
                     eventList.Add(
@@ -58,7 +62,7 @@ namespace Navigate.Controllers
                 else 
                 {
                     //Display each of the occurrence in the calendar as part of a recurring item group by assigning the same id to each event
-                    foreach (var recurringItem in e.RecurringItems.Where(o => o.Start >= startDateTime && o.End <= endDateTime && o.isCompleted == false))
+                    foreach (var recurringItem in e.RecurringItems.Where(o => o.Start >= startDateTime && o.End <= endDateTime))
                     {
                         eventList.Add(
                             new

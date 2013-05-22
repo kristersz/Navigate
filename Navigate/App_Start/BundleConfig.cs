@@ -13,9 +13,8 @@ namespace Navigate
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryui").Include(
                         "~/Scripts/jquery-ui-{version}.js",
-                        "~/Scripts/jquery.ui.datepicker-lv.js",
                         "~/Scripts/jquery.ui.timepicker.js",
-                        "~/Scripts/jquery.ui.timepicker-restrict.js"));
+                        "~/Scripts/jquery.ui.datepicker-lv.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.unobtrusive*",

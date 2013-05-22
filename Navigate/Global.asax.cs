@@ -23,7 +23,10 @@ namespace Navigate
     {
         protected void Application_Start()
         {
-            WebSecurity.InitializeDatabaseConnection("DefaultConnection", "UserProfiles", "UserId", "UserName", autoCreateTables: true);
+            if (!WebSecurity.Initialized)
+            {
+                WebSecurity.InitializeDatabaseConnection("DefaultConnection", "UserProfiles", "UserId", "UserName", autoCreateTables: true);
+            }
             ModelBinders.Binders.Add(typeof(DaysOfWeek), new EnumFlagsModelBinder());
             AreaRegistration.RegisterAllAreas();
 

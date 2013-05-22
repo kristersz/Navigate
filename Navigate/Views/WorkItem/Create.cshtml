@@ -1,13 +1,11 @@
 ﻿@model Navigate.ViewModels.WorkItemDataInputModel
 
-@{
-    ViewBag.Title = "Izveidot";
-}
 
-<h2>Izveidot jaunu uzdevumu!</h2>
+<h2>@ViewBag.Pagetitle</h2>
 
 @using (Html.BeginForm("Create", "WorkItem", FormMethod.Post, new { @id = "createEditForm", @class = "form-horizontal" })) {
     @Html.ValidationSummary(true)
+    @Html.AntiForgeryToken()
     <div class="well">
         <fieldset>
             <legend>Uzdevums</legend>
@@ -184,6 +182,9 @@
                                     @Html.TextBoxFor(model => model.DayOfMonthForYear, new { @class = "number-input" }) @Html.DropDownListFor(model => model.YearMonthOfYear, Model.AllMonthsOfYear)
                                     @Html.ValidationMessageFor(model => model.YearlyInterval)
                                     @Html.ValidationMessageFor(model => model.YearMonthOfYear)
+                                    <div id="informationBlock" class="alert alert-info" style="display: none">
+                                      <span></span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -201,7 +202,7 @@
             </fieldset>
             <div>
                 <hr />
-                <input type="submit" class="btn btn-primary" value="Izveidot" />
+                <input type="submit" class="btn btn-primary" value="Saglabāt" />
             </div>
         </fieldset>
     </div>
@@ -214,6 +215,14 @@
 @section Scripts { 
     <script>
         $(document).ready(function () {
+
+            $("#DayOfMonthForYear").change(function () {
+                if ($(this).val() >= 29 && $(this).val() <= 31) {
+                    $("#informationBlock span").text("Ne visos mēnešos ir " + $(this).val() + " dienas, tādā gadījumā notikums tiks ieplānots mēneša pēdējā dienā");
+                    $("#informationBlock").show();
+                }
+                else $("#informationBlock").hide();
+            });
 
             $("#AllDayEvent").change(function () {
                 if ($(this).is(":checked")) {

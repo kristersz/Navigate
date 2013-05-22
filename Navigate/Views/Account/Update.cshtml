@@ -1,0 +1,14 @@
+﻿@model Navigate.Models.UserDataModel
+@{
+    ViewBag.Title = "Rediģēt datus";
+}
+
+<hgroup class="title">
+    <h1>@ViewBag.Title.</h1>
+</hgroup>
+
+@Html.Partial("_UpdateUserData")
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

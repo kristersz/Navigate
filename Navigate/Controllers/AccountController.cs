@@ -13,7 +13,7 @@ using Navigate.Models;
 namespace Navigate.Controllers
 {
     [Authorize]
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         //
         // GET: /Account/Login
@@ -127,10 +127,48 @@ namespace Navigate.Controllers
             return RedirectToAction("Manage", new { Message = message });
         }
 
+        public ActionResult Manage()
+        {
+            return View();
+        }
+
+        public ActionResult Update()
+        {
+            var model = this.dataContext.UserProfiles
+                .Where(o => o.UserId == this.CurrentUser.UserId)
+                .Select(o => new UserDataModel
+                    {
+                        Email = o.Email,
+                        BaseLocation = o.BaseLocation
+                    })
+                .Single();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Update(UserDataModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = this.dataContext.UserProfiles.Find(this.CurrentUser.UserId);
+                user.Email = model.Email;
+                user.BaseLocation = model.BaseLocation;
+                this.dataContext.SaveChanges();
+
+                TempData["Message"] = "Dati veiksmīgi saglabāti";
+                TempData["Alert-Level"] = "alert-success";
+                return RedirectToAction("Manage");
+            }
+
+            return View(model);
+        }
+
         //
         // GET: /Account/Manage
 
-        public ActionResult Manage(ManageMessageId? message)
+        public ActionResult ChangePassword(ManageMessageId? message)
         {
             ViewBag.StatusMessage =
                 message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
@@ -139,6 +177,7 @@ namespace Navigate.Controllers
                 : "";
             ViewBag.HasLocalPassword = OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(User.Identity.Name));
             ViewBag.ReturnUrl = Url.Action("Manage");
+
             return View();
         }
 
@@ -147,7 +186,7 @@ namespace Navigate.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Manage(LocalPasswordModel model)
+        public ActionResult ChangePassword(LocalPasswordModel model)
         {
             bool hasLocalAccount = OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(User.Identity.Name));
             ViewBag.HasLocalPassword = hasLocalAccount;
@@ -169,12 +208,6 @@ namespace Navigate.Controllers
 
                     if (changePasswordSucceeded)
                     {
-                        NavigateDb db = new NavigateDb();
-                        var userProfile = db.UserProfiles.Where(o => o.UserName == User.Identity.Name).FirstOrDefault();
-                        userProfile.Email = model.Email;
-                        userProfile.BaseLocation = model.BaseLocation;
-                        db.SaveChanges();
-
                         return RedirectToAction("Manage", new { Message = ManageMessageId.ChangePasswordSuccess });
                     }
                     else

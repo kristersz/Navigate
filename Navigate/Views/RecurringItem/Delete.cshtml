@@ -9,14 +9,6 @@
 <h3>Are you sure you want to delete this?</h3>
 <fieldset>
     <legend>RecurringItem</legend>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.OriginalDate)
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.OriginalDate)
-    </div>
-
     <div class="display-label">
          @Html.DisplayNameFor(model => model.WorkItem.Subject)
     </div>
@@ -39,24 +31,17 @@
     </div>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.IndividualLocation)
+         @Html.DisplayNameFor(model => model.Location)
     </div>
     <div class="display-field">
-        @Html.DisplayFor(model => model.IndividualLocation)
+        @Html.DisplayFor(model => model.Location)
     </div>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.IndividualBody)
+         @Html.DisplayNameFor(model => model.Body)
     </div>
     <div class="display-field">
-        @Html.DisplayFor(model => model.IndividualBody)
-    </div>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.UpdatedAt)
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.UpdatedAt)
+        @Html.DisplayFor(model => model.Body)
     </div>
 </fieldset>
 @using (Html.BeginForm()) {

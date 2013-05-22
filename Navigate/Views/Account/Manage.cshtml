@@ -1,25 +1,14 @@
-﻿@model Navigate.Models.LocalPasswordModel
-@{
+﻿@{
     ViewBag.Title = "Pārvaldīt kontu";
 }
 
-<hgroup class="title">
-    <h1>@ViewBag.Title.</h1>
-</hgroup>
+<h2>@ViewBag.Title</h2>
 
 <p class="message-success">@ViewBag.StatusMessage</p>
 
 <p>Jūs esat pieteicies kā <strong>@User.Identity.Name</strong>.</p>
 
-@if (ViewBag.HasLocalPassword)
-{
-    @Html.Partial("_ChangePasswordPartial")
-}
-else
-{ 
-    @Html.Partial("_SetPasswordPartial")
-}
-
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
-}
+<ul>
+    <li>@Html.ActionLink("Mainīt paroli", "ChangePassword")</li>
+    <li>@Html.ActionLink("Rediģēt datus", "Update")</li>
+</ul>

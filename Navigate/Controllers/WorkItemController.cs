@@ -107,7 +107,7 @@ namespace Navigate.Controllers
                     workItems = workItems.OrderByDescending(r => r.Priority);
                     break;
                 case "changedate":
-                    workItems = workItems.OrderBy(r => r.UpdatedAt);
+                    workItems = workItems.OrderByDescending(r => r.UpdatedAt);
                     break;
                 case "createdate":
                     workItems = workItems.OrderByDescending(r => r.CreatedAt);
@@ -162,6 +162,8 @@ namespace Navigate.Controllers
                 }
             ).Single();
 
+            ViewBag.Title = "Apskatīt";
+            ViewBag.Pagetitle = "Apskatīti uzdevumu " + workItem.Subject;
             return View(workItems);
         }
 
@@ -184,7 +186,10 @@ namespace Navigate.Controllers
                 model.EndDate = dtEnd;
                 model.WorkItemType = WorkItemType.Appointment;
             }
+
             PopulateDropDownLists(model);
+            ViewBag.Title = "Izveidot";
+            ViewBag.Pagetitle = "Izveidot uzdevumu";
             return View(model);
         }
 
@@ -194,6 +199,7 @@ namespace Navigate.Controllers
         /// <param name="model">The WorkItemDataInputModel</param>
         /// <returns>Redirect to index action if there are no errors in the create form, otherwise redisplays the create form with the error messages</returns>
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Create(WorkItemDataInputModel model)
         {
             PopulateDropDownLists(model);
@@ -208,7 +214,7 @@ namespace Navigate.Controllers
 
                 if ((model.Reminder == Reminder.Driving || model.Reminder == Reminder.Walking) && model.Location == null)
                 {
-                    ModelState.AddModelError("", "Lai izvēlētos šo atgādinājumu, ir jānorāda uzdevuma atrašanās vieta");
+                    ModelState.AddModelError("", "Lai izvēlētos šo atgādinājumu, ir jānorāda uzdevuma atrašanās vietas adrese");
                     return View(model);
                 }
 
@@ -239,9 +245,12 @@ namespace Navigate.Controllers
                     scheduler.ScheduleReminder(workItem);
                 }
 
+                TempData["Message"] = "Uzdevums " + workItem.Subject + " veiksmīgi izveidots";
+                TempData["Alert-Level"] = "alert-success";
                 return RedirectToAction("Index");
             }
 
+            ModelState.AddModelError("", "Lūdzu, izlabojiet kļūdas un atkārtoti nospiediet Izveidot");
             return View(model);
         }
 
@@ -264,6 +273,9 @@ namespace Navigate.Controllers
             {
                 model.SelectedCategoryIds.Add((int)category.Id);
             }
+
+            ViewBag.Title = "Rediģēt";
+            ViewBag.Pagetitle = "Rediģēt uzdevumu " + workItem.Subject;
             return View(model);
         }
 
@@ -351,6 +363,9 @@ namespace Navigate.Controllers
                     workItem.UpdatedByUserId = this.CurrentUser.UserId;
                     this.dataContext.SaveChanges();
                 }
+
+                TempData["Message"] = "Uzdevums " + workItem.Subject + " veiksmīgi atjaunots";
+                TempData["Alert-Level"] = "alert-success";
                 return RedirectToAction("Index");
             }
             return View(model);
@@ -368,6 +383,7 @@ namespace Navigate.Controllers
             {
                 return HttpNotFound();
             }
+
             return View(workItem);
         }
 
@@ -384,6 +400,9 @@ namespace Navigate.Controllers
             }
             this.dataContext.WorkItems.Remove(workItem);
             this.dataContext.SaveChanges();
+
+            TempData["Message"] = "Uzdevums " + workItem.Subject + " veiksmīgi izdzēsts";
+            TempData["Alert-Level"] = "alert-success";
             return RedirectToAction("Index");
         }
 

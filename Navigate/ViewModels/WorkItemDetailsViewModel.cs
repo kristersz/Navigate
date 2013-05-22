@@ -44,8 +44,10 @@ namespace Navigate.ViewModels
 
         public WorkItemPriority? Priority { get; set; }
 
+        [Display(Name = "Izveidots")]
         public DateTime CreatedAt { get; set; }
 
+        [Display(Name = "Labots")]
         public DateTime UpdatedAt { get; set; }
 
         public ICollection<Category> Categories { get; set; }

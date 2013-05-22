@@ -34,10 +34,14 @@ namespace Navigate.Models
         [DataType(DataType.Password)]
         [Display(Name = "Apstipriniet jauno paroli")]
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
-        public string ConfirmPassword { get; set; }
+        public string ConfirmPassword { get; set; }      
+    }
 
+    public class UserDataModel
+    {
         [DataType(DataType.EmailAddress)]
         [Display(Name = "E-pasta adrese")]
+        [Required(ErrorMessage = "Lauks {0} ir obligāts")]
         public string Email { get; set; }
 
         [Display(Name = "Pamata atrašanās vieta")]

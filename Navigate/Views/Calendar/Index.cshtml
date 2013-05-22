@@ -1,17 +1,7 @@
 ﻿@{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Kalendārs";
 }
-<style type='text/css'>
-    #calendar-wrapper {
-        text-align: center;
-        font-size: 14px;
-        font-family: Arial,Helvetica,Arial,Verdana,sans-serif;
-    }
-    #calendar {
-        width: 900px;
-        margin: 0 auto;
-    }       
-</style>
+
 <div id="calendar-wrapper">
     <h2>Kalendārs</h2>
     <div id="calendar"></div>
@@ -35,14 +25,14 @@
                 axisFormat: 'HH:mm',
                 allDayText: 'notiek<br />visu<br />dienu',
                 columnFormat: {
-                    month: 'ddd',    // Mon
-                    week: 'ddd M/d', // Mon 9/7
-                    day: 'dddd M/d'  // Monday 9/7
+                    month: 'ddd', 
+                    week: 'ddd M/d',
+                    day: 'dddd M/d'
                 },
                 titleFormat: {
-                    month: 'MMMM yyyy',                             // September 2009
-                    week: "MMM d[ yyyy]{ '&#8212;'[ MMM] d yyyy}", // Sep 7 - 13 2009
-                    day: 'dddd, MMM d, yyyy'                  // Tuesday, Sep 8, 2009
+                    month: 'MMMM yyyy',
+                    week: "MMM d[ yyyy]{ '&#8212;'[ MMM] d yyyy}",
+                    day: 'dddd, MMM d, yyyy'
                 },
                 buttonText: {
                     prev:     '&lsaquo;', // <

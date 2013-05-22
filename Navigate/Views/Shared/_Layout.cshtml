@@ -38,6 +38,16 @@
                 </div>
             </div>
         </header>
+            @if (TempData["Message"] != null)
+            {
+                <div class="container">
+                    <div class="alert @TempData["Alert-Level"].ToString()">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <strong> @TempData["Message"].ToString()</strong>
+                    </div>
+                </div>
+            }
+        
         <div id="content" class="container">
             <div id="body" class="row">
                 <div class="span12">
@@ -64,7 +74,6 @@
                 <button class="btn" data-dismiss="modal" aria-hidden="true">Labi</button>
             </div>
         </div>
-        <script>jQuery.validator.defaults.ignore = ":hidden";</script>
         @Scripts.Render("~/bundles/jquery")       
         @Scripts.Render("~/bundles/knockout")
         <script src="@Url.Content("~/Scripts/jquery.pnotify.min.js")" type="text/javascript"></script>

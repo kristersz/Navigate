@@ -111,19 +111,19 @@ namespace Navigate.ViewModels
         [MaxLength(180, ErrorMessage="Nosaukums nevar pārsniegt 180 simbolu garumu")]
         public string Subject { get; set; }
 
-        [Display(Name = "Atrašanās vieta")]
-        [MaxLength(180, ErrorMessage = "Atrašānās vietas nosaukums nevar pārsniegt 255 simbolu garumu")]
+        [Display(Name = "Atrašanās vietas adrese")]
+        [MaxLength(255, ErrorMessage = "Atrašanās vietas adrese nevar pārsniegt 255 simbolu garumu")]
         public string Location { get; set; }
 
         [Display(Name = "Papildus informācija")]
         public string Body { get; set; }
 
-        [Display(Name = "Sākuma laiks")]
+        [Display(Name = "Sākuma datums un laiks")]
         [Required(ErrorMessage = "{0} ir obligāts lauks")]
         [DataType(DataType.DateTime)]
         public DateTime? StartDate { get; set; }
 
-        [Display(Name = "Beigu laiks")]
+        [Display(Name = "Beigu datums un laiks")]
         [Required(ErrorMessage = "{0} ir obligāts lauks")]
         [DataType(DataType.DateTime)]
         public DateTime EndDate { get; set; }
@@ -229,21 +229,21 @@ namespace Navigate.ViewModels
         public int MonthNthInterval { get; set; }
 
         [Display(Name = "Katra gada norādītajā datumā")]
-        [Range(1, 2)]
+        [Range(1, 3)]
         public int YearlyInterval { get; set; }
 
         [Display(Name = "Katra gada norādītajā dienā")]
-        [Range(1, 2)]
+        [Range(1, 3)]
         public int YearNthInterval { get; set; }
 
         public DaysOfWeek WeekDays { get; set; }
 
         [Display(Name = "Mēneša diena")]
-        [Range(0, 31)]
+        [Range(1, 31)]
         public int DayOfMonth { get; set; }
 
         [Display(Name = "Mēneša diena")]
-        [Range(0, 31)]
+        [Range(1, 31)]
         public int DayOfMonthForYear { get; set; }
 
         public Instance MonthInstance { get; set; }
@@ -331,11 +331,11 @@ namespace Navigate.ViewModels
             return recurrencePattern;
         }
 
-        [Display(Name = "Sākuma laiks")]
+        [Display(Name = "Periodiskā uzdevuma sākuma laiks")]
         [DataType(DataType.Time)]
         public DateTime? RecurringItemStart { get; set; }
 
-        [Display(Name = "Beigu laiks")]
+        [Display(Name = "Periodiskā uzdevuma beigu laiks")]
         [DataType(DataType.Time)]
         public DateTime? RecurringItemEnd { get; set; }
 

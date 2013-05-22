@@ -36,8 +36,8 @@
                     })
         </div>
         <input type="hidden" id="filterHolder" name="filter" />
-        <input type="search" class="input-medium search-query" name="searchTerm" />
-        <input type="submit" id="submitFilter" class="btn" value="Meklēt uzdevumus" />
+        <input type="search" id="searchTasks" class="input-medium search-query" name="searchTerm" placeholder="Meklēt uzdevumus" />
+        <input type="submit" id="submitFilter" class="btn" value="" style="display:none" />
     }
 </div>
 
@@ -157,6 +157,10 @@
             });
 
             $("#category").change(function () {
+                $("#submitFilter").click();
+            });
+
+            $("#searchTasks").blur(function () {
                 $("#submitFilter").click();
             });
         })
