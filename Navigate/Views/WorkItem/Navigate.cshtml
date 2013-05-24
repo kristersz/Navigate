@@ -30,12 +30,14 @@
     <input type="radio" name="travelMode" value="WALKING" style="width: 20px">iešu ar kājām
     <input type="radio" name="travelMode" value="TRANSIT" style="width: 20px">izmantošu publisko transportu
     </form>
-    <button id="navigateToLocation" onclick="calcRoute(); calcDistance()" class="btn btn-primary">Iegūt norādēs</button>
+    <button id="navigateToLocation" onclick="calcRoute(); calcDistance()" class="btn btn-primary">Iegūt norādes</button>
+    @Html.ActionLink("Atpakaļ uz sarakstu", "Index")
 </div>
 <div id="warnings_panel" style="display: none; text-align:center" class="alert"></div>
 <div id="distanceOutput" class="alert alert-info" style="display: none"></div>
 <div id="directions_panel" style="width: 300px; height: 480px; float:right; overflow: auto"></div>
 <div id="map-canvas" style="width: 800px; height: 500px;" />
+
 
 @section Scripts {
     <script type="text/javascript">

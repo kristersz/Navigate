@@ -50,6 +50,7 @@ namespace Navigate.ViewModels
             this.Body = workItem.Body;
             this.Priority = workItem.Priority;
             this.Reminder = workItem.Reminder;
+            this.Origin = workItem.Origin;
             this.WorkItemType = workItem.WorkItemType;
             if (workItem.WorkItemType == WorkItemType.Task)
             {
@@ -173,6 +174,9 @@ namespace Navigate.ViewModels
         [Display(Name = "Atgādinājums")]
         public Reminder Reminder { get; set; }
 
+        [Display(Name = "Sākumpunkts")]
+        public string Origin { get; set; }
+
         public IEnumerable<SelectListItem> AllReminders
         {
             get
@@ -189,6 +193,7 @@ namespace Navigate.ViewModels
             workItem.Body = this.Body;
             workItem.Priority = this.Priority;
             workItem.Reminder = this.Reminder;
+            workItem.Origin = this.Origin;
             workItem.WorkItemType = this.WorkItemType;           
             if (this.WorkItemType == WorkItemType.Task)
             {

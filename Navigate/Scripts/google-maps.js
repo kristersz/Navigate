@@ -197,7 +197,7 @@ function callback(response, status) {
             durationText = result.duration.text
 
         output.innerHTML = "Attālums no <b>" + origin + "</b> līdz <b>" + destination + "</b> ir " + distanceText +
-            "<br> ceļā būs jāpavada aptuveni " + durationText;
+            " ceļā būs jāpavada aptuveni " + durationText;
     }
 };
 
@@ -216,7 +216,7 @@ function geolocateUser() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(geolocationSuccess, geolocationError);
     }
-    else { warnings.innerHTML = "Geolocation is not supported by this browser."; }
+    else { warnings.innerHTML = "Pārlūks neatbalsta ģeolokāciju"; }
 }
 
 function geolocationSuccess(position) {
@@ -237,7 +237,7 @@ function geolocationSuccess(position) {
         strokeWeight: 2
     });
     //map.fitBounds(circle.getBounds());
-    attachInstructionText(marker, "Your are around here, courtesy of &copy; HTML5 geolocation service <br> The blue circle represents the accuracy of the geolocation");
+    attachInstructionText(marker, "Jūs atrodaties šeit &copy; HTML5 ģeolokācijas serviss<br> Zilais aplis apzīmē iespējamo kļūdu");
     setAddress(myLatLng);
 }
 
@@ -246,16 +246,16 @@ function geolocationError(error) {
     initialize(latvia, 10);
     switch (error.code) {
         case error.PERMISSION_DENIED:
-            warnings.innerHTML = "User denied the request for Geolocation."
+            warnings.innerHTML = "Lietotājs noraidīja ģeolokācijas pieprasījumu"
             break;
         case error.POSITION_UNAVAILABLE:
-            warnings.innerHTML = "Location information is unavailable."
+            warnings.innerHTML = "Atrašanās vietas informācija nav pieejama"
             break;
         case error.TIMEOUT:
-            warnings.innerHTML = "The request to get user location timed out."
+            warnings.innerHTML = "Atbildes saņemšanās laikā iestājās noildze"
             break;
         case error.UNKNOWN_ERROR:
-            warnings.innerHTML = "An unknown error occurred."
+            warnings.innerHTML = "Negaidīta kļūda"
             break;
     }
 }
@@ -270,11 +270,11 @@ function setAddress(myLatLng) {
                 document.getElementById("start").value = address;
             }
             else {
-                warnings.innerHTML = "No results found";
+                warnings.innerHTML = "Netika atrasts neviens rezultāts";
             }
         }
         else {
-            warnings.innerHTML = "Geocode was not successful for the following reason: " + status;
+            warnings.innerHTML = "Ģeokodēšana bija neveiksmīga! Iemesls: " + status;
         }
     });
 }

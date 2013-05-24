@@ -188,6 +188,7 @@ namespace Navigate.Controllers
             }
 
             PopulateDropDownLists(model);
+            model.Origin = this.CurrentUser.BaseLocation;
             ViewBag.Title = "Izveidot";
             ViewBag.Pagetitle = "Izveidot uzdevumu";
             return View(model);
@@ -262,7 +263,7 @@ namespace Navigate.Controllers
         public ActionResult Edit(int id = 0)
         {
             WorkItem workItem = this.dataContext.WorkItems.Find(id);
-            if (workItem == null)
+            if (workItem == null || workItem.CreatedByUserId != this.CurrentUser.UserId)
             {
                 return HttpNotFound();
             }
@@ -331,7 +332,7 @@ namespace Navigate.Controllers
                             }
                             else
                             {
-                                //if pattern hasn`t changed maybe the time span of the pattern has changed, if so, update the datetime values and remove unnecessary recurring items
+                                //if pattern hasn`t changed maybe the time span of the pattern has changed, if so, update the datetime values and remove unnecessary recurring items (or add them)
                                 if (model.StartDate != workItem.StartDateTime || model.EndDate != workItem.EndDateTime)
                                 {
                                     foreach (var recurringItem in workItem.RecurringItems
@@ -344,6 +345,7 @@ namespace Navigate.Controllers
 
                                     workItem.StartDateTime = model.StartDate;
                                     workItem.StartDateTime = model.EndDate;
+                                    CreateOccurrences(workItem, model);
                                 }
                             }
                         }
@@ -372,14 +374,14 @@ namespace Navigate.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Display the delete confirmation view
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">The work item id</param>
+        /// <returns>View</returns>
         public ActionResult Delete(int id = 0)
         {
             WorkItem workItem = this.dataContext.WorkItems.Find(id);
-            if (workItem == null)
+            if (workItem == null || workItem.CreatedByUserId != this.CurrentUser.UserId)
             {
                 return HttpNotFound();
             }
@@ -387,9 +389,12 @@ namespace Navigate.Controllers
             return View(workItem);
         }
 
-        //
-        // POST: /WorkItem/Delete/5
-
+        
+        /// <summary>
+        /// Deletes the confirmed work item
+        /// </summary>
+        /// <param name="id">The work item id</param>
+        /// <returns>Redirects to Index action</returns>
         [HttpPost, ActionName("Delete")]
         public ActionResult DeleteConfirmed(int id)
         {
@@ -406,10 +411,15 @@ namespace Navigate.Controllers
             return RedirectToAction("Index");
         }
 
+        /// <summary>
+        /// Displays the navigation form
+        /// </summary>
+        /// <param name="id">The work item id</param>
+        /// <returns>The view</returns>
         public ActionResult Navigate(int id = 0)
         {
             WorkItem workItem = this.dataContext.WorkItems.Find(id);
-            if (workItem == null)
+            if (workItem == null || workItem.CreatedByUserId != this.CurrentUser.UserId)
             {
                 return HttpNotFound();
             }
@@ -419,11 +429,22 @@ namespace Navigate.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Changes the completion status of a work item
+        /// </summary>
+        /// <param name="id">The work item id</param>
+        /// <returns>JSON result</returns>
         [HttpPost]
         public JsonResult ChangeStatus(int id = 0)
         {
             WorkItem workItem = this.dataContext.WorkItems.Find(id);
             var message = "";
+
+            if (workItem == null || workItem.CreatedByUserId != this.CurrentUser.UserId)
+            {
+                message = "Uzdevums netika atrasts";
+                return new JsonResult() { Data = new { IsValid = false, Message = message } };
+            }
 
             if (workItem.isRecurring == true)
             {
@@ -477,6 +498,11 @@ namespace Navigate.Controllers
             return new JsonResult() { Data = new { IsValid = true, Message = message } };
         }
 
+        /// <summary>
+        /// Imports events from Outlook calendar within the specified interval
+        /// </summary>
+        /// <param name="model">The model</param>
+        /// <returns>JSON result</returns>
         [HttpPost]
         public JsonResult GetOutlookCalendarItems(OutlookSettingsInputModel model)
         {          
@@ -538,11 +564,20 @@ namespace Navigate.Controllers
             base.Dispose(disposing);
         }
 
+        /// <summary>
+        /// Populates the drop down lists in CreateEdit form, which take data from database
+        /// </summary>
+        /// <param name="model"></param>
         public void PopulateDropDownLists(WorkItemDataInputModel model)
         {
             model.Categories = this.dataContext.Categories.Where(o => o.CreatedByUserId == this.CurrentUser.UserId).ToList();
         }
 
+        /// <summary>
+        /// Creates recurring items from a given reccurence pattern and time period
+        /// </summary>
+        /// <param name="workItem">The work item</param>
+        /// <param name="model">The model</param>
         public void CreateOccurrences(WorkItem workItem, WorkItemDataInputModel model)
         {
             var occurrenceService = new OccurrenceService();
@@ -550,20 +585,28 @@ namespace Navigate.Controllers
             workItem.RecurringItems = new List<RecurringItem>();
             foreach (var date in occurrenceDates)
             {
-                workItem.RecurringItems.Add(new RecurringItem
+                var originalDate = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemStart.Value.Hour, model.RecurringItemStart.Value.Minute, model.RecurringItemStart.Value.Second);
+                if (!this.dataContext.RecurringItems.Any(r => r.OriginalDate == originalDate))
                 {
-                    Start = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemStart.Value.Hour, model.RecurringItemStart.Value.Minute, model.RecurringItemStart.Value.Second),
-                    End = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemEnd.Value.Hour, model.RecurringItemEnd.Value.Minute, model.RecurringItemEnd.Value.Second),
-                    OriginalDate = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemStart.Value.Hour, model.RecurringItemStart.Value.Minute, model.RecurringItemStart.Value.Second),
-                    Exception = false,
-                    Subject = workItem.Subject,
-                    Body = workItem.Body,
-                    Location = workItem.Location,
-                    UpdatedAt = DateTime.Now
-                });
+                    workItem.RecurringItems.Add(new RecurringItem
+                    {
+                        Start = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemStart.Value.Hour, model.RecurringItemStart.Value.Minute, model.RecurringItemStart.Value.Second),
+                        End = new DateTime(date.Year, date.Month, date.Day, model.RecurringItemEnd.Value.Hour, model.RecurringItemEnd.Value.Minute, model.RecurringItemEnd.Value.Second),
+                        OriginalDate = originalDate,
+                        Exception = false,
+                        Subject = workItem.Subject,
+                        Body = workItem.Body,
+                        Location = workItem.Location,
+                        UpdatedAt = DateTime.Now
+                    });
+                }
             }
         }
 
+        /// <summary>
+        /// Removes all of the recurring items for a work item
+        /// </summary>
+        /// <param name="workItem">The work item</param>
         public void RemoveRecurringItems(WorkItem workItem)
         {
             foreach (var recurringItem in workItem.RecurringItems.ToList())

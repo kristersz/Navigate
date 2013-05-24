@@ -52,10 +52,19 @@ namespace Navigate.Services
 
             else if (workItem.RecurrenceType == RecurrenceType.Monthly)
             {
-                DateTime recurringDayInMonth = new DateTime(start.Year, start.Month, dayOfMonth);
-                for (DateTime cur = recurringDayInMonth; cur <= end; cur = cur.AddMonths(interval))
+                int counter = 0;
+                DateTime month = new DateTime(start.Year, start.Month, 1);
+                DateTime currentDate = month;
+                for (DateTime cur = month; currentDate <= end; cur = month.AddMonths(interval * counter))
                 {
-                    occurrenceDates.Add(cur);
+                    var day = dayOfMonth;
+                    if (dayOfMonth > DateTime.DaysInMonth(cur.Year, cur.Month))
+                    {
+                        day = DateTime.DaysInMonth(cur.Year, cur.Month);
+                    }
+                    currentDate = new DateTime(cur.Year, cur.Month, day);
+                    occurrenceDates.Add(currentDate);
+                    counter++;
                 }
                 return occurrenceDates;
             }
@@ -77,10 +86,19 @@ namespace Navigate.Services
 
             else if (workItem.RecurrenceType == RecurrenceType.Yearly)
             {
-                DateTime dayOfYear = new DateTime(start.Year, monthOfYear, dayOfMonth);
-                for (DateTime cur = dayOfYear; cur <= end; cur = cur.AddYears(interval))
+                int counter = 0;
+                DateTime month = new DateTime(start.Year, start.Month, 1);
+                DateTime currentDate = month;
+                for (DateTime cur = month; currentDate <= end; cur = month.AddYears(interval * counter))
                 {
-                    occurrenceDates.Add(cur);
+                    var day = dayOfMonth;
+                    if (dayOfMonth > DateTime.DaysInMonth(cur.Year, cur.Month))
+                    {
+                        day = DateTime.DaysInMonth(cur.Year, cur.Month);
+                    }
+                    currentDate = new DateTime(cur.Year, cur.Month, day);
+                    occurrenceDates.Add(currentDate);
+                    counter++;
                 }
                 return occurrenceDates;
             }

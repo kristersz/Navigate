@@ -16,90 +16,149 @@ namespace Navigate.Quartz
     {
         public IScheduler scheduler;
 
+        /// <summary>
+        /// Instantiate the scheduler in the constructor
+        /// </summary>
         public ReminderScheduler()
         {
             scheduler = MvcApplication.sched;
         }
 
+        /// <summary>
+        /// Schedule jobs for each work item to send reminder emails
+        /// </summary>
+        /// <param name="workItem">The work item</param>
         public void ScheduleReminder(WorkItem workItem)
         {
             var reminderDateTime = new DateTime();
-            var dueDate = new DateTime();
+            var dueDate = new DateTime();           
 
-            switch (workItem.Reminder)
+            if (workItem.isRecurring == false)
+            {
+                if (workItem.WorkItemType == WorkItemType.Task)
+                {
+                    dueDate = workItem.EndDateTime;
+                }
+                else
+                {
+                    dueDate = workItem.StartDateTime.Value;
+                }
+
+                reminderDateTime = GetReminderDateTime(workItem.Reminder, dueDate, workItem.Origin, workItem.Location);
+
+                // construct job info
+                IJobDetail jobDetail = JobBuilder.Create<SendReminderMailJob>()
+                    .WithIdentity("reminderFor" + workItem.Id.ToString(), "reminderJobs")
+                    .RequestRecovery()
+                    .Build();
+
+                // add values to the JobDataMap for the job to use
+                // such as the subject and due date of the work item, which is used when constructing the email
+                jobDetail.JobDataMap["Subject"] = workItem.Subject;
+                jobDetail.JobDataMap["DueDate"] = dueDate.ToString("dd.MM.yyyy HH:mm");
+                jobDetail.JobDataMap["MailTo"] = workItem.CreatedBy.Email;
+
+                // create a trigger that will trigger a job execution
+                ITrigger trigger = TriggerBuilder.Create()
+                    .WithIdentity("triggerFor" + workItem.Id.ToString(), "reminderTriggers")
+                    .StartAt(DateBuilder.DateOf(reminderDateTime.Hour, reminderDateTime.Minute, reminderDateTime.Second, reminderDateTime.Day, reminderDateTime.Month, reminderDateTime.Year))
+                    .WithSimpleSchedule(x => x.WithIntervalInMinutes(1))
+                    .Build();
+
+                //associate the job with the trigger and schedule the job
+                scheduler.ScheduleJob(jobDetail, trigger);
+            }
+            else 
+            {
+                foreach (var recurringItem in workItem.RecurringItems)
+                {
+                    dueDate = recurringItem.Start;
+                    reminderDateTime = GetReminderDateTime(workItem.Reminder, dueDate, workItem.Origin, workItem.Location);
+                    // construct job info
+                    IJobDetail jobDetail = JobBuilder.Create<SendReminderMailJob>()
+                        .WithIdentity("recurringReminderFor" + recurringItem.Id.ToString(), "recurringReminderJobs")
+                        .RequestRecovery()
+                        .Build();
+
+                    // add values to the JobDataMap for the job to use
+                    // such as the subject and due date of the work item, which is used when constructing the email
+                    jobDetail.JobDataMap["Subject"] = recurringItem.Subject;
+                    jobDetail.JobDataMap["DueDate"] = dueDate.ToString("dd.MM.yyyy HH:mm");
+                    jobDetail.JobDataMap["MailTo"] = workItem.CreatedBy.Email;
+
+                    // create a trigger that will trigger a job execution
+                    ITrigger trigger = TriggerBuilder.Create()
+                        .WithIdentity("recurringTriggerFor" + recurringItem.Id.ToString(), "recurringReminderTriggers")
+                        .StartAt(DateBuilder.DateOf(reminderDateTime.Hour, reminderDateTime.Minute, reminderDateTime.Second, reminderDateTime.Day, reminderDateTime.Month, reminderDateTime.Year))
+                        .WithSimpleSchedule(x => x.WithIntervalInMinutes(1))
+                        .Build();
+
+                    //associate the job with the trigger and schedule the job
+                    scheduler.ScheduleJob(jobDetail, trigger);
+                }
+            }
+        }
+
+        public DateTime GetReminderDateTime(Reminder reminder, DateTime dueDate, string origin, string location)
+        {
+            var reminderDateTime = new DateTime();
+            // determine the reminder datetime, which is the time when the trigger will fire the job that sends and email to the user
+            switch (reminder)
             {
                 case Reminder.None:
                     break;
                 case Reminder.Driving:
-                    var drivingDuration = GetTravelDurationInMinutes(workItem.CreatedBy.BaseLocation, workItem.Location, "driving");
-                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddMinutes(-drivingDuration);
-                    else reminderDateTime = workItem.StartDateTime.Value.AddMinutes(-drivingDuration);
+                    var drivingDuration = GetTravelDurationInMinutes(origin, location, "driving");
+                    reminderDateTime = dueDate.AddMinutes(-drivingDuration);
                     break;
                 case Reminder.Walking:
-                    var walkingDuration = GetTravelDurationInMinutes(workItem.CreatedBy.BaseLocation, workItem.Location, "walking");
-                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddMinutes(-walkingDuration);
-                    else reminderDateTime = workItem.StartDateTime.Value.AddMinutes(-walkingDuration);
+                    var walkingDuration = GetTravelDurationInMinutes(origin, location, "walking");
+                    reminderDateTime = dueDate.AddMinutes(-walkingDuration);
                     break;
                 case Reminder.FifteenMinutes:
-                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddMinutes(-15);
-                    else reminderDateTime = workItem.StartDateTime.Value.AddMinutes(-15);
+                    reminderDateTime = dueDate.AddMinutes(-15);
                     break;
                 case Reminder.ThirtyMinutes:
-                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddMinutes(-30);
-                    else reminderDateTime = workItem.StartDateTime.Value.AddMinutes(-30);
+                    reminderDateTime = dueDate.AddMinutes(-30);
                     break;
                 case Reminder.OneHour:
-                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddHours(-1);
-                    else reminderDateTime = workItem.StartDateTime.Value.AddHours(-1);
+                    reminderDateTime = dueDate.AddHours(-1);
                     break;
                 case Reminder.TwoHours:
-                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddHours(-2);
-                    else reminderDateTime = workItem.StartDateTime.Value.AddHours(-2);
+                    reminderDateTime = dueDate.AddHours(-2);
                     break;
                 case Reminder.OneDay:
-                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddDays(-1);
-                    else reminderDateTime = workItem.StartDateTime.Value.AddDays(-1);
+                    reminderDateTime = dueDate.AddDays(-1);
                     break;
                 case Reminder.TwoDays:
-                    if (workItem.WorkItemType == WorkItemType.Task) reminderDateTime = workItem.EndDateTime.AddDays(-2);
-                    else reminderDateTime = workItem.StartDateTime.Value.AddDays(-2);
+                    reminderDateTime = dueDate.AddDays(-2);
                     break;
                 default:
                     break;
             }
 
-            if (workItem.WorkItemType == WorkItemType.Task) dueDate = workItem.EndDateTime;
-            else dueDate = workItem.StartDateTime.Value;
-
-            // construct job info
-            IJobDetail jobDetail = JobBuilder.Create<SendReminderMailJob>()
-                .WithIdentity("reminderFor" + workItem.Id.ToString(), "reminderJobs")
-                .RequestRecovery()
-                .Build();
-
-            jobDetail.JobDataMap["Subject"] = workItem.Subject;
-            jobDetail.JobDataMap["DueDate"] = dueDate.ToString("dd.MM.yyyy HH:mm");
-            jobDetail.JobDataMap["MailTo"] = workItem.CreatedBy.Email;
-
-            // create a trigger that will trigger a job execution
-            ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity("triggerFor" + workItem.Id.ToString(), "reminderTriggers")
-                .StartAt(DateBuilder.DateOf(reminderDateTime.Hour, reminderDateTime.Minute, reminderDateTime.Second, reminderDateTime.Day, reminderDateTime.Month, reminderDateTime.Year))
-                .WithSimpleSchedule(x => x.WithIntervalInMinutes(1))
-                .Build();
-
-            //associate the job with the trigger and schedule the job
-            scheduler.ScheduleJob(jobDetail, trigger);
+            return reminderDateTime;
         }
 
-        public static double GetTravelDurationInMinutes(string origin, string destination, string mode)
+        /// <summary>
+        /// Calculates the travel duration using Google`s Distance Matrix service
+        /// </summary>
+        /// <param name="origin">The origin</param>
+        /// <param name="destination">The destination</param>
+        /// <param name="travelMode">The travel mode</param>
+        /// <returns>A double representing travel duration in minutes</returns>
+        public static double GetTravelDurationInMinutes(string origin, string destination, string travelMode)
         {
             double duration = 0;
+
+            // make a request to the distance matrix API
             string url = @"http://maps.googleapis.com/maps/api/distancematrix/xml?origins=" +
               origin + "&destinations=" + destination +
-              "&mode=" + mode + "&sensor=false&language=en-EN&units=metric";
+              "&mode=" + travelMode + "&sensor=false&language=en-EN&units=metric";
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+
+            //parse the response, wchich is an XML document
             WebResponse response = request.GetResponse();
             Stream dataStream = response.GetResponseStream();
             StreamReader sreader = new StreamReader(dataStream);
@@ -109,6 +168,8 @@ namespace Navigate.Quartz
             XmlDocument xmldoc = new XmlDocument();
             xmldoc.LoadXml(responsereader);
 
+            // if everything went well and the service could calculate the duration of the travel
+            // read the duration value, convert it to double and return to the user
             if (xmldoc.GetElementsByTagName("status")[0].ChildNodes[0].InnerText == "OK")
             {
                 XmlNodeList durationNode = xmldoc.GetElementsByTagName("duration");

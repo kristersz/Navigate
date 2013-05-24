@@ -60,7 +60,12 @@
                 </div>
                 <div class="editor-field">
                     @Html.DropDownListFor(model => model.Reminder, Model.AllReminders)
-                    @Html.ValidationMessageFor(model => model.WorkItemType)
+                    @Html.ValidationMessageFor(model => model.Reminder)
+                    <div id="originContainer" style="display: inline; visibility: hidden">
+                    <label for="Origin" class="editor-label" style="display: inline">Sākumpunkts</label>
+                    @Html.EditorFor(model => model.Origin)
+                    @Html.ValidationMessageFor(model => model.Origin)
+                    </div>
                 </div>
 
                 <div class="editor-label">
@@ -182,9 +187,6 @@
                                     @Html.TextBoxFor(model => model.DayOfMonthForYear, new { @class = "number-input" }) @Html.DropDownListFor(model => model.YearMonthOfYear, Model.AllMonthsOfYear)
                                     @Html.ValidationMessageFor(model => model.YearlyInterval)
                                     @Html.ValidationMessageFor(model => model.YearMonthOfYear)
-                                    <div id="informationBlock" class="alert alert-info" style="display: none">
-                                      <span></span>
-                                    </div>
                                 </div>
                             </div>
 
@@ -203,6 +205,9 @@
             <div>
                 <hr />
                 <input type="submit" class="btn btn-primary" value="Saglabāt" />
+                <div id="informationBlock" class="alert alert-info">
+                    <span></span>
+                </div>
             </div>
         </fieldset>
     </div>
@@ -217,11 +222,12 @@
         $(document).ready(function () {
 
             $("#DayOfMonthForYear").change(function () {
-                if ($(this).val() >= 29 && $(this).val() <= 31) {
-                    $("#informationBlock span").text("Ne visos mēnešos ir " + $(this).val() + " dienas, tādā gadījumā notikums tiks ieplānots mēneša pēdējā dienā");
-                    $("#informationBlock").show();
-                }
-                else $("#informationBlock").hide();
+                var fieldId = "#DayOfMonthForYear";
+                showNotification(fieldId);
+            });
+            $("#DayOfMonth").change(function () {
+                var fieldId = "#DayOfMonth";
+                showNotification(fieldId);
             });
 
             $("#AllDayEvent").change(function () {
@@ -236,6 +242,18 @@
                     $("#StartDate").datetimepicker({ controlType: 'select' });
                     $("#EndDate").removeClass("datefield").addClass("datetimefield").datepicker("destroy");
                     $("#EndDate").datetimepicker({ controlType: 'select' });
+                }
+            });
+        
+            $('#Reminder').change(function () {
+                if ($('#Reminder').val() == "Driving") {
+                    $('#originContainer').css("visibility", "visible");
+                }
+                else if ($('#Reminder').val() == "Walking") {
+                    $('#originContainer').css("visibility", "visible");
+                }
+                else {
+                    $('#originContainer').css("visibility", "hidden");
                 }
             });
 
@@ -270,5 +288,14 @@
             var val = ($("#recurrenceOptions input:checked").val());
             $("#" + val).show();
         });
+
+        function showNotification(fieldId) {
+            if ($(fieldId).val() >= 29 && $(fieldId).val() <= 31) {
+                $("#informationBlock span").text("Ne visos mēnešos ir " + $(fieldId).val() + " dienas, tādā gadījumā notikums tiks ieplānots mēneša pēdējā dienā");
+                $("#informationBlock").show();
+                $("#informationBlock").css("display", "inline");
+            }
+            else $("#informationBlock").hide();
+        }
     </script>
 }

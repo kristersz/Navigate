@@ -85,6 +85,7 @@ namespace Navigate.Models
         [Display(Name = "E-pasta adrese")]
         public string Email { get; set; }
 
+        [Required(ErrorMessage = "Lauks {0} ir obligāts")]
         [Display(Name = "Pamata atrašanās vieta")]
         public string BaseLocation { get; set; }
     }

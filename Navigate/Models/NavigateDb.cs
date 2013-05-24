@@ -16,6 +16,7 @@ namespace Navigate.Models
         
         }
 
+        //the data structures that need to be saved and updated in the database
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<WorkItem> WorkItems { get; set; }
         public DbSet<RecurringItem> RecurringItems { get; set; }

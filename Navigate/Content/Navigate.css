@@ -69,6 +69,7 @@ footer.row {
 
 #loginControls {
     color: white;
+    margin-top: 10px;
 }
 
 .display-label, .editor-label label {
@@ -156,6 +157,13 @@ footer.row {
 .number-input {
     width: 30px;
 }
+
+#informationBlock {
+    display: none;
+    width: 500px;
+    margin-left: 20px;
+}
+    
 
 /* Fixing the boostrap navbar
 ----------------------------------------------------------------------*/

@@ -40,7 +40,6 @@
     //set defaults and make the datepicker UI draggable for when it covers other inputs or controls
 	$.timepicker.setDefaults($.timepicker.regional['lv']);
 	$.datepicker.setDefaults($.datepicker.regional['lv']);
-	$('#ui-datepicker-div').draggable();
 
     //slight modification for start and end date fields so that the user could not select a greater value in the StartDate field compared to EndDate value
 	var startDateTextBox = $('#StartDate');
@@ -93,5 +92,7 @@
 	$(".datefield").datepicker({
         yearRange: "1970:2030",
 	});
+
+	$('#ui-datepicker-div').draggable();
 
 });

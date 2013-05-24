@@ -23,14 +23,17 @@
                             <span class="icon-bar"></span>
                         </a>
                         <a class="brand" href="/Home">Navigate</a>
-                        <div class="nav-collapse">
-                            <ul class="nav">
-                                <li>@Html.ActionLink("Uzdevumi", "Index", "WorkItem")</li>
-                                <li>@Html.ActionLink("Kalendārs", "Index", "Calendar")</li>
-                                <li>@Html.ActionLink("Klasifikatori", "Index", "Classifier")</li>   
-                                <li>@Html.ActionLink("Atskaites", "Index", "Report")</li>                      
-                            </ul>
-                        </div>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <div class="nav-collapse">
+                                <ul class="nav">
+                                    <li>@Html.ActionLink("Uzdevumi", "Index", "WorkItem")</li>
+                                    <li>@Html.ActionLink("Kalendārs", "Index", "Calendar")</li>
+                                    <li>@Html.ActionLink("Klasifikatori", "Index", "Classifier")</li>   
+                                    <li>@Html.ActionLink("Atskaites", "Index", "Report")</li>                      
+                                </ul>
+                            </div>
+                        }
                         <div id="loginControls" class="pull-right">
                             @Html.Partial("_LoginPartial")   
                         </div>

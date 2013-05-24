@@ -98,6 +98,11 @@ namespace Navigate.Models
         public Reminder Reminder { get; set; }
 
         /// <summary>
+        /// Gets or sets the origin
+        /// </summary>
+        public string Origin { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indiciating whether the task is recurring or not
         /// </summary>
         public bool isRecurring { get; set; }
