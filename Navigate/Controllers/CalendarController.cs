@@ -46,7 +46,7 @@ namespace Navigate.Controllers
             {
                 // we display non-recurring items as they are
                 // for recurring work items however, we display each of their occurrences 
-                if (e.isRecurring == false &&(e.StartDateTime >= startDateTime && e.EndDateTime <= endDateTime))
+                if (e.isRecurring == false && (e.StartDateTime >= startDateTime && e.EndDateTime <= endDateTime))
                 {
                     eventList.Add(
                         new
@@ -68,7 +68,7 @@ namespace Navigate.Controllers
                             new
                             {
                                 id = e.Id,
-                                title = e.Subject,
+                                title = recurringItem.Subject,
                                 start = recurringItem.Start.ToString("yyyy-MM-dd HH:mm"),
                                 end = recurringItem.End.ToString("yyyy-MM-dd HH:mm"),
                                 allDay = false,
@@ -90,6 +90,77 @@ namespace Navigate.Controllers
         {
             var origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
             return origin.AddSeconds(timestamp);
+        }
+
+        /// <summary>
+        /// Handles the drag and drop event of the calendar UI
+        /// </summary>
+        /// <param name="model">The event model</param>
+        /// <returns>JSON Result</returns>
+        [HttpPost]
+        public JsonResult DropEvent(EventModel model)
+        {
+            var workItem = this.dataContext.WorkItems.Find(model.Id);
+            if (workItem == null)
+            {
+                return new JsonResult() { Data = new { IsValid = false, Message = "Uzdevums netika atrasts" } };
+
+            }
+
+            if (!workItem.isRecurring)
+            {
+                workItem.StartDateTime = workItem.StartDateTime.Value.AddDays(model.dayDelta).AddMinutes(model.minuteDelta);
+                workItem.EndDateTime = workItem.EndDateTime.AddDays(model.dayDelta).AddMinutes(model.minuteDelta);
+                workItem.AllDayEvent = model.AllDayEvent;
+                workItem.UpdatedAt = DateTime.Now;               
+            }
+            else
+            {
+                foreach (var recurringItem in workItem.RecurringItems)
+                {
+                    recurringItem.Start = recurringItem.Start.AddDays(model.dayDelta).AddMinutes(model.minuteDelta);
+                    recurringItem.End = recurringItem.End.AddDays(model.dayDelta).AddMinutes(model.minuteDelta);
+                    recurringItem.UpdatedAt = DateTime.Now;                    
+                }
+            }
+
+            this.dataContext.SaveChanges();
+            return new JsonResult() { Data = new { IsValid = true, Message = "Izmaiņas veiksmīgi saglabātas" } };
+        }
+
+        /// <summary>
+        /// Handles the resize event of the calendar UI
+        /// </summary>
+        /// <param name="model">The event model</param>
+        /// <returns>JSON result</returns>
+        [HttpPost]
+        public JsonResult ResizeEvent(EventModel model)
+        {
+            var workItem = this.dataContext.WorkItems.Find(model.Id);
+            if (workItem == null)
+            {
+                return new JsonResult() { Data = new { IsValid = false, Message = "Uzdevums netika atrasts" } };
+
+            }
+
+            if (!workItem.isRecurring)
+            {
+                workItem.StartDateTime = workItem.StartDateTime.Value.AddDays(model.dayDelta);
+                workItem.EndDateTime = workItem.EndDateTime.AddDays(model.dayDelta).AddMinutes(model.minuteDelta);
+                workItem.UpdatedAt = DateTime.Now;
+            }
+            else
+            {
+                foreach (var recurringItem in workItem.RecurringItems)
+                {
+                    recurringItem.Start = recurringItem.Start.AddDays(model.dayDelta);
+                    recurringItem.End = recurringItem.End.AddDays(model.dayDelta).AddMinutes(model.minuteDelta);
+                    recurringItem.UpdatedAt = DateTime.Now;
+                }
+            }
+
+            this.dataContext.SaveChanges();
+            return new JsonResult() { Data = new { IsValid = true, Message = "Izmaiņas veiksmīgi saglabātas" } };
         }
     }
 }

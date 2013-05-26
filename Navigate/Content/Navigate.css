@@ -186,6 +186,10 @@ body {
     opacity: 0.5;
 }
 
+    .taskDone #metaData :first-child {
+        text-decoration: line-through;
+    }
+
 .workItems {
     padding: 10px;
     border-top: 1px solid black;
@@ -195,7 +199,7 @@ body {
     }
     .workItems #metaData div:first-child {
         color: black;
-        font-family: 'Roboto Slab', serif;
+        font-family: Tahoma, serif;
         font-size: 20px;
         font-weight: bold;
         margin-bottom: 5px;

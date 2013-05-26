@@ -47,8 +47,7 @@ namespace Navigate
                         "~/Scripts/fullcalendar.js"));
 
             bundles.Add(new StyleBundle("~/Content/calendarcss").Include(
-                        "~/Content/fullcalendar.css",
-                        "~/Content/fullcalendar.print.css"));
+                        "~/Content/fullcalendar.css"));
 
             bundles.Add(new StyleBundle("~/Content/bootstrapcss").Include(
                         "~/Content/bootstrap.css",

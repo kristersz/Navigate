@@ -1,12 +1,12 @@
 ﻿@model Navigate.Models.RecurringItem
 
 @{
-    ViewBag.Title = "Delete";
+    ViewBag.Title = "Dzēst";
 }
 
-<h2>Delete</h2>
+<h2>Dzēst</h2>
 
-<h3>Are you sure you want to delete this?</h3>
+<h3>Vai tiešām vēlaties dzēst šo ierakstu?</h3>
 <fieldset>
     <legend>RecurringItem</legend>
     <div class="display-label">
@@ -47,7 +47,7 @@
 @using (Html.BeginForm()) {
     @Html.AntiForgeryToken()
     <p>
-        <input type="submit" value="Delete" /> |
-        @Html.ActionLink("Back to List", "Index")
+        <input type="submit" class="btn btn-primary" value="Dzēst" /> |
+        @Html.ActionLink("Atpakaļ uz sarakstu", "Details", "WorkItem", new { id = Model.WorkItemId }, null)
     </p>
 }

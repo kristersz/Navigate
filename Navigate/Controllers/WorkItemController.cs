@@ -26,16 +26,16 @@ namespace Navigate.Controllers
         /// </summary>
         /// <param name="searchTerm">The search term</param>
         /// <param name="filter">The filter</param>
-        /// <param name="sortOrder">The sort order</param>
+        /// <param name="sortParam">The sort parameter - the field to sort results by</param>
         /// <param name="category">The chosen category</param>
-        /// <param name="page">The current page</param>
+        /// <param name="sortOrder">The sort order</param>
         /// <returns>The index view</returns>
-        public ActionResult Index(string searchTerm = null, string filter  = null, string sortOrder = null, string category = null, int page = 1)
+        public ActionResult Index(string searchTerm = null, string filter  = null, string sortParam = null, string category = null, string sortOrder = null)
         {
             var currentUserId = this.CurrentUser.UserId;
 
             var workItems = this.dataContext.WorkItems
-                .Where((r => r.CreatedByUserId == this.CurrentUser.UserId))
+                .Where(r => r.CreatedByUserId == this.CurrentUser.UserId)
                 .Select(r => new WorkItemListViewModel
                     {
                         Id = r.Id,
@@ -94,30 +94,63 @@ namespace Navigate.Controllers
                 case "today":
                     workItems = workItems.Where(r => EntityFunctions.TruncateTime(r.EndDateTime) == EntityFunctions.TruncateTime(DateTime.Now) && r.EndDateTime >= DateTime.Now);
                     break;
+                case "week":
+                    var today = (int)DateTime.Now.DayOfWeek;
+                    int daysUntilEndOfWeek = 7 - today;
+                    var lastDayOfWeek = DateTime.Now.AddDays(daysUntilEndOfWeek);
+                    workItems = workItems.Where(r => EntityFunctions.TruncateTime(r.EndDateTime) <= EntityFunctions.TruncateTime(lastDayOfWeek) && r.EndDateTime >= DateTime.Now);
+                    break;
                 default:
                     break;
             }
 
-            switch (sortOrder)
+            if (sortOrder == "asc")
             {
-                case "deadline":
-                    workItems = workItems.OrderBy(r => r.EndDateTime);
-                    break;
-                case "priority":
-                    workItems = workItems.OrderByDescending(r => r.Priority);
-                    break;
-                case "changedate":
-                    workItems = workItems.OrderByDescending(r => r.UpdatedAt);
-                    break;
-                case "createdate":
-                    workItems = workItems.OrderByDescending(r => r.CreatedAt);
-                    break;
-                case "title":
-                    workItems = workItems.OrderBy(r => r.Subject);
-                    break;
-                default:
-                    workItems = workItems.OrderBy(r => r.EndDateTime);
-                    break;
+                switch (sortParam)
+                {
+                    case "deadline":
+                        workItems = workItems.OrderBy(r => r.EndDateTime);
+                        break;
+                    case "priority":
+                        workItems = workItems.OrderBy(r => r.Priority);
+                        break;
+                    case "changedate":
+                        workItems = workItems.OrderBy(r => r.UpdatedAt);
+                        break;
+                    case "createdate":
+                        workItems = workItems.OrderBy(r => r.CreatedAt);
+                        break;
+                    case "title":
+                        workItems = workItems.OrderBy(r => r.Subject);
+                        break;
+                    default:
+                        workItems = workItems.OrderBy(r => r.EndDateTime);
+                        break;
+                }
+            }
+            else if (sortOrder == "desc")
+            {
+                switch (sortParam)
+                {
+                    case "deadline":
+                        workItems = workItems.OrderByDescending(r => r.EndDateTime);
+                        break;
+                    case "priority":
+                        workItems = workItems.OrderByDescending(r => r.Priority);
+                        break;
+                    case "changedate":
+                        workItems = workItems.OrderByDescending(r => r.UpdatedAt);
+                        break;
+                    case "createdate":
+                        workItems = workItems.OrderByDescending(r => r.CreatedAt);
+                        break;
+                    case "title":
+                        workItems = workItems.OrderByDescending(r => r.Subject);
+                        break;
+                    default:
+                        workItems = workItems.OrderByDescending(r => r.EndDateTime);
+                        break;
+                }
             }
 
             if (Request.IsAjaxRequest())
@@ -149,7 +182,7 @@ namespace Navigate.Controllers
                     Location = r.Location,
                     StartDateTime = r.StartDateTime,
                     EndDateTime = r.EndDateTime,
-                    Duration = r.Duration.Value,
+                    Duration = r.Duration,
                     Body = r.Body,
                     WorkItemType = r.WorkItemType,
                     isCompleted = r.isCompleted,
@@ -207,17 +240,8 @@ namespace Navigate.Controllers
 
             if (ModelState.IsValid)
             {
-                if (model.WorkItemType == WorkItemType.None)
-                {
-                    ModelState.AddModelError("", "Uzdevuma tips ir obligāts lauks");
-                    return View(model);
-                }
-
-                if ((model.Reminder == Reminder.Driving || model.Reminder == Reminder.Walking) && model.Location == null)
-                {
-                    ModelState.AddModelError("", "Lai izvēlētos šo atgādinājumu, ir jānorāda uzdevuma atrašanās vietas adrese");
-                    return View(model);
-                }
+                var hasErrors = HandleLogicErrors(model);
+                if (hasErrors == true) return View(model);
 
                 var workItem = model.TransformToWorkItem();
                 workItem.CreatedByUserId = this.CurrentUser.UserId;
@@ -251,7 +275,7 @@ namespace Navigate.Controllers
                 return RedirectToAction("Index");
             }
 
-            ModelState.AddModelError("", "Lūdzu, izlabojiet kļūdas un atkārtoti nospiediet Izveidot");
+            ModelState.AddModelError("", "Lūdzu, izlabojiet kļūdas un atkārtoti nospiediet Saglabāt");
             return View(model);
         }
 
@@ -289,17 +313,16 @@ namespace Navigate.Controllers
         public ActionResult Edit(WorkItemDataInputModel model)
         {
             PopulateDropDownLists(model);
-            if (model.WorkItemType == WorkItemType.None)
-            {
-                ModelState.AddModelError("", "Uzdevuma tips ir obligāts lauks");
-                return View(model);
-            }
             if (ModelState.IsValid)
             {
+                var hasErrors = HandleLogicErrors(model);
+                if (hasErrors == true) return View(model);
+
                 WorkItem workItem = this.dataContext.WorkItems.Where(o => o.Id == model.WorkItemId).FirstOrDefault();
                 if (workItem != null)
                 {
                     model.UpdateWorkItem(workItem);
+                    //TODO: edit categories
 
                     if (workItem.isRecurring == true)
                     {
@@ -568,7 +591,7 @@ namespace Navigate.Controllers
         /// Populates the drop down lists in CreateEdit form, which take data from database
         /// </summary>
         /// <param name="model"></param>
-        public void PopulateDropDownLists(WorkItemDataInputModel model)
+        private void PopulateDropDownLists(WorkItemDataInputModel model)
         {
             model.Categories = this.dataContext.Categories.Where(o => o.CreatedByUserId == this.CurrentUser.UserId).ToList();
         }
@@ -578,7 +601,7 @@ namespace Navigate.Controllers
         /// </summary>
         /// <param name="workItem">The work item</param>
         /// <param name="model">The model</param>
-        public void CreateOccurrences(WorkItem workItem, WorkItemDataInputModel model)
+        private void CreateOccurrences(WorkItem workItem, WorkItemDataInputModel model)
         {
             var occurrenceService = new OccurrenceService();
             var occurrenceDates = occurrenceService.GetOccurrenceDates(workItem);
@@ -607,12 +630,41 @@ namespace Navigate.Controllers
         /// Removes all of the recurring items for a work item
         /// </summary>
         /// <param name="workItem">The work item</param>
-        public void RemoveRecurringItems(WorkItem workItem)
+        private void RemoveRecurringItems(WorkItem workItem)
         {
             foreach (var recurringItem in workItem.RecurringItems.ToList())
             {
                 this.dataContext.RecurringItems.Remove(recurringItem);
             }
+        }
+
+        /// <summary>
+        /// Handle logic errors in create and edit input forms
+        /// </summary>
+        /// <param name="model">The model</param>
+        /// <returns>Bool value indicating whether model contains logic errors or not</returns>
+        private bool HandleLogicErrors(WorkItemDataInputModel model)
+        {
+            var hasErrors = false;
+            if (model.WorkItemType == WorkItemType.None)
+            {
+                ModelState.AddModelError("", "Uzdevuma tips ir obligāts lauks");
+                hasErrors = true;
+            }
+
+            if ((model.Reminder == Reminder.Driving || model.Reminder == Reminder.Walking) && model.Location == null)
+            {
+                ModelState.AddModelError("", "Lai izvēlētos šo atgādinājumu, ir jānorāda uzdevuma atrašanās vietas adrese");
+                hasErrors = true;
+            }
+
+            if (model.WorkItemType == WorkItemType.Appointment && (model.StartDate > model.EndDate))
+            {
+                ModelState.AddModelError("", "Uzdevuma beigu laikam jābūt vienādam vai lielākam par sākuma laiku");
+                hasErrors = true;
+            }
+
+            return hasErrors;
         }
     }
 }

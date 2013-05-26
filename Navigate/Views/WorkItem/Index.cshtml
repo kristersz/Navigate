@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<Navigate.ViewModels.WorkItemListViewModel>
 
 @{
-    ViewBag.Title = "My work items";
+    ViewBag.Title = "Uzdevumu saraksts";
 }
 
-<h2>Uzdevumi</h2>
+<h2>@ViewBag.Title</h2>
 
 <p>
     <a href="@Url.Action("Create")" role ="button" class="btn btn-primary">Izveidot jaunu uzdevumu</a>
@@ -18,7 +18,8 @@
             <button type="button" class="btn btn-inverse active" value="all">Visi</button>
             <button type="button" class="btn btn-inverse" value="completed">Pabeigtie</button>
             <button type="button" class="btn btn-inverse" value="starred">Atzīmēti ar prioritāti</button>
-            <button type="button" class="btn btn-inverse" value="today">Termiņš beidzas šodien</button>
+            <button type="button" class="btn btn-inverse" value="today">Šodien</button>
+            <button type="button" class="btn btn-inverse" value="week">Šonedēļ</button>
             <button type="button" class="btn btn-inverse" value="late">Nokavētie</button>
         </div>
         <div>
@@ -27,12 +28,16 @@
         </div>
         <div id="sortOrderSelect">
             <strong>Kārtot pēc lauka:</strong>
-            @Html.DropDownList("sortOrder", new List<SelectListItem>() {
-                        new SelectListItem { Value = "deadline", Text = "Termiņš" },
+            @Html.DropDownList("sortParam", new List<SelectListItem>() {
+                        new SelectListItem { Value = "deadline", Text = "Termiņš/Sākums" },
                         new SelectListItem { Value = "priority", Text = "Prioritāte" },
                         new SelectListItem { Value = "changedate", Text = "Pēdējoreiz mainīts" },
-                        new SelectListItem { Value = "createddate", Text = "Izveidots" },
+                        new SelectListItem { Value = "createdate", Text = "Izveidots" },
                         new SelectListItem { Value = "title", Text = "Nosaukums" },
+                    })
+            @Html.DropDownList("sortOrder", new List<SelectListItem>() {
+                        new SelectListItem { Value = "asc", Text = "augoši" },
+                        new SelectListItem { Value = "desc", Text = "dilstoši" },
                     })
         </div>
         <input type="hidden" id="filterHolder" name="filter" />
@@ -150,6 +155,10 @@
             $("#filterButtons button").click(function () {
                 var filterString = $(this).val();
                 setFilter(filterString);
+            });
+
+            $("#sortParam").change(function () {
+                $("#submitFilter").click();
             });
 
             $("#sortOrder").change(function () {

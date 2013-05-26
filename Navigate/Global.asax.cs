@@ -36,6 +36,7 @@ namespace Navigate
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             AuthConfig.RegisterAuth();
 
+            // configure and start the Quartz.NET scheduler
             sched = ConfigureQuartzJobs();
         }
 

@@ -12,8 +12,8 @@ namespace Navigate.Migrations
                 c => new
                     {
                         UserId = c.Int(nullable: false, identity: true),
-                        UserName = c.String(),
-                        Email = c.String(),
+                        UserName = c.String(maxLength: 120),
+                        Email = c.String(maxLength: 254),
                         BaseLocation = c.String(),
                     })
                 .PrimaryKey(t => t.UserId);
@@ -26,15 +26,17 @@ namespace Navigate.Migrations
                         Subject = c.String(nullable: false, maxLength: 180),
                         Location = c.String(maxLength: 255),
                         Body = c.String(),
-                        StartDateTime = c.DateTime(nullable: false),
+                        StartDateTime = c.DateTime(),
                         EndDateTime = c.DateTime(nullable: false),
                         AllDayEvent = c.Boolean(nullable: false),
-                        EstimatedTime = c.Decimal(precision: 18, scale: 2),
+                        Duration = c.Double(nullable: false),
                         WorkItemType = c.Int(nullable: false),
                         Priority = c.Int(),
                         OutlookEntryId = c.String(),
                         isCompleted = c.Boolean(nullable: false),
                         CompletedAt = c.DateTime(),
+                        Reminder = c.Int(nullable: false),
+                        Origin = c.String(),
                         isRecurring = c.Boolean(nullable: false),
                         RecurrenceType = c.Int(),
                         CreatedByUserId = c.Int(nullable: false),
@@ -85,6 +87,7 @@ namespace Navigate.Migrations
                         Location = c.String(),
                         Body = c.String(),
                         isCompleted = c.Boolean(nullable: false),
+                        Exception = c.Boolean(nullable: false),
                         CompletedAt = c.DateTime(),
                         UpdatedAt = c.DateTime(nullable: false),
                     })

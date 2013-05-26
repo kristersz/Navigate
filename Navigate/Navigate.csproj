@@ -189,9 +189,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201305171220449_InitialCreate.cs" />
-    <Compile Include="Migrations\201305171220449_InitialCreate.Designer.cs">
-      <DependentUpon>201305171220449_InitialCreate.cs</DependentUpon>
+    <Compile Include="Migrations\201305261646118_InitialCreate.cs" />
+    <Compile Include="Migrations\201305261646118_InitialCreate.Designer.cs">
+      <DependentUpon>201305261646118_InitialCreate.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
@@ -390,7 +390,6 @@
     <Content Include="Views\WorkItem\Navigate.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Enum_RadioButtonList.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Time.cshtml" />
-    <Content Include="Views\RecurringItem\Index.cshtml" />
     <Content Include="Views\RecurringItem\Details.cshtml" />
     <Content Include="Views\RecurringItem\Edit.cshtml" />
     <Content Include="Views\RecurringItem\Delete.cshtml" />
@@ -405,6 +404,7 @@
     <Content Include="Views\Account\_UpdateUserData.cshtml" />
     <Content Include="Views\Account\Manage.cshtml" />
     <Content Include="Views\Account\Update.cshtml" />
+    <Content Include="Views\Account\ListUsers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -443,8 +443,8 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201305171220449_InitialCreate.resx">
-      <DependentUpon>201305171220449_InitialCreate.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201305261646118_InitialCreate.resx">
+      <DependentUpon>201305261646118_InitialCreate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

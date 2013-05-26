@@ -1,61 +1,69 @@
 ﻿@model IEnumerable<Navigate.ViewModels.WorkItemListViewModel>
 
-
-<div id="workItemList">
-    @foreach (var item in Model)
-    {
-        var completed = 0;
-        if (item.isCompleted)
+@if (Model.FirstOrDefault() == null)
+{
+    <div class="alert alert-info">
+        <strong>Uzdevumu saraksts ir tukšs</strong>
+    </div>    
+}
+else
+{
+    <div id="workItemList">
+        @foreach (var item in Model)
         {
-            completed = 1;
-        }
-        <div id="workItem@(item.Id.ToString())" class="@if (completed == 1) {<text>taskDone</text> }workItems">
-            <div id="metaData">
-                @if (item.isRecurring && !item.isCompleted)
-                {
-                    <div>
-                        @Html.DisplayFor(model => item.NextRecurringItem.Subject) <i class="icon-retweet"></i>
-                    </div>
-                    <div>
-                        @Html.DisplayFor(model => item.NextRecurringItem.Location)
-                    </div>
-                    <div>
-                        Periodisks uzdevums, nākamais notikums:
-                        @Html.DisplayFor(model => item.NextRecurringItem.Start) - 
-                        @Html.DisplayFor(model => item.NextRecurringItem.End)
-                    </div>
-                }
-                else
-                {
-                    <div>
-                        @Html.DisplayFor(model => item.Subject)
-                    </div>
-                    <div>
-                        @Html.DisplayFor(model => item.Location)
-                    </div>
-                    <div>
-                        @Html.DisplayFor(model => item.StartDateTime) - 
-                        @Html.DisplayFor(model => item.EndDateTime)
-                    </div>
-                }
-                <div id="categoryContainer">
-                    @foreach (var category in item.Categories)
-                    {
-                        <ul>
-                            <li><i class="icon-tags"></i> @Html.DisplayFor(model => category.Name)</li>
-                        </ul> 
-                    }
-                </div>
-            </div>
-            <hr />
-            @if (item.Location != null)
+            var completed = 0;
+            if (item.isCompleted)
             {
-                <a href="@Url.Action("Navigate", new { id = item.Id })" class="btn"><i class='icon-road'></i> Iegūt norādes</a>
+                completed = 1;
             }
-            <button id="changeStatus@(item.Id.ToString())" class="btn" onclick="changeStatus(@item.Id.ToString())">@if (completed == 0) {<text><i class="icon-ok"></i> Atzīmēt kā izpildītu</text>} else {<text><i class="icon-remove"></i> Atzīmēt kā neizpildītu</text>}</button>
-            <a href="@Url.Action("Details", new { id = item.Id })" class="btn"><i class='icon-list'></i> Apskatīt</a>
-            <a href="@Url.Action("Edit", new { id = item.Id })" class="btn"><i class='icon-edit'></i> Rediģēt</a>           
-            <a href="@Url.Action("Delete", new { id = item.Id })" class="btn"><i class='icon-trash'></i> Dzēst</a>
-        </div>
-    }
-</div>
+            <div id="workItem@(item.Id.ToString())" class="@if (completed == 1) {<text>taskDone</text> }workItems">
+                <div id="metaData">
+                    @if (item.isRecurring && !item.isCompleted)
+                    {
+                        <div>
+                            @Html.DisplayFor(model => item.NextRecurringItem.Subject) <i class="icon-retweet"></i>
+                        </div>
+                        <div>
+                            @Html.DisplayFor(model => item.NextRecurringItem.Location)
+                        </div>
+                        <div>
+                            Periodisks uzdevums, nākamais notikums:
+                            @Html.DisplayFor(model => item.NextRecurringItem.Start) - 
+                            @Html.DisplayFor(model => item.NextRecurringItem.End)
+                        </div>
+                    }
+                    else
+                    {
+                        <div>
+                            @Html.DisplayFor(model => item.Subject)
+                        </div>
+                        <div>
+                            @Html.DisplayFor(model => item.Location)
+                        </div>
+                        <div>
+                            @Html.DisplayFor(model => item.StartDateTime) - 
+                            @Html.DisplayFor(model => item.EndDateTime)
+                        </div>
+                    }
+                    <div id="categoryContainer">
+                        @foreach (var category in item.Categories)
+                        {
+                            <ul>
+                                <li><i class="icon-tags"></i> @Html.DisplayFor(model => category.Name)</li>
+                            </ul> 
+                        }
+                    </div>
+                </div>
+                <hr />
+                @if (item.Location != null)
+                {
+                    <a href="@Url.Action("Navigate", new { id = item.Id })" class="btn"><i class='icon-road'></i> Iegūt norādes</a>
+                }
+                <button id="changeStatus@(item.Id.ToString())" class="btn" onclick="changeStatus(@item.Id.ToString())">@if (completed == 0) {<text><i class="icon-ok"></i> Atzīmēt kā izpildītu</text>} else {<text><i class="icon-remove"></i> Atzīmēt kā neizpildītu</text>}</button>
+                <a href="@Url.Action("Details", new { id = item.Id })" class="btn"><i class='icon-list'></i> Apskatīt</a>
+                <a href="@Url.Action("Edit", new { id = item.Id })" class="btn"><i class='icon-edit'></i> Rediģēt</a>           
+                <a href="@Url.Action("Delete", new { id = item.Id })" class="btn"><i class='icon-trash'></i> Dzēst</a>
+            </div>
+        }
+    </div>
+}

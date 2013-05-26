@@ -14,12 +14,15 @@ namespace Navigate.Models
         [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
         public int UserId { get; set; }
 
+        [Display(Name="Lietotājvārds")]
         [MaxLength(120)]
         public string UserName { get; set; }
 
+        [Display(Name = "E-pasta adrese")]
         [MaxLength(254)]
         public string Email { get; set; }
 
+        [Display(Name = "Pamata atrašanās vieta")]
         public string BaseLocation { get; set; }
     }
 }

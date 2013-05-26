@@ -1,0 +1,109 @@
+﻿@model IEnumerable<Navigate.Models.UserProfile>
+
+@{
+    ViewBag.Title = "Lietotāju saraksts";
+}
+
+<script type="text/javascript">
+    function deleteUser(userId) {
+        $("#userId").val(userId);
+        $("#verifyDeleteModal").modal("show");
+    }
+</script>
+
+<h2>@ViewBag.Title</h2>
+
+@if (Model.FirstOrDefault() == null)
+{
+    <div class="alert alert-info">
+        <strong>Netika atrasts neviens lietotājs ar lomu "Lietotājs"</strong>
+    </div>    
+}
+else
+{
+    <div>
+        <table class="table table-bordered table-striped" style="width: 600px;">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.UserName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Email)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.BaseLocation)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Email)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.BaseLocation)
+                        </td>
+                        <td>
+                           <a href="#" onclick="deleteUser(@item.UserId.ToString());">Dzēst</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<div id="verifyDeleteModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="deleteConfirmationLabel">Apstiprinājums</h3>
+  </div>
+  <div class="modal-body">
+    <p>Vai tiešām vēlaties dzēst lietotāju?</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Aizvērt</button>
+    <button id="deleteUser" class="btn btn-primary">Dzēst</button>
+  </div>
+</div>
+
+<input type="hidden" id="userId" />
+
+@section Scripts {
+    <script>
+        $("#deleteUser").click(function () {
+            $.ajax({
+                url: '@Url.Action("DeleteUser", "Account")',
+                    type: 'POST',
+                    data: {
+                        userId: $('#userId').val()
+                    },
+                    success: function (data) {
+                        if (data.IsValid) {
+                            window.location.reload(true);
+                        }
+                        else {
+                            $("#verifyDeleteModal").modal("hide");
+                            showMessage(data.Message);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert("Notika kļūda, lūdzu mēģiniet vēlreiz.");
+                    },
+                    complete: function (jqXHR, textStatus) {
+                        $("#ajaxRequestLoading").hide();
+                    },
+                    beforeSend: function (jqXHR, settings) {
+                        $("#ajaxRequestLoading").show();
+                    }
+                });
+        });
+    </script>
+}

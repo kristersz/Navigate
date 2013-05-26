@@ -61,6 +61,79 @@
                     url = url.replace("insertEndHere", end);
                     window.location.href = url;
                 },
+                eventDrop: function (event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
+                    $.ajax({
+                        url: '@Url.Action("DropEvent", "Calendar")',
+                        type: 'POST',
+                        data: {
+                            id: event.id,
+                            dayDelta: dayDelta,
+                            minuteDelta: minuteDelta,
+                            allDay: allDay,
+                        },
+                        success: function (data) {
+                            if (data.IsValid) {
+                                $.pnotify({
+                                    title: 'Informācija',
+                                    text: data.Message,
+                                    type: 'success'
+                                });
+                            }
+                            else {
+                                $.pnotify({
+                                    title: 'Kļūda',
+                                    text: data.Message,
+                                    type: 'error'
+                                });
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert("Notika kļūda, lūdzu mēģiniet vēlreiz.");
+                        },
+                        complete: function (jqXHR, textStatus) {
+                            $("#ajaxRequestLoading").hide();
+                        },
+                        beforeSend: function (jqXHR, settings) {
+                            $("#ajaxRequestLoading").show();
+                        }
+                    });
+                },
+                eventResize: function( event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view ) {
+                    $.ajax({
+                        url: '@Url.Action("ResizeEvent", "Calendar")',
+                        type: 'POST',
+                        data: {
+                            id: event.id,
+                            dayDelta: dayDelta,
+                            minuteDelta: minuteDelta,
+                        },
+                        success: function (data) {
+                            if (data.IsValid) {
+                                $.pnotify({
+                                    title: 'Informācija',
+                                    text: data.Message,
+                                    type: 'success'
+                                });
+                            }
+                            else {
+                                $.pnotify({
+                                    title: 'Kļūda',
+                                    text: data.Message,
+                                    type: 'error'
+                                });
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert("Notika kļūda, lūdzu mēģiniet vēlreiz.");
+                        },
+                        complete: function (jqXHR, textStatus) {
+                            $("#ajaxRequestLoading").hide();
+                        },
+                        beforeSend: function (jqXHR, settings) {
+                            $("#ajaxRequestLoading").show();
+                        }
+                    });
+                },
                 selectable: true,
                 selectHelper: true,
             })

@@ -52,5 +52,5 @@
 </fieldset>
 <p>
     @Html.ActionLink("Rediģēt", "Edit", new { id=Model.Id }) |
-    @Html.ActionLink("Atpakaļ uz sarakstu", "Index")
+    @Html.ActionLink("Atpakaļ uz sarakstu", "Details", "WorkItem", new { id = Model.WorkItemId }, null)
 </p>

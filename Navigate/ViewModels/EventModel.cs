@@ -9,11 +9,9 @@ namespace Navigate.ViewModels
     {
         public int Id { get; set; }
 
-        public string Subject { get; set; }
+        public int dayDelta { get; set; }
 
-        public DateTime StartDateTime { get; set; }
-
-        public DateTime EndDateTime { get; set; }
+        public int minuteDelta { get; set; }
 
         public bool AllDayEvent { get; set; }
     }

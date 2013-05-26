@@ -16,35 +16,44 @@
     <p>
         <a href="#newCategoryModal" role="button" class="btn" data-toggle="modal">Pievienot kategoriju</a>
     </p>
-    <table class="table table-bordered table-striped" style="width: 500px;">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Name)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Description)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+    @if (Model.FirstOrDefault() == null)
+    {
+        <div class="alert alert-info">
+            <strong>Nav pievienota neviena kategorija</strong>
+        </div>    
+    }
+    else
+    {
+        <table class="table table-bordered table-striped" style="width: 500px;">
+            <thead>
                 <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Description)
-                    </td>
-                    <td>
-                       <a href="#" onclick="deleteCategory(@item.Id.ToString());">Dzēst</a>
-                    </td>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Description)
+                    </th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Description)
+                        </td>
+                        <td>
+                           <a href="#" onclick="deleteCategory(@item.Id.ToString());">Dzēst</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
     <br />
     <div>
         @Html.ActionLink("Atpakaļ uz sarakstu", "Index")

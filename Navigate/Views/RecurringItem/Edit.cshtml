@@ -1,10 +1,10 @@
 ﻿@model Navigate.Models.RecurringItem
 
 @{
-    ViewBag.Title = "Edit";
+    ViewBag.Title = "Rediģēt";
 }
 
-<h2>Edit</h2>
+<h2>Rediģēt</h2>
 
 @using (Html.BeginForm()) {
     @Html.AntiForgeryToken()
@@ -14,6 +14,8 @@
         <legend>RecurringItem</legend>
 
         @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.OriginalDate)
+        @Html.HiddenFor(model => model.WorkItemId)
 
         <div class="editor-label">
             @Html.LabelFor(model => model.Subject)
@@ -56,11 +58,11 @@
         </div>
 
         <p>
-            <input type="submit" value="Saglabāt" />
+            <input type="submit" class="btn btn-primary" value="Saglabāt" />
         </p>
     </fieldset>
 }
 
 <div>
-    @Html.ActionLink("Atpakaļ uz sarakstu", "Index")
+    @Html.ActionLink("Atpakaļ uz sarakstu", "Details", "WorkItem", new { id = Model.WorkItemId }, null)
 </div>

@@ -38,6 +38,10 @@ namespace Navigate.ViewModels
 
         #region [Work Item]
 
+        /// <summary>
+        /// Sets the model values from an incoming work item
+        /// </summary>
+        /// <param name="workItem">The work item</param>
         public WorkItemDataInputModel(WorkItem workItem)
         {
             this.Categories = new List<Category>();
@@ -65,8 +69,10 @@ namespace Navigate.ViewModels
                 this.EndDate = workItem.EndDateTime;
                 this.DueDate = DateTime.Now;
             }
-            this.Duration = workItem.Duration.Value;         
+            this.Duration = workItem.Duration;         
             this.isRecurring = workItem.isRecurring;
+
+            // if work item is recurring we only want the specific recurrence type fields to be filled with values
             if (workItem.isRecurring)
             {
                 var recurrencePattern = workItem.RecurrencePattern;
@@ -141,25 +147,10 @@ namespace Navigate.ViewModels
         public double Duration { get; set; }
 
         [Display(Name = "Uzdevuma tips")]
-        public WorkItemType WorkItemType { get; set; }
-
-        public IEnumerable<SelectListItem> AllWorkItemTypes
-        {
-            get
-            {
-                return Enums.GetValues<WorkItemType>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
-            }
-        }
+        public WorkItemType WorkItemType { get; set; }       
 
         [Display(Name = "Prioritāte")]
-        public WorkItemPriority? Priority { get; set; }
-
-        public IEnumerable<SelectListItem> AllPriorities {
-            get
-            {
-                return Enums.GetValues<WorkItemPriority>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
-            }
-        }
+        public WorkItemPriority? Priority { get; set; }     
 
         public List<Category> Categories { get; set; }
 
@@ -177,6 +168,8 @@ namespace Navigate.ViewModels
         [Display(Name = "Sākumpunkts")]
         public string Origin { get; set; }
 
+        // populate the SelectLists with values from enums using the Unconstrained Melody library from Jon Skeet
+        // these select lists are then used in drop downs in the create and edit forms
         public IEnumerable<SelectListItem> AllReminders
         {
             get
@@ -185,6 +178,23 @@ namespace Navigate.ViewModels
             }
         }
 
+        public IEnumerable<SelectListItem> AllWorkItemTypes
+        {
+            get
+            {
+                return Enums.GetValues<WorkItemType>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
+            }
+        }
+
+        public IEnumerable<SelectListItem> AllPriorities
+        {
+            get
+            {
+                return Enums.GetValues<WorkItemPriority>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
+            }
+        }
+
+        //take the values from the model and populate a WorkItem class with them to save the work item to the database
         public WorkItem TransformToWorkItem()
         {
             var workItem = new WorkItem();
@@ -255,19 +265,26 @@ namespace Navigate.ViewModels
 
         public Instance YearInstance { get; set; }
 
-        public IEnumerable<SelectListItem> AllInstances
+        public DayOfWeekMask MonthDayOfWeekMask { get; set; }
+
+        public DayOfWeekMask YearDayOfWeekMask { get; set; }     
+
+        [Display(Name = "Mēnesis")]
+        public MonthOfYear YearMonthOfYear { get; set; }
+
+        [Display(Name = "Mēnesis")]
+        public MonthOfYear YearNthMonthOfYear { get; set; }
+
+        // populate dropdowns with values from enum classes
+        public IEnumerable<SelectListItem> AllMonthsOfYear
         {
             get
             {
-                return Enums.GetValues<Instance>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
+                return Enums.GetValues<MonthOfYear>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
             }
 
             set { }
         }
-
-        public DayOfWeekMask MonthDayOfWeekMask { get; set; }
-
-        public DayOfWeekMask YearDayOfWeekMask { get; set; }
 
         public IEnumerable<SelectListItem> AllDaysOfWeek
         {
@@ -279,22 +296,17 @@ namespace Navigate.ViewModels
             set { }
         }
 
-        [Display(Name = "Mēnesis")]
-        public MonthOfYear YearMonthOfYear { get; set; }
-
-        [Display(Name = "Mēnesis")]
-        public MonthOfYear YearNthMonthOfYear { get; set; }
-
-        public IEnumerable<SelectListItem> AllMonthsOfYear
+        public IEnumerable<SelectListItem> AllInstances
         {
             get
             {
-                return Enums.GetValues<MonthOfYear>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
+                return Enums.GetValues<Instance>().Select(enumValue => new SelectListItem { Value = enumValue.ToString(), Text = enumValue.GetDescription() });
             }
 
             set { }
         }
 
+        // create a recurrence pattern from a given recurrence type and the inputted values
         public WIRecurrencePattern TransformToRecurrencePattern()
         {
             var recurrencePattern = new WIRecurrencePattern();

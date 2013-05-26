@@ -65,7 +65,7 @@ namespace Navigate.Models
         /// <summary>
         /// Gets or sets the duration in minutes of completion for a task or the duration of a appointment
         /// </summary>
-        public double? Duration { get; set; }
+        public double Duration { get; set; }
 
         /// <summary>
         /// Gets or sets the work item type, which reference the work item type classifier

@@ -22,7 +22,7 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </a>
-                        <a class="brand" href="/Home">Navigate</a>
+                        <a class="brand" href="/Home">Mājas <i class="icon-home icon-white" style="margin-top: 5px;"></i></a>
                         @if (User.Identity.IsAuthenticated)
                         {
                             <div class="nav-collapse">
@@ -30,7 +30,10 @@
                                     <li>@Html.ActionLink("Uzdevumi", "Index", "WorkItem")</li>
                                     <li>@Html.ActionLink("Kalendārs", "Index", "Calendar")</li>
                                     <li>@Html.ActionLink("Klasifikatori", "Index", "Classifier")</li>   
-                                    <li>@Html.ActionLink("Atskaites", "Index", "Report")</li>                      
+                                    <li>@Html.ActionLink("Atskaites", "Index", "Report")</li> 
+                                    @if (User.IsInRole("Administrator")) { 
+                                        <li>@Html.ActionLink("Lietotāju saraksts", "ListUsers", "Account")</li>
+                                    }                                                      
                                 </ul>
                             </div>
                         }

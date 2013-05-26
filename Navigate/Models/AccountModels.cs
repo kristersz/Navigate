@@ -20,20 +20,20 @@ namespace Navigate.Models
 
     public class LocalPasswordModel
     {
-        [Required]
+        [Required(ErrorMessage = "Lauks {0} ir obligāts")]
         [DataType(DataType.Password)]
         [Display(Name = "Pašreizējā parole")]
         public string OldPassword { get; set; }
 
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [Required(ErrorMessage = "Lauks {0} ir obligāts")]
+        [StringLength(100, ErrorMessage = "Jaunajai parolei jābūt vismaz {2} simbolus garai!", MinimumLength = 8)]
         [DataType(DataType.Password)]
         [Display(Name = "Jaunā parole")]
         public string NewPassword { get; set; }
 
         [DataType(DataType.Password)]
         [Display(Name = "Apstipriniet jauno paroli")]
-        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+        [Compare("NewPassword", ErrorMessage = "Parole un apstiprinājuma parole nesakrīt!")]
         public string ConfirmPassword { get; set; }      
     }
 
@@ -45,6 +45,7 @@ namespace Navigate.Models
         public string Email { get; set; }
 
         [Display(Name = "Pamata atrašanās vieta")]
+        [Required(ErrorMessage = "Lauks {0} ir obligāts")]
         public string BaseLocation { get; set; }
     }
 

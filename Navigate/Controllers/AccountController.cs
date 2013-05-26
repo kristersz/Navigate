@@ -78,13 +78,15 @@ namespace Navigate.Controllers
                 try
                 {
                     WebSecurity.CreateUserAndAccount(model.UserName, model.Password);
-                    WebSecurity.Login(model.UserName, model.Password);
-
                     NavigateDb db = new NavigateDb();
                     var userProfile = db.UserProfiles.Where(o => o.UserName == model.UserName).FirstOrDefault();
                     userProfile.Email = model.Email;
                     userProfile.BaseLocation = model.BaseLocation;
                     db.SaveChanges();
+
+                    var roles = (SimpleRoleProvider)Roles.Provider;
+                    roles.AddUsersToRoles(new[] { model.UserName }, new[] { "User" });
+                    WebSecurity.Login(model.UserName, model.Password);
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -212,7 +214,7 @@ namespace Navigate.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError("", "The current password is incorrect or the new password is invalid.");
+                        ModelState.AddModelError("", "Pāsreizējā parole nav pareiza vai jaunā parole nav korekta");
                     }
                 }
             }
@@ -242,6 +244,44 @@ namespace Navigate.Controllers
 
             // If we got this far, something failed, redisplay form
             return View(model);
+        }
+
+        [Authorize(Roles="Administrator")]
+        public ActionResult ListUsers()
+        {
+            var roles = (SimpleRoleProvider)Roles.Provider;
+            var allUsers = this.dataContext.UserProfiles.ToList();
+            var regularUsers = new List<UserProfile>();
+
+            foreach (var user in allUsers)
+            {
+                if (!roles.GetRolesForUser(user.UserName).Contains("Administrator"))
+                {
+                    regularUsers.Add(user);
+
+                }
+            }
+            return View(regularUsers);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Administrator")]
+        public JsonResult DeleteUser(int userId = 0)
+        {
+            if (userId == 0)
+                return new JsonResult() { Data = new { IsValid = false, Message = "Lietotājs netika atrasts" } };
+
+            var user = this.dataContext.UserProfiles.Where(o => o.UserId == userId).FirstOrDefault();
+            if (user == null)
+                return new JsonResult() { Data = new { IsValid = false, Message = "Kategorija netika atrasts" } };
+
+            ((SimpleMembershipProvider)Membership.Provider).DeleteAccount(user.UserName);
+            ((SimpleMembershipProvider)Membership.Provider).DeleteUser(user.UserName, true);
+            this.dataContext.SaveChanges();
+
+            TempData["Message"] = "Lietotājs " + user.UserName + " veiksmīgi izdzēsts!";
+            TempData["Alert-Level"] = "alert-success";
+            return new JsonResult() { Data = new { IsValid = true, Message = "Lietotājs veiksmīgi izdzēsts" } };
         }
 
         //
