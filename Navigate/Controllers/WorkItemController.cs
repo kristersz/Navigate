@@ -21,6 +21,7 @@ namespace Navigate.Controllers
     [Authorize]
     public class WorkItemController : BaseController
     {
+        private ReminderScheduler scheduler = new ReminderScheduler();
         /// <summary>
         /// Displays the list of work items, provides filtering, searching and sorting of returned elements
         /// </summary>
@@ -224,7 +225,8 @@ namespace Navigate.Controllers
             model.Origin = this.CurrentUser.BaseLocation;
             ViewBag.Title = "Izveidot";
             ViewBag.Pagetitle = "Izveidot uzdevumu";
-            return View(model);
+            ViewBag.PostBackMethod = "Create";
+            return View("CreateEdit", model);
         }
 
         /// <summary>
@@ -248,11 +250,7 @@ namespace Navigate.Controllers
                 workItem.UpdatedByUserId = this.CurrentUser.UserId;
                 workItem.Categories = new List<Navigate.Models.Classifiers.Category>();
 
-                foreach (var categoryId in model.SelectedCategoryIds)
-                {
-                    var category = this.dataContext.Categories.Find(categoryId);
-                    workItem.Categories.Add(category);
-                }
+                AddCategories(model, workItem);
 
                 if (workItem.isRecurring == true)
                 {
@@ -266,8 +264,8 @@ namespace Navigate.Controllers
 
                 if (workItem.Reminder != Reminder.None)
                 {
-                    var scheduler = new ReminderScheduler();
-                    scheduler.ScheduleReminder(workItem);
+                    SetReminderData(scheduler, workItem);
+                    scheduler.ScheduleReminder();
                 }
 
                 TempData["Message"] = "Uzdevums " + workItem.Subject + " veiksmīgi izveidots";
@@ -276,7 +274,7 @@ namespace Navigate.Controllers
             }
 
             ModelState.AddModelError("", "Lūdzu, izlabojiet kļūdas un atkārtoti nospiediet Saglabāt");
-            return View(model);
+            return View("CreateEdit", model);
         }
 
         /// <summary>
@@ -301,7 +299,8 @@ namespace Navigate.Controllers
 
             ViewBag.Title = "Rediģēt";
             ViewBag.Pagetitle = "Rediģēt uzdevumu " + workItem.Subject;
-            return View(model);
+            ViewBag.PostBackMethod = "Edit";
+            return View("CreateEdit", model);
         }
 
         /// <summary>
@@ -322,7 +321,10 @@ namespace Navigate.Controllers
                 if (workItem != null)
                 {
                     model.UpdateWorkItem(workItem);
-                    //TODO: edit categories
+                    //update categories
+                    var categories = workItem.Categories.ToList();
+                    categories.ForEach(category => workItem.Categories.Remove(category));
+                    AddCategories(model, workItem);
 
                     if (workItem.isRecurring == true)
                     {
@@ -384,16 +386,31 @@ namespace Navigate.Controllers
                         }
                     }
 
+                    if (workItem.Reminder != Reminder.None && workItem.EndDateTime > DateTime.Now)
+                    {
+                        SetReminderData(scheduler, workItem);
+                        scheduler.RescheduleReminder();
+                    }
+
                     workItem.UpdatedAt = DateTime.Now;
                     workItem.UpdatedByUserId = this.CurrentUser.UserId;
                     this.dataContext.SaveChanges();
+
+                    TempData["Message"] = "Uzdevums " + workItem.Subject + " veiksmīgi atjaunots";
+                    TempData["Alert-Level"] = "alert-success";
+                    return RedirectToAction("Index");
+                    
                 }
 
-                TempData["Message"] = "Uzdevums " + workItem.Subject + " veiksmīgi atjaunots";
-                TempData["Alert-Level"] = "alert-success";
-                return RedirectToAction("Index");
+                ViewBag.PostBackMethod = "Edit";
+                ModelState.AddModelError("", "Uzdevums netika atrasts!");
+                return View("CreateEdit", model);
+
             }
-            return View(model);
+
+            ViewBag.PostBackMethod = "Edit";
+            ModelState.AddModelError("", "Lūdzu, izlabojiet kļūdas un atkārtoti nospiediet Saglabāt");
+            return View("Create", model);
         }
 
         /// <summary>
@@ -461,6 +478,7 @@ namespace Navigate.Controllers
         public JsonResult ChangeStatus(int id = 0)
         {
             WorkItem workItem = this.dataContext.WorkItems.Find(id);
+            var scheduler = new ReminderScheduler();
             var message = "";
 
             if (workItem == null || workItem.CreatedByUserId != this.CurrentUser.UserId)
@@ -491,6 +509,11 @@ namespace Navigate.Controllers
                             message = "Periodiskais uzdevums " + recurringItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā izpildīts, šis bija pēdējais notikums šajā notikumu sērijā";
                         }
                         else message = "Periodiskais uzdevums " + recurringItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā izpildīts, nākamais notikums: " + nextRecurringItem.Start;
+
+                        if (recurringItem.Start >= DateTime.Now)
+                        {
+                            scheduler.RemoveReminder(workItem.Id);
+                        }
                     }
                 }
             }
@@ -508,12 +531,15 @@ namespace Navigate.Controllers
                         workItem.isCompleted = true;
                         workItem.CompletedAt = DateTime.Now;
                         message = "Uzdevums " + workItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā izpildīts";
+                        scheduler.RemoveReminder(workItem.Id);
                     }
                     else
                     {
                         workItem.isCompleted = false;
                         workItem.CompletedAt = null;
                         message = "Uzdevums " + workItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā neizpildīts";
+                        SetReminderData(scheduler, workItem);
+                        scheduler.ScheduleReminder();
                     }
                 }
             }
@@ -665,6 +691,29 @@ namespace Navigate.Controllers
             }
 
             return hasErrors;
+        }
+
+        private void AddCategories(WorkItemDataInputModel model, WorkItem workItem)
+        {
+            foreach (var categoryId in model.SelectedCategoryIds)
+            {
+                var category = this.dataContext.Categories.Find(categoryId);
+                workItem.Categories.Add(category);
+            }
+        }
+
+        public void SetReminderData(ReminderScheduler scheduler, WorkItem workItem)
+        {
+            scheduler.Id = workItem.Id;
+            scheduler.WorkItemType = workItem.WorkItemType;
+            scheduler.Reminder = workItem.Reminder;
+            scheduler.StartTime = workItem.StartDateTime;
+            scheduler.EndTime = workItem.EndDateTime;
+            scheduler.Origin = workItem.Origin;
+            scheduler.Location = workItem.Location;
+            scheduler.Subject = workItem.Subject;
+            scheduler.MailTo = workItem.CreatedBy.Email;
+            scheduler.Url = Url.Action("Details", "WorkItem", new { id = workItem.Id }, Request.Url.Scheme);
         }
     }
 }

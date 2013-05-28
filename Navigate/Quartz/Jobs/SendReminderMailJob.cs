@@ -29,6 +29,7 @@ namespace Navigate.Quartz.Jobs
                 string subject = dataMap.GetString("Subject");
                 string dueDate = dataMap.GetString("DueDate");
                 string mailToAddress = dataMap.GetString("MailTo");
+                string url = dataMap.GetString("Url");
                 port = Convert.ToInt32(smtpPort);
 
                 SmtpClient smtp = new SmtpClient(smtpHost, port);
@@ -38,7 +39,7 @@ namespace Navigate.Quartz.Jobs
                 MailMessage mail = new MailMessage();
                 mail.To.Add(mailToAddress);
                 mail.Subject = string.Format("Uzdevums {0} ir jāpabeidz līdz {1}", subject, dueDate);
-                mail.Body = string.Format("Uzdevumu varat aplūkot nospiežot uz sekojošās saites: ");
+                mail.Body = string.Format("Uzdevumu varat aplūkot nospiežot uz sekojošās saites: " + url);
                 mail.BodyEncoding = Encoding.Unicode;
                 mail.From = new MailAddress(senderEmail);
 

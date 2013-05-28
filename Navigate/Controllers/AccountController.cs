@@ -274,9 +274,21 @@ namespace Navigate.Controllers
             var user = this.dataContext.UserProfiles.Where(o => o.UserId == userId).FirstOrDefault();
             if (user == null)
                 return new JsonResult() { Data = new { IsValid = false, Message = "Kategorija netika atrasts" } };
-
+            
+            Roles.RemoveUserFromRole(user.UserName, "User");
             ((SimpleMembershipProvider)Membership.Provider).DeleteAccount(user.UserName);
             ((SimpleMembershipProvider)Membership.Provider).DeleteUser(user.UserName, true);
+
+            var workItems = this.dataContext.WorkItems.Where(o => o.CreatedByUserId == user.UserId).ToList();
+            foreach (var workItem in workItems)
+            {
+                if (workItem.RecurrencePattern != null)
+                {
+                    this.dataContext.WIRecurrencePatterns.Remove(workItem.RecurrencePattern);
+                }
+                this.dataContext.WorkItems.Remove(workItem);
+            }
+
             this.dataContext.SaveChanges();
 
             TempData["Message"] = "Lietotājs " + user.UserName + " veiksmīgi izdzēsts!";

@@ -34,6 +34,7 @@ namespace Navigate.ViewModels
             this.YearNthInterval = 1;
             this.DayOfMonth = 1;
             this.DayOfMonthForYear = 1;
+            this.Duration = 1;
         }
 
         #region [Work Item]
@@ -143,6 +144,8 @@ namespace Navigate.ViewModels
         [Display(Name = "Notiek visu dienu")]
         public bool AllDayEvent { get; set; }
 
+        [Required(ErrorMessage = "{0} ir obligāts lauks")]
+        [Range(0.001, 36, ErrorMessage="{0} jābūt robežās no {1} līdz {2}")]
         [Display(Name = "Izpildes ilgums stundās")]
         public double Duration { get; set; }
 
@@ -228,37 +231,37 @@ namespace Navigate.ViewModels
         #region [Recurrence]
 
         [Display(Name = "Katru dienu")]
-        [Range(1, 6)]
+        [Range(1, 6, ErrorMessage = "{0} jābūt robežās no {1} līdz {2}")]
         public int DailyInterval { get; set; }
 
         [Display(Name = "Katru nedēļu")]
-        [Range(1, 3)]
+        [Range(1, 3, ErrorMessage = "{0} jābūt robežās no {1} līdz {2}")]
         public int WeeklyInterval { get; set; }
 
         [Display(Name = "Katra mēneša norādītajā datumā")]
-        [Range(1, 11)]
+        [Range(1, 11, ErrorMessage = "{0} jābūt robežās no {1} līdz {2}")]
         public int MonthlyInterval { get; set; }
 
         [Display(Name = "Katra mēneša norādītajā dienā")]
-        [Range(1, 11)]
+        [Range(1, 11, ErrorMessage = "{0} jābūt robežās no {1} līdz {2}")]
         public int MonthNthInterval { get; set; }
 
         [Display(Name = "Katra gada norādītajā datumā")]
-        [Range(1, 3)]
+        [Range(1, 3, ErrorMessage = "{0} jābūt robežās no {1} līdz {2}")]
         public int YearlyInterval { get; set; }
 
         [Display(Name = "Katra gada norādītajā dienā")]
-        [Range(1, 3)]
+        [Range(1, 3, ErrorMessage = "{0} jābūt robežās no {1} līdz {2}")]
         public int YearNthInterval { get; set; }
 
         public DaysOfWeek WeekDays { get; set; }
 
         [Display(Name = "Mēneša diena")]
-        [Range(1, 31)]
+        [Range(1, 31, ErrorMessage = "{0} jābūt robežās no {1} līdz {2}")]
         public int DayOfMonth { get; set; }
 
         [Display(Name = "Mēneša diena")]
-        [Range(1, 31)]
+        [Range(1, 31, ErrorMessage = "{0} jābūt robežās no {1} līdz {2}")]
         public int DayOfMonthForYear { get; set; }
 
         public Instance MonthInstance { get; set; }
@@ -369,7 +372,7 @@ namespace Navigate.ViewModels
             if (this.WorkItemType == WorkItemType.Task)
             {
                 workItem.isRecurring = false;
-                workItem.StartDateTime = DateTime.Now;
+                workItem.StartDateTime = null;
                 workItem.EndDateTime = this.DueDate;
             }
             else

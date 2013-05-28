@@ -259,6 +259,7 @@ body {
 }
 
 #calendar {
-    width: 900px;
+    line-height: 12px;
+    width: 1170px;
     margin: 0 auto;
 }

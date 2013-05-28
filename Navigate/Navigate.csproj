@@ -189,9 +189,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201305261646118_InitialCreate.cs" />
-    <Compile Include="Migrations\201305261646118_InitialCreate.Designer.cs">
-      <DependentUpon>201305261646118_InitialCreate.cs</DependentUpon>
+    <Compile Include="Migrations\201305282221355_InitialCreate.cs" />
+    <Compile Include="Migrations\201305282221355_InitialCreate.Designer.cs">
+      <DependentUpon>201305282221355_InitialCreate.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
@@ -211,6 +211,7 @@
     <Compile Include="Models\Classifiers\WorkItemType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Quartz\Jobs\SendReminderMailJob.cs" />
+    <Compile Include="Quartz\Jobs\SimpleJob.cs" />
     <Compile Include="Quartz\ReminderScheduler.cs" />
     <Compile Include="Services\Message.cs" />
     <Compile Include="Services\MessageSeverity.cs" />
@@ -379,8 +380,7 @@
     </Content>
     <Content Include="Views\WorkItem\Index.cshtml" />
     <Content Include="Views\WorkItem\Details.cshtml" />
-    <Content Include="Views\WorkItem\Create.cshtml" />
-    <Content Include="Views\WorkItem\Edit.cshtml" />
+    <Content Include="Views\WorkItem\CreateEdit.cshtml" />
     <Content Include="Views\WorkItem\Delete.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Date.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\DateTime.cshtml" />
@@ -443,8 +443,8 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201305261646118_InitialCreate.resx">
-      <DependentUpon>201305261646118_InitialCreate.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201305282221355_InitialCreate.resx">
+      <DependentUpon>201305282221355_InitialCreate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

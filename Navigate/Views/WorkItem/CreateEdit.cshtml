@@ -3,9 +3,10 @@
 
 <h2>@ViewBag.Pagetitle</h2>
 
-@using (Html.BeginForm("Create", "WorkItem", FormMethod.Post, new { @id = "createEditForm", @class = "form-horizontal" })) {
+@using (Html.BeginForm((string)ViewBag.PostBackMethod, "WorkItem", FormMethod.Post, new { @id = "createEditForm", @class = "form-horizontal" })) {
     @Html.ValidationSummary(true)
     @Html.AntiForgeryToken()
+    @Html.Hidden("WorkItemId")
     <div class="well">
         <fieldset>
             <legend>Uzdevums</legend>

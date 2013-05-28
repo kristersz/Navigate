@@ -1,4 +1,5 @@
 ﻿using Navigate.Models;
+using Navigate.Models.Classifiers;
 using Navigate.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ namespace Navigate.Controllers
             var endDateTime = FromUnixTimestamp(end);
 
             var events = this.dataContext.WorkItems
-                .Where(e => e.CreatedByUserId == this.CurrentUser.UserId && e.isCompleted == false)
+                .Where(e => e.CreatedByUserId == this.CurrentUser.UserId)
                 .ToList();
             var eventList = new List<object>();
 
@@ -46,18 +47,34 @@ namespace Navigate.Controllers
             {
                 // we display non-recurring items as they are
                 // for recurring work items however, we display each of their occurrences 
-                if (e.isRecurring == false && (e.StartDateTime >= startDateTime && e.EndDateTime <= endDateTime))
+                if (e.isRecurring == false)
                 {
-                    eventList.Add(
-                        new
-                        {
-                            id = e.Id,
-                            title = e.Subject,
-                            start = e.StartDateTime.Value.ToString("yyyy-MM-dd HH:mm"),
-                            end = e.EndDateTime.ToString("yyyy-MM-dd HH:mm"),
-                            allDay = e.AllDayEvent,
-                            url = "/WorkItem/Details/" + e.Id.ToString() + "/"
-                        });
+                    if (e.WorkItemType == WorkItemType.Appointment && (e.StartDateTime >= startDateTime && e.EndDateTime <= endDateTime))
+                    {
+                        eventList.Add(
+                            new
+                            {
+                                id = e.Id,
+                                title = e.Subject,
+                                start = e.StartDateTime.Value.ToString("yyyy-MM-dd HH:mm"),
+                                end = e.EndDateTime.ToString("yyyy-MM-dd HH:mm"),
+                                allDay = e.AllDayEvent,
+                                url = "/WorkItem/Details/" + e.Id.ToString() + "/"
+                            });
+                    }
+                    else if (e.WorkItemType == WorkItemType.Task && (e.EndDateTime <= endDateTime && e.EndDateTime.AddHours(-e.Duration) >= startDateTime))
+                    {
+                        eventList.Add(
+                            new
+                            {
+                                id = e.Id,
+                                title = e.Subject,
+                                start = e.EndDateTime.AddHours(-e.Duration).ToString("yyyy-MM-dd HH:mm"),
+                                end = e.EndDateTime.ToString("yyyy-MM-dd HH:mm"),
+                                allDay = e.AllDayEvent,
+                                url = "/WorkItem/Details/" + e.Id.ToString() + "/"
+                            });
+                    }
                 }
                 else 
                 {

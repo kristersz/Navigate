@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Reflection;
+using Navigate.Quartz;
+using Navigate.Controllers;
 
 namespace Navigate.Services
 {
@@ -18,6 +20,8 @@ namespace Navigate.Services
         public DateTime IntervalStart;
 
         public DateTime IntervalEnd;
+
+        private ReminderScheduler scheduler = new ReminderScheduler();
 
         public OutlookItemImportService(NavigateDb _dataContext, UserProfile _currentUser)
         {
@@ -80,12 +84,19 @@ namespace Navigate.Services
                     {
                         var workItem = CreateNonRecurringWorkItem(item);
                         this.dataContext.WorkItems.Add(workItem);
+                        SetReminderData(scheduler, workItem);
+                        scheduler.ScheduleReminder();
                     }
                     else
                     {
                         if (existingWorkItem.UpdatedAt <= item.LastModificationTime)
                         {
                             UpdateNonRecurringWorkItem(existingWorkItem, item);
+                            if (existingWorkItem.Reminder != Reminder.None && existingWorkItem.EndDateTime > DateTime.Now)
+                            {
+                                SetReminderData(scheduler, existingWorkItem);
+                                scheduler.RescheduleReminder();
+                            }
                         }
                     }
                     this.dataContext.SaveChanges();
@@ -311,6 +322,8 @@ namespace Navigate.Services
             workItem.AllDayEvent = item.AllDayEvent;
             workItem.Duration = item.Duration / 60;
             workItem.WorkItemType = WorkItemType.Appointment;
+            workItem.Reminder = Reminder.Driving;
+            workItem.Origin = this.CurrentUser.BaseLocation;
             workItem.isRecurring = false;
             workItem.CreatedByUserId = this.CurrentUser.UserId;
             workItem.UpdatedByUserId = this.CurrentUser.UserId;
@@ -338,6 +351,20 @@ namespace Navigate.Services
             existingRecurringItem.Body = item.Body;
             existingRecurringItem.Location = item.Location;
             existingRecurringItem.UpdatedAt = DateTime.Now;
+        }
+
+        public void SetReminderData(ReminderScheduler scheduler, WorkItem workItem)
+        {
+            scheduler.Id = workItem.Id;
+            scheduler.WorkItemType = workItem.WorkItemType;
+            scheduler.Reminder = workItem.Reminder;
+            scheduler.StartTime = workItem.StartDateTime;
+            scheduler.EndTime = workItem.EndDateTime;
+            scheduler.Origin = workItem.Origin;
+            scheduler.Location = workItem.Location;
+            scheduler.Subject = workItem.Subject;
+            scheduler.MailTo = workItem.CreatedBy.Email;
+            //scheduler.Url = Url.Action("Details", "WorkItem", new { id = workItem.Id }, Request.Url.Scheme);
         }
     }
 }
