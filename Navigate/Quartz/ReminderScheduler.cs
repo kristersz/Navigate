@@ -1,6 +1,7 @@
 ﻿using Navigate.Models;
 using Navigate.Models.Classifiers;
 using Navigate.Quartz.Jobs;
+using Navigate.Services;
 using Quartz;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Xml;
+using UnconstrainedMelody;
 
 namespace Navigate.Quartz
 {
@@ -25,6 +27,8 @@ namespace Navigate.Quartz
         public DateTime? StartTime;
 
         public DateTime EndTime;
+
+        public double Duration;
 
         public string Origin;
 
@@ -48,10 +52,11 @@ namespace Navigate.Quartz
         /// Schedule jobs for each work item to send reminder emails
         /// </summary>
         /// <param name="workItem">The work item</param>
-        public void ScheduleReminder()
+        public ServiceResult<ReminderSchedulerServiceResult> ScheduleReminder()
         {
             var reminderDateTime = new DateTime();
             var dueDate = new DateTime();
+            var messages = new List<Message>();
 
             if (StartTime != null)
             {
@@ -63,36 +68,71 @@ namespace Navigate.Quartz
             }
 
             reminderDateTime = GetReminderDateTime(Reminder, dueDate, Origin, Location);
+           
+            if (reminderDateTime == dueDate)
+            {
+                //since we got here it means that the request to Google Distance Matrix service failed and our method returned 0
+                //and we should stop here and notify the user
+                var message = "Neizdevās aprēķināt maršruta ilgumu no sākumpunkta līdz galamērķim\nLūdzu precizējiet šīs adreses!";
+                return new ServiceResult<ReminderSchedulerServiceResult>()
+                {
+                    Data = ReminderSchedulerServiceResult.Error,
+                    Messages = new Message[] { new Message() { Text = message, Severity = MessageSeverity.Error } }
+                };
 
-            // construct job info
-            IJobDetail jobDetail = JobBuilder.Create<SendReminderMailJob>()
-                .WithIdentity("reminderFor" + Id.ToString(), "reminderJobs")
-                .RequestRecovery()
-                .Build();
+            }
+            if (WorkItemType == WorkItemType.Task)
+            {
+                reminderDateTime = reminderDateTime.AddHours(-Duration);
+            }
 
-            // add values to the JobDataMap for the job to use
-            // such as the subject and due date of the work item, which is used when constructing the email
-            jobDetail.JobDataMap["Subject"] = Subject;
-            jobDetail.JobDataMap["DueDate"] = dueDate.ToString("dd.MM.yyyy HH:mm");
-            jobDetail.JobDataMap["MailTo"] = MailTo;
-            jobDetail.JobDataMap["Url"] = Url;
+            try
+            {
+                // construct job info
+                IJobDetail jobDetail = JobBuilder.Create<SendReminderMailJob>()
+                    .WithIdentity("reminderFor" + Id.ToString(), "reminderJobs")
+                    .RequestRecovery()
+                    .Build();
 
-            // create a trigger that will trigger a job execution
-            ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity("triggerFor" + Id.ToString(), "reminderTriggers")
-                .StartAt(DateBuilder.DateOf(reminderDateTime.Hour, reminderDateTime.Minute, reminderDateTime.Second, reminderDateTime.Day, reminderDateTime.Month, reminderDateTime.Year))
-                .WithSimpleSchedule(x => x.WithIntervalInMinutes(1))
-                .Build();
+                // add values to the JobDataMap for the job to use
+                // such as the subject and due date of the work item, which is used when constructing the email
+                jobDetail.JobDataMap["Subject"] = Subject;
+                jobDetail.JobDataMap["DueDate"] = dueDate.ToString("dd.MM.yyyy HH:mm");
+                jobDetail.JobDataMap["MailTo"] = MailTo;
+                jobDetail.JobDataMap["Url"] = Url;
 
-            //associate the job with the trigger and schedule the job
-            scheduler.ScheduleJob(jobDetail, trigger);
+                // create a trigger that will trigger a job execution
+                ITrigger trigger = TriggerBuilder.Create()
+                    .WithIdentity("triggerFor" + Id.ToString(), "reminderTriggers")
+                    .StartAt(DateBuilder.DateOf(reminderDateTime.Hour, reminderDateTime.Minute, reminderDateTime.Second, reminderDateTime.Day, reminderDateTime.Month, reminderDateTime.Year))
+                    .WithSimpleSchedule(x => x.WithIntervalInMinutes(1))
+                    .Build();
+
+                //associate the job with the trigger and schedule the job
+                scheduler.ScheduleJob(jobDetail, trigger);
+            }
+            catch (Exception ex)
+            {
+                messages.Add(new Message() { Text = string.Format("Neparedzēta kļūda ieplānojot atgādinājumu. ", ex.Message), Severity = MessageSeverity.Error });
+            }
+
+            var result = new ServiceResult<ReminderSchedulerServiceResult>();
+            result.Messages = messages.ToArray();
+
+            if (messages.Any(m => m.Severity == MessageSeverity.Error))
+                result.Data = ReminderSchedulerServiceResult.Error;
+            else
+                result.Data = ReminderSchedulerServiceResult.Ok;
+
+            return result;
         }
 
-        public void RescheduleReminder()
+        public ServiceResult<ReminderSchedulerServiceResult> RescheduleReminder()
         {
             JobKey key = new JobKey("reminderFor" + Id.ToString(), "reminderJobs");
             scheduler.DeleteJob(key);
-            ScheduleReminder();
+            var result = ScheduleReminder();
+            return result;
         }
 
         public void RemoveReminder(long workItemId)
@@ -172,14 +212,68 @@ namespace Navigate.Quartz
 
             // if everything went well and the service could calculate the duration of the travel
             // read the duration value, convert it to double and return to the user
-            if (xmldoc.GetElementsByTagName("status")[0].ChildNodes[0].InnerText == "OK")
+            if (xmldoc.GetElementsByTagName("status")[1].ChildNodes[0].InnerText == "OK")
             {
                 XmlNodeList durationNode = xmldoc.GetElementsByTagName("duration");
                 var durationString = durationNode[0].ChildNodes[0].InnerText;
                 duration = Convert.ToDouble(durationString);
+
+                return duration / 60;
+            }
+            else
+            {
+                return duration;
+            }           
+        }
+
+        public void SetWorkItemReminderData(ReminderScheduler scheduler, WorkItem workItem)
+        {
+            scheduler.Id = workItem.Id;
+            scheduler.WorkItemType = workItem.WorkItemType;
+            scheduler.Reminder = workItem.Reminder;
+            scheduler.StartTime = workItem.StartDateTime;
+            scheduler.EndTime = workItem.EndDateTime;
+            scheduler.Duration = workItem.Duration;
+            scheduler.Origin = workItem.Origin;
+            scheduler.Location = workItem.Location;
+            scheduler.Subject = workItem.Subject;
+            scheduler.MailTo = workItem.CreatedBy.Email;
+            //scheduler.Url = Url.Action("Details", "WorkItem", new { id = workItem.Id }, Request.Url.Scheme);
+        }
+
+        public void SetRecurringItemReminderData(ReminderScheduler scheduler, WorkItem workItem, RecurringItem recurringItem)
+        {
+            scheduler.Id = recurringItem.Id;
+            scheduler.WorkItemType = workItem.WorkItemType;
+            scheduler.Reminder = workItem.Reminder;
+            scheduler.StartTime = recurringItem.Start;
+            scheduler.EndTime = recurringItem.End;
+            scheduler.Duration = recurringItem.Duration;
+            scheduler.Origin = workItem.Origin;
+            scheduler.Location = recurringItem.Location;
+            scheduler.Subject = recurringItem.Subject;
+            scheduler.MailTo = workItem.CreatedBy.Email;
+            //scheduler.Url = Url.Action("Details", "RecurringItem", new { id = recurringItem.Id }, Request.Url.Scheme);
+        }
+
+        public string HandleReminderServiceResult(ServiceResult<ReminderSchedulerServiceResult> result)
+        {
+            var message = "";
+            switch (result.Data)
+            {
+                case ReminderSchedulerServiceResult.None:
+                    break;
+                case ReminderSchedulerServiceResult.Ok:
+                    break;
+                case ReminderSchedulerServiceResult.Error:
+                    message = "Neizdevās ieplānot atgādinājumu";
+                    break;
             }
 
-            return duration / 60;
+            if (result.Messages != null && result.Messages.Length > 0)
+                message = string.Concat(message, Environment.NewLine, string.Join(" ", result.Messages.Select(m => string.Concat(m.Severity.GetDescription(), ": ", m.Text))));
+
+            return message;
         }
     }
 }

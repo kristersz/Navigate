@@ -1,4 +1,6 @@
-﻿using Quartz;
+﻿using Navigate.Models;
+using Navigate.Models.Classifiers;
+using Quartz;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

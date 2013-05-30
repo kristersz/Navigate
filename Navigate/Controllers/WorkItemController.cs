@@ -260,14 +260,45 @@ namespace Navigate.Controllers
                 }
 
                 this.dataContext.WorkItems.Add(workItem);
-                this.dataContext.SaveChanges();
 
-                if (workItem.Reminder != Reminder.None)
+                var message = "";
+                if (workItem.Reminder != Reminder.None && workItem.isRecurring == false)
                 {
-                    SetReminderData(scheduler, workItem);
-                    scheduler.ScheduleReminder();
+                    scheduler.SetWorkItemReminderData(scheduler, workItem); 
+                    try
+                    {
+                        var result = scheduler.ScheduleReminder();
+                        message = scheduler.HandleReminderServiceResult(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                    }
+                }
+                else if (workItem.Reminder != Reminder.None && workItem.isRecurring == true)
+                {
+                    foreach (var recurringItem in workItem.RecurringItems)
+                    {
+                        try
+                        {
+                            scheduler.SetRecurringItemReminderData(scheduler, workItem, recurringItem);
+                            var result = scheduler.ScheduleReminder();
+                            message = scheduler.HandleReminderServiceResult(result);
+                        }
+                        catch (Exception ex)
+                        {
+                            message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                        }
+                    }
                 }
 
+                if (message.Length != 0)
+                {
+                    ModelState.AddModelError("", "Kļūda: " + message);
+                    return View("CreateEdit", model);
+                }
+
+                this.dataContext.SaveChanges();
                 TempData["Message"] = "Uzdevums " + workItem.Subject + " veiksmīgi izveidots";
                 TempData["Alert-Level"] = "alert-success";
                 return RedirectToAction("Index");
@@ -386,10 +417,41 @@ namespace Navigate.Controllers
                         }
                     }
 
-                    if (workItem.Reminder != Reminder.None && workItem.EndDateTime > DateTime.Now)
+                    var message = "";
+                    if (workItem.Reminder != Reminder.None && workItem.isRecurring == false)
                     {
-                        SetReminderData(scheduler, workItem);
-                        scheduler.RescheduleReminder();
+                        scheduler.SetWorkItemReminderData(scheduler, workItem);
+                        try
+                        {
+                            var result = scheduler.RescheduleReminder();
+                            message = scheduler.HandleReminderServiceResult(result);
+                        }
+                        catch (Exception ex)
+                        {
+                            message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                        }
+                    }
+                    else if (workItem.Reminder != Reminder.None && workItem.isRecurring == true)
+                    {
+                        foreach (var recurringItem in workItem.RecurringItems)
+                        {
+                            try
+                            {
+                                scheduler.SetRecurringItemReminderData(scheduler, workItem, recurringItem);
+                                var result = scheduler.RescheduleReminder();
+                                message = scheduler.HandleReminderServiceResult(result);
+                            }
+                            catch (Exception ex)
+                            {
+                                message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                            }
+                        }
+                    }
+
+                    if (message.Length != 0)
+                    {
+                        ModelState.AddModelError("", "Kļūda: " + message);
+                        return View("CreateEdit", model);
                     }
 
                     workItem.UpdatedAt = DateTime.Now;
@@ -445,6 +507,18 @@ namespace Navigate.Controllers
             }
             this.dataContext.WorkItems.Remove(workItem);
             this.dataContext.SaveChanges();
+
+            if (workItem.isRecurring == false)
+            {
+                scheduler.RemoveReminder(workItem.Id);
+            }
+            else
+            {
+                foreach (var recurringItem in workItem.RecurringItems)
+                {
+                    scheduler.RemoveReminder(recurringItem.Id);
+                }
+            }
 
             TempData["Message"] = "Uzdevums " + workItem.Subject + " veiksmīgi izdzēsts";
             TempData["Alert-Level"] = "alert-success";
@@ -512,7 +586,7 @@ namespace Navigate.Controllers
 
                         if (recurringItem.Start >= DateTime.Now)
                         {
-                            scheduler.RemoveReminder(workItem.Id);
+                            scheduler.RemoveReminder(recurringItem.Id);
                         }
                     }
                 }
@@ -538,7 +612,7 @@ namespace Navigate.Controllers
                         workItem.isCompleted = false;
                         workItem.CompletedAt = null;
                         message = "Uzdevums " + workItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā neizpildīts";
-                        SetReminderData(scheduler, workItem);
+                        scheduler.SetWorkItemReminderData(scheduler, workItem);
                         scheduler.ScheduleReminder();
                     }
                 }
@@ -700,20 +774,6 @@ namespace Navigate.Controllers
                 var category = this.dataContext.Categories.Find(categoryId);
                 workItem.Categories.Add(category);
             }
-        }
-
-        public void SetReminderData(ReminderScheduler scheduler, WorkItem workItem)
-        {
-            scheduler.Id = workItem.Id;
-            scheduler.WorkItemType = workItem.WorkItemType;
-            scheduler.Reminder = workItem.Reminder;
-            scheduler.StartTime = workItem.StartDateTime;
-            scheduler.EndTime = workItem.EndDateTime;
-            scheduler.Origin = workItem.Origin;
-            scheduler.Location = workItem.Location;
-            scheduler.Subject = workItem.Subject;
-            scheduler.MailTo = workItem.CreatedBy.Email;
-            scheduler.Url = Url.Action("Details", "WorkItem", new { id = workItem.Id }, Request.Url.Scheme);
         }
     }
 }

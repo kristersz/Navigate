@@ -39,6 +39,7 @@ namespace Navigate.Services
             Outlook.Items outlookCalendarItems = null;
 
             var messages = new List<Message>();
+            var countOfFailedReminderSchedules = 0;
 
             // try to initialize Outlook API and log on
             try
@@ -84,18 +85,49 @@ namespace Navigate.Services
                     {
                         var workItem = CreateNonRecurringWorkItem(item);
                         this.dataContext.WorkItems.Add(workItem);
-                        SetReminderData(scheduler, workItem);
-                        scheduler.ScheduleReminder();
+                        var message = "";
+                        if (workItem.Reminder != Reminder.None && workItem.isRecurring == false)
+                        {
+                            scheduler.SetWorkItemReminderData(scheduler, workItem);
+                            try
+                            {
+                                var reminderServiceResult = scheduler.ScheduleReminder();
+                                message = scheduler.HandleReminderServiceResult(reminderServiceResult);
+                            }
+                            catch (Exception ex)
+                            {
+                                message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                            }
+                        }
+
+                        if (message.Length != 0)
+                        {
+                            countOfFailedReminderSchedules++;
+                        }
                     }
                     else
                     {
                         if (existingWorkItem.UpdatedAt <= item.LastModificationTime)
                         {
                             UpdateNonRecurringWorkItem(existingWorkItem, item);
-                            if (existingWorkItem.Reminder != Reminder.None && existingWorkItem.EndDateTime > DateTime.Now)
+                            var message = "";
+                            if (existingWorkItem.Reminder != Reminder.None && existingWorkItem.isRecurring == false)
                             {
-                                SetReminderData(scheduler, existingWorkItem);
-                                scheduler.RescheduleReminder();
+                                scheduler.SetWorkItemReminderData(scheduler, existingWorkItem);
+                                try
+                                {
+                                    var reminderServiceResult = scheduler.RescheduleReminder();
+                                    message = scheduler.HandleReminderServiceResult(reminderServiceResult);
+                                }
+                                catch (Exception ex)
+                                {
+                                    message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                                }
+                            }
+
+                            if (message.Length != 0)
+                            {
+                                countOfFailedReminderSchedules++;
                             }
                         }
                     }
@@ -181,11 +213,30 @@ namespace Navigate.Services
                             OriginalDate = item.Start,
                             Start = item.Start,
                             End = item.End,
+                            Duration = (item.End - item.Start).TotalHours,
+                            Origin = this.CurrentUser.BaseLocation,
                             Subject = item.Subject,
                             Body = item.Body,
                             Location = item.Location,
                             UpdatedAt = DateTime.Now
                         });
+
+                        var message = "";
+                        try
+                        {
+                            scheduler.SetRecurringItemReminderData(scheduler, workItem, workItem.RecurringItems.FirstOrDefault());
+                            var reminderServiceResult = scheduler.ScheduleReminder();
+                            message = scheduler.HandleReminderServiceResult(reminderServiceResult);
+                        }
+                        catch (Exception ex)
+                        {
+                            message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                        }
+
+                        if (message.Length != 0)
+                        {
+                            countOfFailedReminderSchedules++;
+                        }
 
                         workItem.RecurrenceType = recurrenceType;
                         workItem.CreatedByUserId = this.CurrentUser.UserId;
@@ -212,6 +263,7 @@ namespace Navigate.Services
                             foreach (var recurringItem in existingWorkItem.RecurringItems.ToList())
                             {
                                 this.dataContext.RecurringItems.Remove(recurringItem);
+                                scheduler.RemoveReminder(recurringItem.Id);
                             }
 
                             this.dataContext.WIRecurrencePatterns.Remove(existingPattern);
@@ -235,6 +287,7 @@ namespace Navigate.Services
                                     .ToList())
                                 {
                                     this.dataContext.RecurringItems.Remove(recurringItem);
+                                    scheduler.RemoveReminder(recurringItem.Id);
                                 }
 
                                 existingWorkItem.StartDateTime = recurrencePattern.PatternStartDate;
@@ -250,6 +303,17 @@ namespace Navigate.Services
                             if (existingRecurringItem != null)
                             {
                                 UpdateRecurringItem(existingRecurringItem, item);
+                                var message = "";
+                                try
+                                {
+                                    scheduler.SetRecurringItemReminderData(scheduler, existingRecurringItem.WorkItem, existingRecurringItem);
+                                    var reminderServiceResult = scheduler.RescheduleReminder();
+                                    message = scheduler.HandleReminderServiceResult(reminderServiceResult);
+                                }
+                                catch (Exception ex)
+                                {
+                                    message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                                }
                             }
                             else
                             {
@@ -264,6 +328,23 @@ namespace Navigate.Services
                                     Location = item.Location,
                                     UpdatedAt = DateTime.Now
                                 });
+
+                                var message = "";
+                                try
+                                {
+                                    scheduler.SetRecurringItemReminderData(scheduler, existingWorkItem, existingWorkItem.RecurringItems.FirstOrDefault());
+                                    var reminderServiceResult = scheduler.ScheduleReminder();
+                                    message = scheduler.HandleReminderServiceResult(reminderServiceResult);
+                                }
+                                catch (Exception ex)
+                                {
+                                    message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                                }
+
+                                if (message.Length != 0)
+                                {
+                                    countOfFailedReminderSchedules++;
+                                }
                             }
                         }
 
@@ -283,10 +364,38 @@ namespace Navigate.Services
                                     Location = item.Location,
                                     UpdatedAt = DateTime.Now
                                 });
+
+                                var message = "";
+                                try
+                                {
+                                    scheduler.SetRecurringItemReminderData(scheduler, existingWorkItem, existingWorkItem.RecurringItems.FirstOrDefault());
+                                    var reminderServiceResult = scheduler.ScheduleReminder();
+                                    message = scheduler.HandleReminderServiceResult(reminderServiceResult);
+                                }
+                                catch (Exception ex)
+                                {
+                                    message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                                }
+
+                                if (message.Length != 0)
+                                {
+                                    countOfFailedReminderSchedules++;
+                                }
                             }
                             else
                             {
                                 UpdateRecurringItem(existingRecurringItem, item);
+                                var message = "";
+                                try
+                                {
+                                    scheduler.SetRecurringItemReminderData(scheduler, existingRecurringItem.WorkItem, existingRecurringItem);
+                                    var reminderServiceResult = scheduler.RescheduleReminder();
+                                    message = scheduler.HandleReminderServiceResult(reminderServiceResult);
+                                }
+                                catch (Exception ex)
+                                {
+                                    message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                                }
                             }
                         }
                         this.dataContext.SaveChanges();
@@ -296,6 +405,11 @@ namespace Navigate.Services
 
             //Log off
             mapiNamespace.Logoff();
+
+            if (countOfFailedReminderSchedules > 0)
+            {
+                messages.Add(new Message() { Text = string.Format("{0} no importētajiem uzdevumiem netika ieplānoti atgādinājumi, jo šajā procesā rādās kļūdas", countOfFailedReminderSchedules.ToString()), Severity = MessageSeverity.Warning });
+            }
 
             var result = new ServiceResult<OutlookItemImportServiceResult>();
             result.Messages = messages.ToArray();
@@ -347,24 +461,11 @@ namespace Navigate.Services
         {
             existingRecurringItem.Start = item.Start;
             existingRecurringItem.End = item.End;
+            existingRecurringItem.Duration = (item.End - item.Start).TotalHours;
             existingRecurringItem.Subject = item.Subject;
             existingRecurringItem.Body = item.Body;
             existingRecurringItem.Location = item.Location;
             existingRecurringItem.UpdatedAt = DateTime.Now;
-        }
-
-        public void SetReminderData(ReminderScheduler scheduler, WorkItem workItem)
-        {
-            scheduler.Id = workItem.Id;
-            scheduler.WorkItemType = workItem.WorkItemType;
-            scheduler.Reminder = workItem.Reminder;
-            scheduler.StartTime = workItem.StartDateTime;
-            scheduler.EndTime = workItem.EndDateTime;
-            scheduler.Origin = workItem.Origin;
-            scheduler.Location = workItem.Location;
-            scheduler.Subject = workItem.Subject;
-            scheduler.MailTo = workItem.CreatedBy.Email;
-            //scheduler.Url = Url.Action("Details", "WorkItem", new { id = workItem.Id }, Request.Url.Scheme);
         }
     }
 }

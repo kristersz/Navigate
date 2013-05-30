@@ -218,6 +218,7 @@
     <Compile Include="Services\OccurrenceService.cs" />
     <Compile Include="Services\OutlookItemImportService.cs" />
     <Compile Include="Services\OutlookItemImportServiceResult.cs" />
+    <Compile Include="Services\ReminderSchedulerServiceResult.cs" />
     <Compile Include="Services\ServiceResult.cs" />
     <Compile Include="ViewModels\EventModel.cs" />
     <Compile Include="ViewModels\OutlookSettingsInputModel.cs" />

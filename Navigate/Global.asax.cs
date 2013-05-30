@@ -47,14 +47,14 @@ namespace Navigate
 
             // set thread pool info
             properties["quartz.threadPool.type"] = "Quartz.Simpl.SimpleThreadPool, Quartz";
-            properties["quartz.threadPool.threadCount"] = "5";
+            properties["quartz.threadPool.threadCount"] = "10";
             properties["quartz.threadPool.threadPriority"] = "Normal";
 
             // set remoting expoter
             properties["quartz.scheduler.proxy"] = "true";
             properties["quartz.scheduler.proxy.address"] = "tcp://localhost:555/QuartzScheduler";
             // construct a scheduler factory
-            ISchedulerFactory schedFact = new StdSchedulerFactory(properties);
+            ISchedulerFactory schedFact = new StdSchedulerFactory();
 
             // get a scheduler
             IScheduler sched = schedFact.GetScheduler();

@@ -32,6 +32,8 @@ namespace Navigate.Models
         [DataType(DataType.DateTime)]
         public DateTime End { get; set; }
 
+        public double Duration { get; set; }
+
         [Display(Name = "Nosaukums")]
         public string Subject { get; set; }
 
@@ -40,6 +42,8 @@ namespace Navigate.Models
 
         [Display(Name = "Informācija")]
         public string Body { get; set; }
+
+        public string Origin { get; set; }
 
         public bool isCompleted { get; set; }
 
