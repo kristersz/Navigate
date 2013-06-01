@@ -1,4 +1,5 @@
 ﻿using Navigate.Models;
+using Navigate.Quartz;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,16 @@ namespace Navigate.Controllers
     {
         private NavigateDb db = new NavigateDb();
 
+        private ReminderScheduler _scheduler = new ReminderScheduler();
+
         protected NavigateDb dataContext
         {
             get { return this.db; }
+        }
+
+        protected ReminderScheduler scheduler
+        {
+            get { return this._scheduler; }
         }
 
         //Gets the current user by its name

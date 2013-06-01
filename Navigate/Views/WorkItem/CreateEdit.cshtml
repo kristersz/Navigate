@@ -205,6 +205,14 @@
             </fieldset>
             <div>
                 <hr />
+                @if ((string)ViewBag.PostBackMethod == "Edit" &&  Model.isRecurring == true)
+                {
+                    <div class="alert">
+                        <strong>
+                            Mainot atkārtošanās shēmu, visi eksistējošie uzdevumi tiks dzēsti un to vietā tiks izveidoti jauni!
+                        </strong>
+                    </div>
+                }
                 <input type="submit" class="btn btn-primary" value="Saglabāt" />
                 <div id="informationBlock" class="alert alert-info">
                     <span></span>

@@ -59,13 +59,6 @@ function calcRoute() {
                 travelMode: google.maps.TravelMode.WALKING
             };
             break;
-        case "TRANSIT":
-            request = {
-                origin: start,
-                destination: end,
-                travelMode: google.maps.TravelMode.TRANSIT
-            };
-            break;
         default:
             request = {
                 origin: start,
@@ -152,17 +145,6 @@ function calcDistance() {
                   origins: [document.getElementById("start").value],
                   destinations: [document.getElementById("end").value],
                   travelMode: google.maps.TravelMode.WALKING,
-                  unitSystem: google.maps.UnitSystem.METRIC,
-                  avoidHighways: false,
-                  avoidTolls: false
-              }, callback);
-            break;
-        case "TRANSIT":
-            distanceService.getDistanceMatrix(
-              {
-                  origins: [document.getElementById("start").value],
-                  destinations: [document.getElementById("end").value],
-                  travelMode: google.maps.TravelMode.TRANSIT,
                   unitSystem: google.maps.UnitSystem.METRIC,
                   avoidHighways: false,
                   avoidTolls: false

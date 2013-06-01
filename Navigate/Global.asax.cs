@@ -60,18 +60,18 @@ namespace Navigate
             IScheduler sched = schedFact.GetScheduler();
             sched.Start();
 
-            IJobDetail jobDetail = JobBuilder.Create<SimpleJob>()
-                .WithIdentity("simpleJob", "simpleJobs")
-                .RequestRecovery()
-                .Build();
+            //IJobDetail jobDetail = JobBuilder.Create<SimpleJob>()
+            //    .WithIdentity("simpleJob", "simpleJobs")
+            //    .RequestRecovery()
+            //    .Build();
 
-            ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity("simpleTrigger", "simpleTriggers")
-                .StartNow()
-                .WithSimpleSchedule(x => x.WithRepeatCount(4).WithIntervalInSeconds(10))
-                .Build();
+            //ITrigger trigger = TriggerBuilder.Create()
+            //    .WithIdentity("simpleTrigger", "simpleTriggers")
+            //    .StartNow()
+            //    .WithSimpleSchedule(x => x.WithRepeatCount(4).WithIntervalInSeconds(10))
+            //    .Build();
 
-            sched.ScheduleJob(jobDetail, trigger);
+            //sched.ScheduleJob(jobDetail, trigger);
 
             return sched;
         }

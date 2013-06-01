@@ -18,7 +18,7 @@ namespace Navigate.Quartz
     {
         public IScheduler scheduler;
 
-        public long Id;
+        public string Id;
 
         public WorkItemType WorkItemType;
 
@@ -90,7 +90,7 @@ namespace Navigate.Quartz
             {
                 // construct job info
                 IJobDetail jobDetail = JobBuilder.Create<SendReminderMailJob>()
-                    .WithIdentity("reminderFor" + Id.ToString(), "reminderJobs")
+                    .WithIdentity("reminderFor" + Id, "reminderJobs")
                     .RequestRecovery()
                     .Build();
 
@@ -103,10 +103,12 @@ namespace Navigate.Quartz
 
                 // create a trigger that will trigger a job execution
                 ITrigger trigger = TriggerBuilder.Create()
-                    .WithIdentity("triggerFor" + Id.ToString(), "reminderTriggers")
+                    .WithIdentity("triggerFor" + Id, "reminderTriggers")
                     .StartAt(DateBuilder.DateOf(reminderDateTime.Hour, reminderDateTime.Minute, reminderDateTime.Second, reminderDateTime.Day, reminderDateTime.Month, reminderDateTime.Year))
                     .WithSimpleSchedule(x => x.WithIntervalInMinutes(1))
                     .Build();
+
+                RemoveReminder(Id);
 
                 //associate the job with the trigger and schedule the job
                 scheduler.ScheduleJob(jobDetail, trigger);
@@ -127,18 +129,13 @@ namespace Navigate.Quartz
             return result;
         }
 
-        public ServiceResult<ReminderSchedulerServiceResult> RescheduleReminder()
+        public void RemoveReminder(string itemId)
         {
-            JobKey key = new JobKey("reminderFor" + Id.ToString(), "reminderJobs");
-            scheduler.DeleteJob(key);
-            var result = ScheduleReminder();
-            return result;
-        }
-
-        public void RemoveReminder(long workItemId)
-        {
-            JobKey key = new JobKey("reminderFor" + workItemId.ToString(), "reminderJobs");
-            scheduler.DeleteJob(key);
+            JobKey key = new JobKey("reminderFor" + itemId, "reminderJobs");
+            if (scheduler.CheckExists(key))
+            {
+                scheduler.DeleteJob(key);
+            }
         }
 
         public DateTime GetReminderDateTime(Reminder reminder, DateTime dueDate, string origin, string location)
@@ -228,7 +225,7 @@ namespace Navigate.Quartz
 
         public void SetWorkItemReminderData(ReminderScheduler scheduler, WorkItem workItem)
         {
-            scheduler.Id = workItem.Id;
+            scheduler.Id = workItem.CreatedByUserId.ToString() + "@" + workItem.CreatedAt.ToString();
             scheduler.WorkItemType = workItem.WorkItemType;
             scheduler.Reminder = workItem.Reminder;
             scheduler.StartTime = workItem.StartDateTime;
@@ -243,7 +240,7 @@ namespace Navigate.Quartz
 
         public void SetRecurringItemReminderData(ReminderScheduler scheduler, WorkItem workItem, RecurringItem recurringItem)
         {
-            scheduler.Id = recurringItem.Id;
+            scheduler.Id = "recurringItem" + recurringItem.Id.ToString() + "by" + workItem.CreatedByUserId.ToString() + "@" + workItem.CreatedAt.ToString();
             scheduler.WorkItemType = workItem.WorkItemType;
             scheduler.Reminder = workItem.Reminder;
             scheduler.StartTime = recurringItem.Start;
@@ -274,6 +271,16 @@ namespace Navigate.Quartz
                 message = string.Concat(message, Environment.NewLine, string.Join(" ", result.Messages.Select(m => string.Concat(m.Severity.GetDescription(), ": ", m.Text))));
 
             return message;
+        }
+
+        public string GetJobId(WorkItem workItem)
+        {
+           return workItem.CreatedByUserId.ToString() + "@" + workItem.CreatedAt.ToString();
+        }
+
+        public string GetJobId(WorkItem workItem, RecurringItem recurringItem)
+        {
+            return "recurringItem" + recurringItem.Id.ToString() + "by" + workItem.CreatedByUserId.ToString() + "@" + workItem.CreatedAt.ToString();
         }
     }
 }

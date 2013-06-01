@@ -21,7 +21,6 @@ namespace Navigate.Controllers
     [Authorize]
     public class WorkItemController : BaseController
     {
-        private ReminderScheduler scheduler = new ReminderScheduler();
         /// <summary>
         /// Displays the list of work items, provides filtering, searching and sorting of returned elements
         /// </summary>
@@ -263,12 +262,12 @@ namespace Navigate.Controllers
 
                 var message = "";
                 if (workItem.Reminder != Reminder.None && workItem.isRecurring == false)
-                {
-                    scheduler.SetWorkItemReminderData(scheduler, workItem); 
+                {                  
                     try
                     {
-                        var result = scheduler.ScheduleReminder();
-                        message = scheduler.HandleReminderServiceResult(result);
+                        this.scheduler.SetWorkItemReminderData(this.scheduler, workItem);
+                        var result = this.scheduler.ScheduleReminder();
+                        message = this.scheduler.HandleReminderServiceResult(result);
                     }
                     catch (Exception ex)
                     {
@@ -281,9 +280,9 @@ namespace Navigate.Controllers
                     {
                         try
                         {
-                            scheduler.SetRecurringItemReminderData(scheduler, workItem, recurringItem);
-                            var result = scheduler.ScheduleReminder();
-                            message = scheduler.HandleReminderServiceResult(result);
+                            this.scheduler.SetRecurringItemReminderData(this.scheduler, workItem, recurringItem);
+                            var result = this.scheduler.ScheduleReminder();
+                            message = this.scheduler.HandleReminderServiceResult(result);
                         }
                         catch (Exception ex)
                         {
@@ -419,12 +418,12 @@ namespace Navigate.Controllers
 
                     var message = "";
                     if (workItem.Reminder != Reminder.None && workItem.isRecurring == false)
-                    {
-                        scheduler.SetWorkItemReminderData(scheduler, workItem);
+                    {                        
                         try
                         {
-                            var result = scheduler.RescheduleReminder();
-                            message = scheduler.HandleReminderServiceResult(result);
+                            this.scheduler.SetWorkItemReminderData(this.scheduler, workItem);
+                            var result = this.scheduler.ScheduleReminder();
+                            message = this.scheduler.HandleReminderServiceResult(result);
                         }
                         catch (Exception ex)
                         {
@@ -437,9 +436,9 @@ namespace Navigate.Controllers
                         {
                             try
                             {
-                                scheduler.SetRecurringItemReminderData(scheduler, workItem, recurringItem);
-                                var result = scheduler.RescheduleReminder();
-                                message = scheduler.HandleReminderServiceResult(result);
+                                this.scheduler.SetRecurringItemReminderData(this.scheduler, workItem, recurringItem);
+                                var result = this.scheduler.ScheduleReminder();
+                                message = this.scheduler.HandleReminderServiceResult(result);
                             }
                             catch (Exception ex)
                             {
@@ -472,7 +471,7 @@ namespace Navigate.Controllers
 
             ViewBag.PostBackMethod = "Edit";
             ModelState.AddModelError("", "Lūdzu, izlabojiet kļūdas un atkārtoti nospiediet Saglabāt");
-            return View("Create", model);
+            return View("CreateEdit", model);
         }
 
         /// <summary>
@@ -510,13 +509,15 @@ namespace Navigate.Controllers
 
             if (workItem.isRecurring == false)
             {
-                scheduler.RemoveReminder(workItem.Id);
+                var jobId = this.scheduler.GetJobId(workItem);
+                this.scheduler.RemoveReminder(jobId);
             }
             else
             {
                 foreach (var recurringItem in workItem.RecurringItems)
                 {
-                    scheduler.RemoveReminder(recurringItem.Id);
+                    var jobId = this.scheduler.GetJobId(workItem, recurringItem);
+                    this.scheduler.RemoveReminder(jobId);
                 }
             }
 
@@ -552,7 +553,6 @@ namespace Navigate.Controllers
         public JsonResult ChangeStatus(int id = 0)
         {
             WorkItem workItem = this.dataContext.WorkItems.Find(id);
-            var scheduler = new ReminderScheduler();
             var message = "";
 
             if (workItem == null || workItem.CreatedByUserId != this.CurrentUser.UserId)
@@ -586,7 +586,8 @@ namespace Navigate.Controllers
 
                         if (recurringItem.Start >= DateTime.Now)
                         {
-                            scheduler.RemoveReminder(recurringItem.Id);
+                            var jobId = this.scheduler.GetJobId(workItem, recurringItem);
+                            this.scheduler.RemoveReminder(jobId);
                         }
                     }
                 }
@@ -605,15 +606,16 @@ namespace Navigate.Controllers
                         workItem.isCompleted = true;
                         workItem.CompletedAt = DateTime.Now;
                         message = "Uzdevums " + workItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā izpildīts";
-                        scheduler.RemoveReminder(workItem.Id);
+                        var jobId = this.scheduler.GetJobId(workItem);
+                        this.scheduler.RemoveReminder(jobId);
                     }
                     else
                     {
                         workItem.isCompleted = false;
                         workItem.CompletedAt = null;
                         message = "Uzdevums " + workItem.Subject.ToString() + " veiksmīgi tika atzīmēts kā neizpildīts";
-                        scheduler.SetWorkItemReminderData(scheduler, workItem);
-                        scheduler.ScheduleReminder();
+                        this.scheduler.SetWorkItemReminderData(this.scheduler, workItem);
+                        this.scheduler.ScheduleReminder();
                     }
                 }
             }

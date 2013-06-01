@@ -14,7 +14,14 @@
                 @Html.EditorFor(m => m.BaseLocation, new { @class = "span3" })
                 @Html.ValidationMessageFor(m => m.BaseLocation)
             <br />
-            <input type="submit" value="Saglabāt" class="btn btn-primary" />
+            <div class="alert alert-info">
+                <strong>
+                    Mainot e-pasta adresi vai pamata atrašanās vietu,  visi līdz šim ieplānotie atgādinājumi tiks sūtīti uz veco e-pasta adresi
+                    un attāums tiks rēķināts no vecās atrašanās vietas, ja vēlaties, lai veco uzdevumu atgādinājumi tiktu sūtīti uz jauno e-pasta adresi,
+                    saglabājiet šos uzdevumus pa jaunu.
+                </strong>
+            </div>
+            <input type="submit" value="Saglabāt" class="btn btn-primary" />          
         </fieldset>
     </div>
 }

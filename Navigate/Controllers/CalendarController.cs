@@ -1,5 +1,6 @@
 ﻿using Navigate.Models;
 using Navigate.Models.Classifiers;
+using Navigate.Quartz;
 using Navigate.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -124,12 +125,29 @@ namespace Navigate.Controllers
 
             }
 
+            var message = "";
             if (!workItem.isRecurring)
-            {
-                workItem.StartDateTime = workItem.StartDateTime.Value.AddDays(model.dayDelta).AddMinutes(model.minuteDelta);
+            {              
                 workItem.EndDateTime = workItem.EndDateTime.AddDays(model.dayDelta).AddMinutes(model.minuteDelta);
                 workItem.AllDayEvent = model.AllDayEvent;
-                workItem.UpdatedAt = DateTime.Now;               
+                workItem.UpdatedAt = DateTime.Now;
+
+                if (workItem.WorkItemType == WorkItemType.Appointment)
+                {
+                    workItem.StartDateTime = workItem.StartDateTime.Value.AddDays(model.dayDelta).AddMinutes(model.minuteDelta);
+                }
+ 
+                try
+                {
+                    this.scheduler.SetWorkItemReminderData(this.scheduler, workItem);
+                    var result = this.scheduler.ScheduleReminder();
+                    message = this.scheduler.HandleReminderServiceResult(result);
+                }
+                catch (Exception ex)
+                {
+                    message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                    return new JsonResult() { Data = new { IsValid = false, Message = message } };
+                }
             }
             else
             {
@@ -137,7 +155,19 @@ namespace Navigate.Controllers
                 {
                     recurringItem.Start = recurringItem.Start.AddDays(model.dayDelta).AddMinutes(model.minuteDelta);
                     recurringItem.End = recurringItem.End.AddDays(model.dayDelta).AddMinutes(model.minuteDelta);
-                    recurringItem.UpdatedAt = DateTime.Now;                    
+                    recurringItem.UpdatedAt = DateTime.Now;
+
+                    try
+                    {
+                        this.scheduler.SetRecurringItemReminderData(this.scheduler, workItem, recurringItem);
+                        var result = this.scheduler.ScheduleReminder();
+                        message = this.scheduler.HandleReminderServiceResult(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                        return new JsonResult() { Data = new { IsValid = false, Message = message } };
+                    }
                 }
             }
 
@@ -160,11 +190,29 @@ namespace Navigate.Controllers
 
             }
 
+            if (workItem.WorkItemType == WorkItemType.Task)
+            {
+                return new JsonResult() { Data = new { IsValid = false, Message = "Uzdevumumiem ar tipu 'Task' nav pieejama šī funkcionalitāte" } };
+            }
+
+            var message = "";
             if (!workItem.isRecurring)
             {
                 workItem.StartDateTime = workItem.StartDateTime.Value.AddDays(model.dayDelta);
                 workItem.EndDateTime = workItem.EndDateTime.AddDays(model.dayDelta).AddMinutes(model.minuteDelta);
                 workItem.UpdatedAt = DateTime.Now;
+
+                try
+                {
+                    this.scheduler.SetWorkItemReminderData(this.scheduler, workItem);
+                    var result = this.scheduler.ScheduleReminder();
+                    message = this.scheduler.HandleReminderServiceResult(result);
+                }
+                catch (Exception ex)
+                {
+                    message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                    return new JsonResult() { Data = new { IsValid = false, Message = message } };
+                }
             }
             else
             {
@@ -173,6 +221,18 @@ namespace Navigate.Controllers
                     recurringItem.Start = recurringItem.Start.AddDays(model.dayDelta);
                     recurringItem.End = recurringItem.End.AddDays(model.dayDelta).AddMinutes(model.minuteDelta);
                     recurringItem.UpdatedAt = DateTime.Now;
+
+                    try
+                    {
+                        this.scheduler.SetRecurringItemReminderData(this.scheduler, workItem, recurringItem);
+                        var result = scheduler.ScheduleReminder();
+                        message = this.scheduler.HandleReminderServiceResult(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        message = "Atgādinājuma ieplānošana beigusies ar kļūdu! " + ex.Message;
+                        return new JsonResult() { Data = new { IsValid = false, Message = message } };
+                    }
                 }
             }
 

@@ -273,7 +273,7 @@ namespace Navigate.Controllers
 
             var user = this.dataContext.UserProfiles.Where(o => o.UserId == userId).FirstOrDefault();
             if (user == null)
-                return new JsonResult() { Data = new { IsValid = false, Message = "Kategorija netika atrasts" } };
+                return new JsonResult() { Data = new { IsValid = false, Message = "Lietotājs netika atrasts" } };
             
             Roles.RemoveUserFromRole(user.UserName, "User");
             ((SimpleMembershipProvider)Membership.Provider).DeleteAccount(user.UserName);
@@ -286,6 +286,7 @@ namespace Navigate.Controllers
                 {
                     this.dataContext.WIRecurrencePatterns.Remove(workItem.RecurrencePattern);
                 }
+                this.scheduler.RemoveReminder(workItem.CreatedByUserId.ToString() + "@" + workItem.CreatedAt.ToString());
                 this.dataContext.WorkItems.Remove(workItem);
             }
 
